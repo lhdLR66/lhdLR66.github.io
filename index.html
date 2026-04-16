@@ -69,10 +69,61 @@
         .stat-value { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
         
         .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
-        .card { background: var(--bg-card); border-radius: var(--border-radius); box-shadow: 0 4px 20px var(--shadow-color); overflow: hidden; transition: var(--transition); }
-        .card:hover { transform: translateY(-5px); }
+        .card { background: var(--bg-card); border-radius: var(--border-radius); box-shadow: 0 4px 20px var(--shadow-color); overflow: hidden; transition: var(--transition); position: relative; cursor: pointer; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px var(--shadow-color); }
         .card-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .card-content { padding: 20px; }
+        
+        /* 销售数据卡片特殊样式 */
+        .sales-data-card {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(58, 12, 163, 0.1));
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .sales-data-card::before {
+            content: '💰';
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.1;
+            z-index: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .sales-data-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .sales-data-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .sales-data-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        
+        .sales-data-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #4361ee;
+        }
         
         .chart-container { height: 200px; margin-bottom: 20px; }
         
@@ -138,16 +189,21 @@
             </div>
 
             <div class="content-grid">
-                <a href="/zhongkang-data.html" style="text-decoration: none; color: inherit; display: block;"><section class="card">
-                    <div class="card-header">
-                        <a href="/zhongkang-data.html" target="_blank" style="text-decoration: none; color: inherit;"><h3><i class="fas fa-chart-line"></i> 销售数据看板 → 中康数据</h3></a>
-                    </div>
-                    <div class="card-content">
-                        <div class="chart-container">
-                            <canvas id="salesChart"></canvas>
+                <!-- 销售数据卡片 - 简化版 -->
+                <a href="/zhongkang-data.html" style="text-decoration: none; color: inherit; display: block;">
+                    <section class="card sales-data-card">
+                        <div class="sales-data-content">
+                            <div class="sales-data-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="sales-data-title">销售数据</div>
+                            <div class="sales-data-subtitle">点击查看中康数据分析</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">
+                                <i class="fas fa-arrow-right"></i> 复方阿胶浆数据分析
+                            </div>
                         </div>
-                    </div>
-                </section></a>
+                    </section>
+                </a>
 
                 <section class="card">
                     <div class="card-header">
@@ -185,41 +241,6 @@
                 } else {
                     icon.className = 'fas fa-moon';
                     text.textContent = '暗色模式';
-                }
-            });
-
-            // 销售图表
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
-                    datasets: [{
-                        label: '销售额',
-                        data: [65000, 82000, 75000, 92000, 88000, 95000],
-                        borderColor: '#4361ee',
-                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '¥' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
                 }
             });
 
