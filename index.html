@@ -1,0 +1,37 @@
+                            const newProgress = Math.min(100, Math.floor((newHours / 6) * 100));
+                            focusValue.textContent = `${newHours}h`;
+                            focusProgress.style.width = `${newProgress}%`;
+                        }
+                        
+                        icon.style.animation = '';
+                        showToast('数据已刷新');
+                    }, 1000);
+                });
+            }
+        }
+
+        function initGlassEffect() {
+            const cards = document.querySelectorAll('.card, .stat-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.backdropFilter = 'blur(10px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.backdropFilter = '';
+                });
+            });
+        }
+
+        function showWelcomeMessage() {
+            const hour = new Date().getHours();
+            let greeting = hour < 12 ? '早上好' : hour < 18 ? '下午好' : '晚上好';
+            setTimeout(() => {
+                showToast(`${greeting}！今日有12个任务待完成，加油！`);
+            }, 1500);
+        }
+
+        // 初始化完成
+        console.log('个人工作看板已初始化完成！');
+    </script>
+</body>
+</html>
