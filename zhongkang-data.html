@@ -1,0 +1,61 @@
+ 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+
+            // 竞品对比分析图
+            const competitorCtx = document.getElementById('competitorChart').getContext('2d');
+            new Chart(competitorCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['销售额', '市场份额', '药店覆盖', '品牌认知', '客户满意度', '价格竞争力'],
+                    datasets: [
+                        {
+                            label: '复方阿胶浆',
+                            data: [85, 80, 90, 75, 85, 70],
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: '竞品A',
+                            data: [70, 65, 60, 80, 70, 85],
+                            borderColor: '#f72585',
+                            backgroundColor: 'rgba(247, 37, 133, 0.2)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: '竞品B',
+                            data: [60, 55, 50, 65, 60, 75],
+                            borderColor: '#4cc9f0',
+                            backgroundColor: 'rgba(76, 201, 240, 0.2)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            console.log('中康数据看板已加载！');
+        });
+    </script>
+</body>
+</html>
