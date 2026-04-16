@@ -1,54 +1,382 @@
- 1
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复方阿胶浆 - 中康数据看板</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --success-color: #4cc9f0;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #e9ecef;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --gradient-primary: linear-gradient(135deg, #4361ee, #3a0ca3);
+            --gradient-accent: linear-gradient(135deg, #f72585, #b5179e);
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        .dark-theme {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-card: #1e1e1e;
+            --text-primary: #e9ecef;
+            --text-secondary: #adb5bd;
+            --border-color: #2d3748;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+
+        /* 导航栏 */
+        .navbar {
+            background: var(--bg-card);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-brand h1 {
+            font-size: 24px;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        /* 主内容 */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* 概览卡片 */
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .overview-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+        }
+
+        .overview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px var(--shadow-color);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .card-change {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .positive { color: #4ade80; }
+        .negative { color: #f94144; }
+
+        /* 图表区域 */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .overview-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .navbar {
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="card-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h1>复方阿胶浆 - 中康数据看板</h1>
+        </div>
+        <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            返回工作看板
+        </a>
+    </nav>
+
+    <!-- 主内容 -->
+    <div class="container">
+        <!-- 概览卡片 -->
+        <div class="overview-cards">
+            <div class="overview-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="card-title">年度销售额</div>
+                </div>
+                <div class="card-value">¥8,450万</div>
+                <div class="card-change">
+                    <span class="positive">+15.3%</span>
+                    <span>同比增长</span>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="card-title">市场份额</div>
+                </div>
+                <div class="card-value">24.7%</div>
+                <div class="card-change">
+                    <span class="positive">+2.1%</span>
+                    <span>环比增长</span>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="card-title">覆盖药店</div>
+                </div>
+                <div class="card-value">8,425家</div>
+                <div class="card-change">
+                    <span class="positive">+328家</span>
+                    <span>本月新增</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">月度销售趋势</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlySalesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">区域销售分布</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="regionalChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 月度销售趋势图
+            const monthlyCtx = document.getElementById('monthlySalesChart').getContext('2d');
+            new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                    datasets: [{
+                        label: '2025年销售额',
+                        data: [698, 712, 785, 720, 810, 850, 920, 880, 950, 1020, 1100, 1250],
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'right'
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `销售额: ¥${context.parsed.y}万`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + value + '万';
+                                }
+                            }
                         }
                     }
                 }
             });
 
-            // 竞品对比分析图
-            const competitorCtx = document.getElementById('competitorChart').getContext('2d');
-            new Chart(competitorCtx, {
-                type: 'radar',
+            // 区域销售分布图
+            const regionalCtx = document.getElementById('regionalChart').getContext('2d');
+            new Chart(regionalCtx, {
+                type: 'bar',
                 data: {
-                    labels: ['销售额', '市场份额', '药店覆盖', '品牌认知', '客户满意度', '价格竞争力'],
-                    datasets: [
-                        {
-                            label: '复方阿胶浆',
-                            data: [85, 80, 90, 75, 85, 70],
-                            borderColor: '#4361ee',
-                            backgroundColor: 'rgba(67, 97, 238, 0.2)',
-                            borderWidth: 2
-                        },
-                        {
-                            label: '竞品A',
-                            data: [70, 65, 60, 80, 70, 85],
-                            borderColor: '#f72585',
-                            backgroundColor: 'rgba(247, 37, 133, 0.2)',
-                            borderWidth: 2
-                        },
-                        {
-                            label: '竞品B',
-                            data: [60, 55, 50, 65, 60, 75],
-                            borderColor: '#4cc9f0',
-                            backgroundColor: 'rgba(76, 201, 240, 0.2)',
-                            borderWidth: 2
-                        }
-                    ]
+                    labels: ['华东', '华北', '华南', '华中', '西南', '西北', '东北'],
+                    datasets: [{
+                        label: '销售额(万元)',
+                        data: [2850, 1980, 1760, 1420, 980, 650, 520],
+                        backgroundColor: [
+                            '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0',
+                            '#7209b7', '#f8961e', '#4ade80'
+                        ],
+                        borderWidth: 1
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
                     scales: {
-                        r: {
+                        y: {
                             beginAtZero: true,
-                            max: 100
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + value + '万';
+                                }
+                            }
                         }
                     }
                 }
