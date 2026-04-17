@@ -1,12 +1,19 @@
 name: Deploy to GitHub Pages
 
 on:
+  # 触发条件：推送到main分支时自动部署
   push:
-    branches: [ main ]
+    branches: [ "main" ]
+  
+  # 允许手动触发部署
   workflow_dispatch:
+  
+  # 定时检查（每天UTC时间0点）
+  schedule:
+    - cron: '0 0 * * *'
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -19,19 +26,80 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 获取所有历史记录
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: Setup Git
+      run: |
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+    
+    - name: Check for changes
+      id: check-changes
+      run: |
+        # 检查是否有文件更改
+        if git diff --quiet; then
+          echo "changes=false" >> $GITHUB_OUTPUT
+          echo "📭 没有检测到文件更改，跳过部署"
+        else
+          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "📦 检测到文件更改，开始部署..."
+        fi
+    
+    - name: Build and Deploy
+      if: steps.check-changes.outputs.changes == 'true'
+      run: |
+        # 对于静态HTML网站，不需要构建步骤
+        # 直接部署现有文件
+        
+        echo "🚀 开始部署到 GitHub Pages..."
+        echo "📁 部署文件列表:"
+        find . -name "*.html" -o -name "*.css" -o -name "*.js" | head -20
+        
+        # 如果有需要构建的步骤可以在这里添加
+        # 例如：npm run build, jekyll build 等
+        
+        echo "✅ 部署准备完成"
+    
+    - name: Upload artifact
+      if: steps.check-changes.outputs.changes == 'true'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: '.'
+    
+    - name: Deploy to GitHub Pages
+      if: steps.check-changes.outputs.changes == 'true'
+      id: deployment
+      uses: actions/deploy-pages@v4
+    
+    - name: Deployment Status
+      run: |
+        if [ "${{ steps.check-changes.outputs.changes }}" == "true" ]; then
+          echo "🎉 部署成功！"
+          echo "🌐 网站地址: https://lhdLR66.github.io"
+          echo "⏱️ 部署时间: $(date)"
+        else
+          echo "⏭️ 没有文件更改，跳过部署"
+        fi
+    
+    - name: Send Notification
+      if: always()
+      run: |
+        DEPLOYMENT_STATUS="${{ job.status }}"
+        if [ "$DEPLOYMENT_STATUS" == "success" ]; then
+          echo "✅ GitHub Pages 部署成功"
+        elif [ "$DEPLOYMENT_STATUS" == "failure" ]; then
+          echo "❌ GitHub Pages 部署失败"
+          echo "请检查工作流日志: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        else
+          echo "⚠️ 部署状态: $DEPLOYMENT_STATUS"
+        fi
