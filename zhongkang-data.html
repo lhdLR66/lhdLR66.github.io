@@ -267,10 +267,6 @@
         <div class="chart-card">
             <div class="chart-header">
                 <div class="chart-title">补气补血TOP10产品季度表现分析</div>
-                <div class="product-filter" id="productFilterContainer">
-                    <div style="font-weight: 500; color: var(--text-secondary); margin-right: 15px;">产品筛选：</div>
-                    <!-- 产品复选框将通过JavaScript动态生成 -->
-                </div>
             </div>
             
             <div class="chart-content">
@@ -290,25 +286,6 @@
                             <select id="provinceFilter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-size: 14px; cursor: pointer;">
                                 <option value="全国">全国</option>
                                 <option value="江苏">江苏</option>
-                                <option value="浙江">浙江</option>
-                                <option value="广东">广东</option>
-                                <option value="山东">山东</option>
-                                <option value="北京">北京</option>
-                                <option value="上海">上海</option>
-                                <option value="四川">四川</option>
-                                <option value="湖北">湖北</option>
-                                <option value="湖南">湖南</option>
-                                <option value="河南">河南</option>
-                                <option value="河北">河北</option>
-                                <option value="安徽">安徽</option>
-                                <option value="福建">福建</option>
-                                <option value="江西">江西</option>
-                                <option value="广西">广西</option>
-                                <option value="云南">云南</option>
-                                <option value="陕西">陕西</option>
-                                <option value="山西">山西</option>
-                                <option value="辽宁">辽宁</option>
-                                <option value="黑龙江">黑龙江</option>
                             </select>
                         </div>
                         
@@ -560,47 +537,18 @@
             }
         };
 
-        // 初始化产品筛选器
-        function initProductFilter() {
-            const container = document.getElementById('productFilterContainer');
-            if (!container) return;
-            
-            // 清空容器，只保留标题
-            const titleDiv = container.querySelector('div');
-            container.innerHTML = '';
-            if (titleDiv) container.appendChild(titleDiv);
-            
-            // 为每个产品创建复选框
-            productData.products.forEach((product, index) => {
-                const checkboxId = `product-checkbox-${index}`;
-                
-                const label = document.createElement('label');
-                label.htmlFor = checkboxId;
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = checkboxId;
-                checkbox.checked = true;
-                checkbox.dataset.productId = product.id;
-                checkbox.addEventListener('change', updateCharts);
-                
-                const span = document.createElement('span');
-                span.textContent = product.name;
-                
-                label.appendChild(checkbox);
-                label.appendChild(span);
-                container.appendChild(label);
-            });
-            
-            console.log('产品筛选器初始化完成，共' + productData.products.length + '个产品');
-        }
-        
-        // 获取选中的产品ID
+        // 获取选中的产品ID（从三列筛选器）
         function getSelectedProductIds() {
-            const checkboxes = document.querySelectorAll('#productFilterContainer input[type="checkbox"]');
-            return Array.from(checkboxes)
-                .filter(cb => cb.checked)
-                .map(cb => cb.dataset.productId);
+            const productFilter = document.getElementById('productFilter');
+            if (!productFilter) return productData.products.map(p => p.id);
+            
+            const selectedProduct = productFilter.value;
+            if (selectedProduct === '全部') {
+                return productData.products.map(p => p.id);
+            } else {
+                const product = productData.products.find(p => p.name === selectedProduct);
+                return product ? [product.id] : [];
+            }
         }
         
         let salesChart = null;
@@ -1027,9 +975,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM加载完成，开始初始化...');
             
-            // 初始化筛选器
-            initProductFilter();
-            
             // 初始化图表
             initSalesChart();
             initYoyChart();
@@ -1055,29 +1000,10 @@
             
             if (!provinceFilter || !applyFilterBtn) return;
             
-            // 城市数据映射（模拟数据）
+            // 城市数据映射（来自中康数据）
             const cityData = {
                 '全国': ['全部城市'],
-                '江苏': ['全部城市', '南京', '苏州', '无锡', '常州', '徐州', '南通', '扬州', '镇江'],
-                '浙江': ['全部城市', '杭州', '宁波', '温州', '绍兴', '嘉兴', '金华', '台州', '湖州'],
-                '广东': ['全部城市', '广州', '深圳', '东莞', '佛山', '中山', '珠海', '惠州', '江门'],
-                '山东': ['全部城市', '济南', '青岛', '烟台', '潍坊', '临沂', '淄博', '泰安', '济宁'],
-                '北京': ['全部城市', '北京'],
-                '上海': ['全部城市', '上海'],
-                '四川': ['全部城市', '成都', '绵阳', '德阳', '南充', '宜宾', '泸州', '达州', '乐山'],
-                '湖北': ['全部城市', '武汉', '宜昌', '襄阳', '荆州', '黄冈', '孝感', '十堰', '荆门'],
-                '湖南': ['全部城市', '长沙', '株洲', '湘潭', '衡阳', '邵阳', '岳阳', '常德', '张家界'],
-                '河南': ['全部城市', '郑州', '洛阳', '开封', '安阳', '新乡', '焦作', '南阳', '商丘'],
-                '河北': ['全部城市', '石家庄', '唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德'],
-                '安徽': ['全部城市', '合肥', '芜湖', '蚌埠', '淮南', '马鞍山', '淮北', '铜陵', '安庆'],
-                '福建': ['全部城市', '福州', '厦门', '泉州', '漳州', '南平', '三明', '龙岩', '宁德'],
-                '江西': ['全部城市', '南昌', '九江', '上饶', '抚州', '宜春', '吉安', '赣州', '景德镇'],
-                '广西': ['全部城市', '南宁', '柳州', '桂林', '梧州', '北海', '防城港', '钦州', '贵港'],
-                '云南': ['全部城市', '昆明', '曲靖', '玉溪', '保山', '昭通', '丽江', '普洱', '临沧'],
-                '陕西': ['全部城市', '西安', '宝鸡', '咸阳', '渭南', '延安', '汉中', '榆林', '安康'],
-                '山西': ['全部城市', '太原', '大同', '阳泉', '长治', '晋城', '朔州', '晋中', '运城'],
-                '辽宁': ['全部城市', '沈阳', '大连', '鞍山', '抚顺', '本溪', '丹东', '锦州', '营口'],
-                '黑龙江': ['全部城市', '哈尔滨', '齐齐哈尔', '鸡西', '鹤岗', '双鸭山', '大庆', '伊春', '佳木斯']
+                '江苏': ['全部城市', '广州']
             };
             
             // 初始化城市选择器
@@ -1132,13 +1058,6 @@
                     }
                 }
                 
-                // 更新产品筛选器（顶部的复选框）
-                const checkboxes = document.querySelectorAll('#productFilterContainer input[type="checkbox"]');
-                checkboxes.forEach(cb => {
-                    const productId = cb.dataset.productId;
-                    cb.checked = selectedProductIds.includes(productId);
-                });
-                
                 // 只更新销售额和同比变化图表，不影响市场份额图表
                 updateSalesAndYoyCharts(selectedProductIds);
                 
@@ -1160,11 +1079,7 @@
                 productFilter.value = '全部';
                 updateCityFilter(); // 重置城市选择器
                 
-                // 重置产品筛选器
-                const checkboxes = document.querySelectorAll('#productFilterContainer input[type="checkbox"]');
-                checkboxes.forEach(cb => {
-                    cb.checked = true;
-                });
+
                 
                 // 只更新销售额和同比变化图表
                 const allProductIds = productData.products.map(p => p.id);
