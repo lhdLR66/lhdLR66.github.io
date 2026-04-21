@@ -311,14 +311,10 @@
     </style>
 </head>
 <body>
-    <div class="back-btn" style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <div class="back-btn">
         <a href="https://www.lrwork.xyz">
             <i class="fas fa-arrow-left"></i>
             返回工作看板
-        </a>
-        <a href="https://lrwork.xyz/zhongkang-data.html" style="background: #f72585; display: flex; align-items: center; gap: 8px; padding: 10px 20px; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">
-            <i class="fas fa-chart-bar"></i>
-            TOP10数据
         </a>
     </div>
     
@@ -414,7 +410,6 @@
             <button class="tab active" data-tab="national">全国季度数据</button>
             <button class="tab" data-tab="province">省份数据</button>
             <button class="tab" data-tab="city">城市数据</button>
-        <button class="tab" data-tab="top10">补气补血TOP10</button>
         </div>
         
         <!-- 全国季度数据 -->
@@ -463,58 +458,6 @@
                             <!-- 数据将通过JavaScript填充 -->
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-        <!-- 补气补血TOP10产品数据 -->
-        <div class="tab-content" id="top10-tab">
-            <div class="dashboard-grid">
-                <div class="card" style="grid-column: 1 / -1;">
-                    <div class="card-header">
-                        <h3><i class="fas fa-chart-bar"></i> 补气补血TOP10产品季度表现（22Q1-25Q4）</h3>
-                        <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                            <span style="margin-right: 20px;"><i class="fas fa-info-circle"></i> 共16个季度数据</span>
-                            <span style="margin-right: 20px;"><i class="fas fa-pills"></i> 10个TOP产品</span>
-                            <span><i class="fas fa-calculator"></i> 24Q3=2407-08+2409, 25Q3=2507-08+2509, 25Q4=2510+2511+2512</span>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div style="margin-bottom: 20px;">
-                            <div style="font-weight: 500; color: #666; margin-bottom: 10px;">产品筛选:</div>
-                            <div id="top10ProductFilterContainer" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;"></div>
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
-                            <div>
-                                <div style="font-size: 14px; font-weight: 500; color: #666; margin-bottom: 10px;">季度销售额（百万元）</div>
-                                <div class="chart-container">
-                                    <canvas id="top10SalesChart"></canvas>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <div style="font-size: 14px; font-weight: 500; color: #666; margin-bottom: 10px;">销售额同比变化（%）</div>
-                                <div class="chart-container">
-                                    <canvas id="top10YoyChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <div style="font-size: 14px; font-weight: 500; color: #666; margin-bottom: 10px;">数据明细</div>
-                            <div style="overflow-x: auto;">
-                                <table class="data-table" id="top10DataTable">
-                                    <thead>
-                                        <tr>
-                                            <th>产品</th>
-                                            <!-- 季度列将通过JavaScript动态添加 -->
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
