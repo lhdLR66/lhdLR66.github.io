@@ -243,26 +243,31 @@
     </style>
 </head>
 <body>
-    
-<div style="display: flex; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-    <div style="font-weight: 500; color: var(--text-secondary); margin-right: 15px;">产品筛选：</div>
-    <select id="productSelect" multiple style="padding: 8px 12px; border: 2px solid var(--border-color); border-radius: 8px; background: var(--bg-card); color: var(--text-primary); min-width: 300px; height: 120px;">
-        <option value="复方阿胶浆" selected>复方阿胶浆</option>
-        <option value="扬子江黄芪精" selected>扬子江黄芪精</option>
-        <option value="益安宁丸" selected>益安宁丸</option>
-        <option value="云丰气血康" selected>云丰气血康</option>
-        <option value="山东福牌阿胶" selected>山东福牌阿胶</option>
-        <option value="阿胶蓉芮口服液" selected>阿胶蓉芮口服液</option>
-        <option value="广济堂阿胶" selected>广济堂阿胶</option>
-        <option value="黄芪冉粒" selected>黄芪冉粒</option>
-        <option value="康乡黄芪靖" selected>康乡黄芪靖</option>
-        <option value="东阿阿胶" selected>东阿阿胶</option>
-    </select>
-    <div style="font-size: 13px; color: var(--text-secondary);">
-        <i class="fas fa-info-circle"></i> 按住Ctrl多选，可全选/取消全选
-    </div>
-</div>
-
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-bar"></i> 补气补血TOP10产品季度数据</h1>
+            <p>22Q1-25Q4 完整季度序列分析 | 10个TOP产品销售额与同比变化</p>
+        </div>
+        
+        <div class="info-box">
+            <div style="font-weight: 500; color: var(--text-primary); margin-bottom: 10px;">
+                <i class="fas fa-info-circle"></i> 数据说明
+            </div>
+            <ul>
+                <li><i class="fas fa-database"></i> 数据来源：细分市场工作表 - 补气补血TOP10</li>
+                <li><i class="fas fa-calendar"></i> 时间范围：22Q1 至 25Q4（共16个季度）</li>
+                <li><i class="fas fa-pills"></i> 产品数量：10个补气补血TOP产品</li>
+                <li><i class="fas fa-calculator"></i> 计算方式：24Q3=2407-08+2409, 25Q3=2507-08+2509, 25Q4=2510+2511+2512</li>
+                <li><i class="fas fa-money-bill-wave"></i> 单位：销售额（百万元）</li>
+                <li><i class="fas fa-percentage"></i> 同比：基于去年同期计算</li>
+            </ul>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">补气补血TOP10产品季度表现分析</div>
+                <div class="product-filter" id="productFilterContainer">
+                    <div style="font-weight: 500; color: var(--text-secondary); margin-right: 15px;">产品筛选：</div>
                     <!-- 产品复选框将通过JavaScript动态生成 -->
                 </div>
             </div>
@@ -287,158 +292,6 @@
                         </div>
                     </div>
                 </div>
-</div>
-</div>
-
-<!-- 行情数据图表 -->
-<div class="chart-card" style="margin-top: 40px;">
-    <div class="chart-header">
-        <h3><i class="fas fa-chart-line"></i> 行情数据</h3>
-        <div class="chart-subtitle">滋补保健类、补气补血、补气类、补血类、气血双补 20Q1-25Q4销售额与同比变化</div>
-    </div>
-    
-    <div class="chart-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-        <!-- 销售额图表 -->
-        <div>
-            <div class="chart-title">销售额趋势（百万元）</div>
-            <canvas id="marketSalesChart"></canvas>
-        </div>
-        
-        <!-- 同比变化图表 -->
-        <div>
-            <div class="chart-title">同比变化（%）</div>
-            <canvas id="marketYoYChart"></canvas>
-        </div>
-    </div>
-    
-    <div class="chart-legend" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 12px; height: 12px; background: #4361ee; border-radius: 2px;"></div>
-            <span>滋补保健类</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 12px; height: 12px; background: #f72585; border-radius: 2px;"></div>
-            <span>补气补血</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 12px; height: 12px; background: #4cc9f0; border-radius: 2px;"></div>
-            <span>补气类</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 12px; height: 12px; background: #7209b7; border-radius: 2px;"></div>
-            <span>补血类</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 12px; height: 12px; background: #f8961e; border-radius: 2px;"></div>
-            <span>气血双补</span>
-        </div>
-    </div>
-</div>
-
-<!-- 行情数据JavaScript -->
-<script>
-// 行情数据 - 需要用户提供实际数据
-const marketCategories = ["滋补保健类", "补气补血", "补气类", "补血类", "气血双补"];
-const marketColors = ["#4361ee", "#f72585", "#4cc9f0", "#7209b7", "#f8961e"];
-
-// 季度标签 20Q1-25Q4
-const marketQuarters = [];
-for (let year = 20; year <= 25; year++) {
-    for (let quarter = 1; quarter <= 4; quarter++) {
-        marketQuarters.push(`${year}Q${quarter}`);
-    }
-}
-
-// 模拟数据 - 需要替换为实际数据
-const marketSalesData = {
-    "滋补保健类": Array(24).fill(0).map(() => Math.random() * 1000 + 500),
-    "补气补血": Array(24).fill(0).map(() => Math.random() * 800 + 400),
-    "补气类": Array(24).fill(0).map(() => Math.random() * 600 + 300),
-    "补血类": Array(24).fill(0).map(() => Math.random() * 700 + 350),
-    "气血双补": Array(24).fill(0).map(() => Math.random() * 400 + 200)
-};
-
-const marketYoYData = {
-    "滋补保健类": Array(24).fill(0).map(() => (Math.random() * 40 - 10)),
-    "补气补血": Array(24).fill(0).map(() => (Math.random() * 50 - 15)),
-    "补气类": Array(24).fill(0).map(() => (Math.random() * 45 - 12)),
-    "补血类": Array(24).fill(0).map(() => (Math.random() * 55 - 18)),
-    "气血双补": Array(24).fill(0).map(() => (Math.random() * 35 - 8))
-};
-
-// 初始化行情图表
-function initMarketCharts() {
-    // 销售额图表
-    const salesCtx = document.getElementById('marketSalesChart').getContext('2d');
-    new Chart(salesCtx, {
-        type: 'line',
-        data: {
-            labels: marketQuarters,
-            datasets: marketCategories.map((category, index) => ({
-                label: category,
-                data: marketSalesData[category],
-                borderColor: marketColors[index],
-                backgroundColor: marketColors[index] + '20',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.3
-            }))
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    title: {
-                        display: true,
-                        text: '销售额（百万元）'
-                    }
-                }
-            }
-        }
-    });
-
-    // 同比变化图表
-    const yoyCtx = document.getElementById('marketYoYChart').getContext('2d');
-    new Chart(yoyCtx, {
-        type: 'line',
-        data: {
-            labels: marketQuarters,
-            datasets: marketCategories.map((category, index) => ({
-                label: category,
-                data: marketYoYData[category],
-                borderColor: marketColors[index],
-                backgroundColor: 'transparent',
-                borderWidth: 2,
-                tension: 0.3
-            }))
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: '同比变化（%）'
-                    }
-                }
-            }
-        }
-    });
-}
-
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', function() {
-    initMarketCharts();
-});
-</script>
-
                 
                 <div>
                     <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
