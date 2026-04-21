@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 区域销售数据 -->
+    <script src="region_sales_data.js"></script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -285,10 +287,6 @@
                             </label>
                             <select id="provinceFilter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-size: 14px; cursor: pointer;">
                                 <option value="全国">全国</option>
-                                <option value="北京">北京</option>
-                                <option value="上海">上海</option>
-                                <option value="天津">天津</option>
-                                <option value="重庆">重庆</option>
                                 <option value="江苏">江苏</option>
                                 <option value="浙江">浙江</option>
                                 <option value="安徽">安徽</option>
@@ -302,9 +300,7 @@
                                 <option value="江西">江西</option>
                                 <option value="陕西">陕西</option>
                                 <option value="云南">云南</option>
-                                <option value="辽宁">辽宁</option>
-                                <option value="福建">福建</option>
-                                <option value="甘肃">甘肃</option>
+                                <!-- 直辖市已移到城市维度 -->
                             </select>
                         </div>
                         
@@ -568,6 +564,38 @@
                 const product = productData.products.find(p => p.name === selectedProduct);
                 return product ? [product.id] : [];
             }
+        }
+        
+        // 根据区域获取产品数据
+        function getProductsByRegion(regionName) {
+            if (!window.regionSalesData || !window.regionSalesData.regions[regionName]) {
+                console.log(`未找到区域 ${regionName} 的数据，使用全国数据`);
+                return productData.products;
+            }
+            
+            const regionInfo = window.regionSalesData.regions[regionName];
+            console.log(`获取区域 ${regionName} 的数据，类型: ${regionInfo.type}`);
+            
+            // 这里需要根据区域数据重构产品数据
+            // 暂时返回全国数据，后续需要完善
+            return productData.products;
+        }
+        
+        // 获取当前区域的产品数据
+        function getCurrentRegionProducts() {
+            const provinceFilter = document.getElementById('provinceFilter');
+            const cityFilter = document.getElementById('cityFilter');
+            const selectedProvince = provinceFilter ? provinceFilter.value : '全国';
+            const selectedCity = cityFilter ? cityFilter.value : '全部';
+            
+            if (selectedProvince === '全国' && selectedCity === '全部') {
+                return productData.products; // 全国数据
+            }
+            
+            // 确定目标区域
+            let targetRegion = selectedCity !== '全部' ? selectedCity : selectedProvince;
+            
+            return getProductsByRegion(targetRegion);
         }
         
         let salesChart = null;
@@ -845,9 +873,18 @@
         // 更新图表
         function updateCharts() {
             const selectedIds = getSelectedProductIds();
-            const selectedProducts = productData.products.filter(p => selectedIds.includes(p.id));
             
-            console.log('更新图表，选中' + selectedProducts.length + '个产品');
+            // 获取当前区域的产品数据
+            const regionProducts = getCurrentRegionProducts();
+            const selectedProducts = regionProducts.filter(p => selectedIds.includes(p.id));
+            
+            // 获取选中的区域
+            const provinceFilter = document.getElementById('provinceFilter');
+            const cityFilter = document.getElementById('cityFilter');
+            const selectedProvince = provinceFilter ? provinceFilter.value : '全国';
+            const selectedCity = cityFilter ? cityFilter.value : '全部';
+            
+            console.log(`更新图表，区域: ${selectedProvince}${selectedCity !== '全部' ? ' - ' + selectedCity : ''}, 产品: ${selectedProducts.length}个`);
             
             // 颜色方案
             const colors = [
@@ -1019,13 +1056,9 @@
             
             if (!provinceFilter || !applyFilterBtn) return;
             
-            // 城市数据映射（根据常识分配城市到省份）
+            // 城市数据映射（包含直辖市）
             const cityData = {
-                '全国': ['全部城市'],
-                '北京': ['全部城市', '北京'],
-                '上海': ['全部城市', '上海'],
-                '天津': ['全部城市', '天津'],
-                '重庆': ['全部城市', '重庆'],
+                '全国': ['全部城市', '北京', '上海', '天津', '重庆'], // 直辖市放在全国下
                 '江苏': ['全部城市', '南京', '苏州', '无锡', '常州'],
                 '浙江': ['全部城市', '杭州', '宁波', '温州'],
                 '安徽': ['全部城市', '合肥'],
@@ -1039,7 +1072,7 @@
                 '江西': ['全部城市', '南昌'],
                 '陕西': ['全部城市', '西安'],
                 '云南': ['全部城市', '昆明'],
-                // 其他省份暂时没有城市数据
+                // 其他城市（直辖市已移到全国）
                 '辽宁': ['全部城市', '大连'],
                 '福建': ['全部城市', '福州'],
                 '甘肃': ['全部城市', '兰州']
