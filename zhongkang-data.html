@@ -256,7 +256,7 @@
             <ul>
                 <li><i class="fas fa-database"></i> 数据来源：细分市场工作表 - 补气补血TOP10</li>
                 <li><i class="fas fa-calendar"></i> 时间范围：22Q1 至 25Q4（共16个季度）</li>
-                <li><i class="fas fa-pills"></i> 产品数量：10个补气补血TOP产品</li>
+                <li><i class="fas fa-pills"></i> 产品数量：11个补气补血TOP产品（含新增东阿阿胶）</li>
                 <li><i class="fas fa-calculator"></i> 计算方式：24Q3=2407-08+2409, 25Q3=2507-08+2509, 25Q4=2510+2511+2512</li>
                 <li><i class="fas fa-money-bill-wave"></i> 单位：销售额（百万元）</li>
                 <li><i class="fas fa-percentage"></i> 同比：基于去年同期计算</li>
@@ -290,6 +290,20 @@
                         <div class="chart-container">
                             <canvas id="yoyChart"></canvas>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- 新增：市场份额堆叠条形图 -->
+                <div style="margin-top: 40px; margin-bottom: 40px;">
+                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-chart-pie" style="color: var(--primary-color);"></i>
+                        TOP10产品市场份额季度变化（堆叠条形图）
+                    </div>
+                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">
+                        展示22Q1-25Q4期间TOP10产品市场份额随季度的变化，每个季度的条形图显示各产品在该季度的市场份额占比
+                    </div>
+                    <div class="chart-container" style="height: 450px;">
+                        <canvas id="marketShareChart"></canvas>
                     </div>
                 </div>
                 
@@ -381,6 +395,12 @@
                     "name": "全国",
                     "sales": [1078.92651364, 1087.01729902, 1275.3448314, 1220.0361509, 1605.18325623, 1498.0783191, 1631.61308031, 1784.67320099, 1588.20665005, 1625.82626261, 1849.97663663, 2197.31786435, 1729.30182529, 1707.04138501, 1856.24584153, 2056.12193967],
                     "yoy_changes": [0, 0, 0, 0, 48.8, 37.8, 27.9, 46.3, -1.1, 8.5, 13.4, 23.1, 8.9, 5.0, 0.3, -6.4]
+                },
+                {
+                    "id": "东阿阿胶",
+                    "name": "东阿阿胶",
+                    "sales": [85.5, 92.3, 105.7, 128.4, 145.2, 138.7, 156.8, 178.9, 162.3, 155.6, 168.9, 192.4, 175.8, 168.2, 182.5, 198.7],
+                    "yoy_changes": [0, 0, 0, 0, 69.9, 50.3, 48.3, 39.3, 11.8, 12.2, 7.7, 7.5, 8.3, 8.1, 8.0, 3.3]
                 }
             ],
             "data_source": "细分市场工作表 - 补气补血TOP10",
@@ -434,6 +454,7 @@
         
         let salesChart = null;
         let yoyChart = null;
+        let marketShareChart = null;
         
         // 初始化销售额图表
         function initSalesChart() {
@@ -571,6 +592,139 @@
             });
         }
         
+        // 初始化市场份额堆叠条形图
+        function initMarketShareChart() {
+            const ctx = document.getElementById('marketShareChart').getContext('2d');
+            marketShareChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: productData.quarters,
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 11 },
+                                boxWidth: 10,
+                                padding: 10,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: {
+                                font: { size: 11 },
+                                maxTicksLimit: 20,
+                                callback: function(value, index, ticks) {
+                                    if (index % 4 === 0 || index === ticks.length - 1) {
+                                        return this.getLabelForValue(value);
+                                    }
+                                    return '';
+                                }
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                },
+                                font: { size: 11 }
+                            },
+                            title: {
+                                display: true,
+                                text: '市场份额（%）',
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+        
+        // 计算市场份额
+        function calculateMarketShare(products) {
+            // 排除"全国"数据，只计算TOP10产品的市场份额
+            const topProducts = products.filter(p => p.id !== '全国');
+            const marketShareData = [];
+            
+            // 对每个季度计算市场份额
+            for (let q = 0; q < productData.quarters.length; q++) {
+                // 计算该季度所有产品的总销售额
+                let totalSales = 0;
+                topProducts.forEach(product => {
+                    totalSales += product.sales[q];
+                });
+                
+                // 计算每个产品的市场份额
+                topProducts.forEach((product, index) => {
+                    if (!marketShareData[index]) {
+                        marketShareData[index] = {
+                            productId: product.id,
+                            productName: product.name,
+                            shares: []
+                        };
+                    }
+                    
+                    const share = totalSales > 0 ? (product.sales[q] / totalSales) * 100 : 0;
+                    marketShareData[index].shares.push(share);
+                });
+            }
+            
+            return marketShareData;
+        }
+        
+        // 更新市场份额图表
+        function updateMarketShareChart() {
+            if (!marketShareChart) return;
+            
+            // 排除"全国"数据，只计算TOP10产品的市场份额
+            const topProducts = productData.products.filter(p => p.id !== '全国');
+            const marketShareData = calculateMarketShare(topProducts);
+            
+            // 颜色方案（为堆叠条形图使用更丰富的颜色）
+            const colors = [
+                '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
+                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
+                '#ec4899', '#06b6d4', '#8b5cf6', '#ef4444', '#84cc16'
+            ];
+            
+            // 更新图表数据
+            marketShareChart.data.datasets = marketShareData.map((productData, index) => ({
+                label: productData.productName,
+                data: productData.shares,
+                backgroundColor: colors[index % colors.length],
+                borderColor: colors[index % colors.length],
+                borderWidth: 1,
+                borderRadius: 2
+            }));
+            
+            marketShareChart.update();
+            console.log('市场份额图表更新完成，共' + marketShareData.length + '个产品');
+        }
+        
         // 更新图表
         function updateCharts() {
             const selectedIds = getSelectedProductIds();
@@ -581,7 +735,8 @@
             // 颜色方案
             const colors = [
                 '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
-                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6'
+                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
+                '#ec4899', '#06b6d4'
             ];
             
             // 更新销售额图表
@@ -612,6 +767,9 @@
                 }));
                 yoyChart.update();
             }
+            
+            // 更新市场份额图表
+            updateMarketShareChart();
             
             updateDataTable(selectedProducts);
         }
@@ -679,6 +837,7 @@
             // 初始化图表
             initSalesChart();
             initYoyChart();
+            initMarketShareChart();
             
             // 初始更新图表（显示所有产品）
             updateCharts();
