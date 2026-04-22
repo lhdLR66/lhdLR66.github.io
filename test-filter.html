@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>筛选功能测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; background: #4361ee; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #3a0ca3; }
+        #log { background: #f5f5f5; padding: 10px; border-radius: 5px; font-family: monospace; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>筛选功能测试</h1>
+    
+    <div class="test-section">
+        <h2>测试1: 检查数据文件加载</h2>
+        <button onclick="testDataFiles()">检查数据文件</button>
+        <div id="dataFilesResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试2: 检查区域数据</h2>
+        <button onclick="testRegionData()">检查区域数据</button>
+        <div id="regionDataResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试3: 模拟筛选操作</h2>
+        <div>
+            <label>省份: 
+                <select id="testProvince">
+                    <option value="全国">全国</option>
+                    <option value="江苏">江苏</option>
+                    <option value="浙江">浙江</option>
+                    <option value="山东">山东</option>
+                    <option value="广东">广东</option>
+                </select>
+            </label>
+            <label>城市: 
+                <select id="testCity">
+                    <option value="全部">全部</option>
+                </select>
+            </label>
+            <button onclick="testFilter()">测试筛选</button>
+        </div>
+        <div id="filterResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>控制台日志</h2>
+        <div id="log"></div>
+    </div>
+    
+    <script src="region_sales_data.js"></script>
+    <script src="region_detailed_data_corrected.js"></script>
+    
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '\\n';
+            console.log(message);
+        }
+        
+        function testDataFiles() {
+            log('=== 开始检查数据文件 ===');
+            log('window.regionSalesData: ' + (window.regionSalesData ? '已加载' : '未加载'));
+            log('window.regionDetailedData: ' + (window.regionDetailedData ? '已加载' : '未加载'));
+            
+            if (window.regionSalesData) {
+                log('regionSalesData 中的区域数量: ' + Object.keys(window.regionSalesData.regions || {}).length);
+                log('区域列表: ' + Object.keys(window.regionSalesData.regions || {}).join(', '));
+            }
+            
+            if (window.regionDetailedData) {
+                log('regionDetailedData 中的区域数量: ' + Object.keys(window.regionDetailedData.regions || {}).length);
+                log('区域列表: ' + Object.keys(window.regionDetailedData.regions || {}).join(', '));
+            }
+            
+            document.getElementById('dataFilesResult').innerHTML = '检查完成，请查看控制台日志';
+        }
+        
+        function testRegionData() {
+            log('=== 开始检查区域数据 ===');
+            
+            // 测试几个关键区域
+            const testRegions = ['全国', '江苏', '浙江', '山东', '广州', '深圳', '北京', '上海'];
+            
+            testRegions.forEach(region => {
+                let foundInSales = window.regionSalesData?.regions?.[region] ? '是' : '否';
+                let foundInDetailed = window.regionDetailedData?.regions?.[region] ? '是' : '否';
+                log(`区域 "${region}": regionSalesData中=${foundInSales}, regionDetailedData中=${foundInDetailed}`);
+            });
+            
+            document.getElementById('regionDataResult').innerHTML = '检查完成，请查看控制台日志';
+        }
+        
+        function testFilter() {
+            log('=== 开始测试筛选 ===');
+            const province = document.getElementById('testProvince').value;
+            const city = document.getElementById('testCity').value;
+            
+            log(`筛选条件: 省份=${province}, 城市=${city}`);
+            
+            // 确定目标区域
+            let targetRegion = city !== '全部' ? city : province;
+            log(`目标区域: ${targetRegion}`);
+            
+            // 检查数据
+            if (window.regionDetailedData?.regions?.[targetRegion]) {
+                const regionData = window.regionDetailedData.regions[targetRegion];
+                log(`找到区域数据: 有 ${regionData.products?.length || 0} 个产品`);
+                if (regionData.products) {
+                    regionData.products.forEach((product, index) => {
+                        log(`  产品 ${index+1}: ${product.name}, 销售额数据点: ${product.sales?.length || 0}`);
+                    });
+                }
+            } else {
+                log(`警告: 区域 ${targetRegion} 在 regionDetailedData 中未找到`);
+            }
+            
+            document.getElementById('filterResult').innerHTML = '测试完成，请查看控制台日志';
+        }
+        
+        // 初始化城市选择器
+        const cityData = {
+            '全国': ['全部', '北京', '上海', '天津', '重庆', '广州', '深圳', '成都', '武汉', '南京', '杭州', '苏州', '西安', '郑州', '长沙', '合肥', '济南', '青岛', '宁波', '温州', '无锡', '常州', '烟台', '临沂', '大连', '福州', '兰州', '昆明', '南昌', '石家庄'],
+            '江苏': ['全部', '南京', '苏州', '无锡', '常州'],
+            '浙江': ['全部', '杭州', '宁波', '温州'],
+            '山东': ['全部', '济南', '青岛', '烟台', '临沂'],
+            '广东': ['全部', '广州', '深圳']
+        };
+        
+        document.getElementById('testProvince').addEventListener('change', function() {
+            const province = this.value;
+            const citySelect = document.getElementById('testCity');
+            citySelect.innerHTML = '';
+            
+            if (cityData[province]) {
+                cityData[province].forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city === '全部' ? '全部城市' : city;
+                    citySelect.appendChild(option);
+                });
+            }
+        });
+        
+        // 初始化
+        document.getElementById('testProvince').dispatchEvent(new Event('change'));
+        log('测试页面已加载');
+    </script>
+</body>
+</html>
