@@ -284,26 +284,59 @@
                     <div style="font-size: 16px; font-weight: 500; color: var(--text-primary); margin-bottom: 15px;">
                         <i class="fas fa-map-marked-alt" style="color: var(--primary-color); margin-right: 8px;"></i>
                         区域切换
-                        <span style="font-size: 12px; color: var(--text-secondary); font-weight: 400; margin-left: 8px;">点击切换查看不同省份/城市的数据</span>
+                        <span style="font-size: 12px; color: var(--text-secondary); font-weight: 400; margin-left: 8px;">点击省份/直辖市切换数据，点击城市查看城市数据</span>
                     </div>
-                    <div id="regionTabs" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                        <button class="region-tab active" data-region="全国" style="padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; background: var(--primary-color); color: white; transition: all 0.2s;">
-                            <i class="fas fa-globe"></i> 全国
-                        </button>
-                        <button class="region-tab" data-region="江苏" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">江苏</button>
-                        <button class="region-tab" data-region="浙江" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">浙江</button>
-                        <button class="region-tab" data-region="安徽" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">安徽</button>
-                        <button class="region-tab" data-region="山东" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">山东</button>
-                        <button class="region-tab" data-region="广东" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">广东</button>
-                        <button class="region-tab" data-region="四川" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">四川</button>
-                        <button class="region-tab" data-region="湖北" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">湖北</button>
-                        <button class="region-tab" data-region="湖南" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">湖南</button>
-                        <button class="region-tab" data-region="河南" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">河南</button>
-                        <button class="region-tab" data-region="河北" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">河北</button>
-                        <button class="region-tab" data-region="江西" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">江西</button>
-                        <button class="region-tab" data-region="陕西" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">陕西</button>
-                        <button class="region-tab" data-region="云南" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">云南</button>
+                    
+                    <!-- 直辖市行 -->
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">
+                            <i class="fas fa-building" style="margin-right: 5px;"></i>直辖市
+                        </div>
+                        <div id="municipalityTabs" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <button class="region-tab active" data-region="全国" style="padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; background: var(--primary-color); color: white; transition: all 0.2s;">
+                                <i class="fas fa-globe"></i> 全国
+                            </button>
+                            <button class="region-tab" data-region="北京" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">北京</button>
+                            <button class="region-tab" data-region="上海" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">上海</button>
+                            <button class="region-tab" data-region="天津" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">天津</button>
+                            <button class="region-tab" data-region="重庆" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">重庆</button>
+                        </div>
                     </div>
+                    
+                    <!-- 省份行 -->
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">
+                            <i class="fas fa-map" style="margin-right: 5px;"></i>省份
+                        </div>
+                        <div id="provinceTabs" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <button class="region-tab" data-region="江苏" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">江苏</button>
+                            <button class="region-tab" data-region="浙江" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">浙江</button>
+                            <button class="region-tab" data-region="安徽" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">安徽</button>
+                            <button class="region-tab" data-region="山东" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">山东</button>
+                            <button class="region-tab" data-region="广东" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">广东</button>
+                            <button class="region-tab" data-region="四川" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">四川</button>
+                            <button class="region-tab" data-region="湖北" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">湖北</button>
+                            <button class="region-tab" data-region="湖南" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">湖南</button>
+                            <button class="region-tab" data-region="河南" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">河南</button>
+                            <button class="region-tab" data-region="河北" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">河北</button>
+                            <button class="region-tab" data-region="江西" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">江西</button>
+                            <button class="region-tab" data-region="陕西" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">陕西</button>
+                            <button class="region-tab" data-region="云南" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">云南</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 城市选择区域（点击省份后显示） -->
+                    <div id="citySelectionArea" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">
+                            <i class="fas fa-city" style="margin-right: 5px;"></i>
+                            <span id="selectedProvinceName">江苏</span> 的城市
+                            <span style="font-size: 11px; color: var(--text-tertiary); font-weight: 400; margin-left: 8px;">点击城市查看城市数据，不选则显示全省数据</span>
+                        </div>
+                        <div id="cityTabs" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <!-- 城市按钮会动态生成 -->
+                        </div>
+                    </div>
+                    
                     <div style="font-size: 12px; color: var(--text-secondary); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
                         <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
                         当前区域: <strong id="currentRegionDisplay" style="color: var(--primary-color);">全国</strong>
@@ -1102,178 +1135,277 @@
         // 当前选中的区域
         let currentSelectedRegion = '全国';
 
+        // 城市数据映射
+        const cityData = {
+            '江苏': ['南京', '苏州', '无锡', '常州'],
+            '浙江': ['杭州', '宁波', '温州'],
+            '安徽': ['合肥'],
+            '山东': ['济南', '青岛', '烟台', '临沂'],
+            '广东': ['广州', '深圳'],
+            '四川': ['成都'],
+            '湖北': ['武汉'],
+            '湖南': ['长沙'],
+            '河南': ['郑州'],
+            '河北': ['石家庄'],
+            '江西': ['南昌'],
+            '陕西': ['西安'],
+            '云南': ['昆明']
+        };
+
+        // 当前选中的区域和城市
+        let currentSelectedRegion = '全国';
+        let currentSelectedCity = null;
+
         // 初始化区域切换标签
         function initFilterSelector() {
-            const tabs = document.querySelectorAll('.region-tab');
+            const allTabs = document.querySelectorAll('.region-tab');
             const displaySpan = document.getElementById('currentRegionDisplay');
+            const citySelectionArea = document.getElementById('citySelectionArea');
+            const selectedProvinceName = document.getElementById('selectedProvinceName');
+            const cityTabs = document.getElementById('cityTabs');
 
-            if (!tabs.length) {
+            if (!allTabs.length) {
                 console.error('错误: 区域切换标签未找到');
                 return;
             }
 
-            console.log('区域切换标签初始化完成，共' + tabs.length + '个标签');
+            console.log('区域切换标签初始化完成，共' + allTabs.length + '个标签');
 
-            tabs.forEach(tab => {
+            // 更新图表函数
+            function updateChartsForRegion(region) {
+                console.log('更新区域数据: ' + region);
+
+                if (window.regionDetailedData && window.regionDetailedData.regions[region]) {
+                    const regionData = window.regionDetailedData.regions[region];
+                    const totalSales = regionData.total_sales;
+
+                    console.log('找到区域' + region + '数据，开始更新图表，共' + regionData.products.length + '个产品');
+
+                    // 转换区域产品数据
+                    const regionProducts = regionData.products.map((product, index) => {
+                        const sales = product.market_share.map((share, i) => {
+                            if (i < totalSales.length && totalSales[i] > 0) {
+                                return totalSales[i] * share / 100;
+                            }
+                            return 0;
+                        });
+
+                        const yoyChanges = [];
+                        for (let i = 0; i < sales.length; i++) {
+                            if (i >= 4 && sales[i-4] > 0) {
+                                const change = ((sales[i] - sales[i-4]) / sales[i-4]) * 100;
+                                yoyChanges.push(change);
+                            } else {
+                                yoyChanges.push(0);
+                            }
+                        }
+
+                        return {
+                            id: index,
+                            name: product.name,
+                            sales: sales,
+                            yoy_changes: yoyChanges,
+                            market_share: product.market_share || []
+                        };
+                    });
+
+                    // 颜色方案
+                    const colors = [
+                        '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
+                        '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
+                        '#ec4899', '#06b6d4'
+                    ];
+
+                    // 更新销售额图表
+                    if (salesChart) {
+                        salesChart.data.datasets = regionProducts.map((product, idx) => ({
+                            label: product.name,
+                            data: product.sales,
+                            backgroundColor: colors[idx % colors.length] + '80',
+                            borderColor: colors[idx % colors.length],
+                            borderWidth: 1,
+                            borderRadius: 3
+                        }));
+                        salesChart.update();
+                    }
+
+                    // 更新同比变化图表
+                    if (yoyChart) {
+                        yoyChart.data.datasets = regionProducts.map((product, idx) => ({
+                            label: product.name,
+                            data: product.yoy_changes,
+                            borderColor: colors[idx % colors.length],
+                            backgroundColor: colors[idx % colors.length] + '20',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 5
+                        }));
+                        yoyChart.update();
+                    }
+
+                    // 更新市场份额图表
+                    if (marketShareChart) {
+                        marketShareChart.data.datasets = regionProducts.map((product, idx) => ({
+                            label: product.name,
+                            data: product.market_share,
+                            backgroundColor: colors[idx % colors.length],
+                            borderColor: colors[idx % colors.length],
+                            borderWidth: 1,
+                            borderRadius: 2
+                        }));
+                        marketShareChart.update();
+                    }
+
+                    // 更新数据表格
+                    updateDataTable(regionProducts);
+
+                } else {
+                    console.warn('区域' + region + '在regionDetailedData中未找到，使用全国数据');
+                    // 使用全国数据
+                    const colors = [
+                        '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
+                        '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6'
+                    ];
+
+                    if (salesChart) {
+                        salesChart.data.datasets = productData.products.map((product, idx) => ({
+                            label: product.name,
+                            data: product.sales,
+                            backgroundColor: colors[idx % colors.length] + '80',
+                            borderColor: colors[idx % colors.length],
+                            borderWidth: 1,
+                            borderRadius: 3
+                        }));
+                        salesChart.update();
+                    }
+
+                    if (yoyChart) {
+                        yoyChart.data.datasets = productData.products.map((product, idx) => ({
+                            label: product.name,
+                            data: product.yoy_changes,
+                            borderColor: colors[idx % colors.length],
+                            backgroundColor: colors[idx % colors.length] + '20',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 5
+                        }));
+                        yoyChart.update();
+                    }
+
+                    if (marketShareChart && productData.market_shares) {
+                        const msColors = [
+                            '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
+                            '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
+                            '#ec4899', '#06b6d4'
+                        ];
+                        marketShareChart.data.datasets = productData.market_shares.products.map((product, idx) => ({
+                            label: product.name,
+                            data: product.shares,
+                            backgroundColor: msColors[idx % msColors.length],
+                            borderColor: msColors[idx % msColors.length],
+                            borderWidth: 1,
+                            borderRadius: 2
+                        }));
+                        marketShareChart.update();
+                    }
+
+                    updateDataTable(productData.products);
+                }
+            }
+
+            // 处理区域点击
+            allTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     const region = this.dataset.region;
 
                     // 更新按钮样式
-                    tabs.forEach(t => {
+                    allTabs.forEach(t => {
                         t.style.background = t === this ? 'var(--primary-color)' : 'var(--bg-secondary)';
                         t.style.color = t === this ? 'white' : 'var(--text-primary)';
                         t.style.border = t === this ? 'none' : '1px solid var(--border-color)';
                     });
 
-                    // 更新显示
-                    currentSelectedRegion = region;
-                    if (displaySpan) {
-                        displaySpan.textContent = region;
-                    }
-
-                    console.log('切换到区域: ' + region);
-
-                    // 根据选择的区域更新图表
-                    if (window.regionDetailedData && window.regionDetailedData.regions[region]) {
-                        const regionData = window.regionDetailedData.regions[region];
-                        const totalSales = regionData.total_sales;
-
-                        console.log('找到区域' + region + '数据，开始更新图表，共' + regionData.products.length + '个产品');
-
-                        // 转换区域产品数据
-                        const regionProducts = regionData.products.map((product, index) => {
-                            const sales = product.market_share.map((share, i) => {
-                                if (i < totalSales.length && totalSales[i] > 0) {
-                                    return totalSales[i] * share / 100;
-                                }
-                                return 0;
+                    // 处理城市选择区域
+                    if (cityData[region]) {
+                        // 点击的是省份，显示城市选择
+                        currentSelectedRegion = region;
+                        currentSelectedCity = null;
+                        
+                        // 更新省份名称
+                        if (selectedProvinceName) {
+                            selectedProvinceName.textContent = region;
+                        }
+                        
+                        // 生成城市按钮
+                        if (cityTabs) {
+                            cityTabs.innerHTML = '';
+                            cityData[region].forEach(city => {
+                                const cityBtn = document.createElement('button');
+                                cityBtn.className = 'city-tab';
+                                cityBtn.dataset.city = city;
+                                cityBtn.textContent = city;
+                                cityBtn.style.cssText = 'padding: 6px 12px; border-radius: 16px; border: 1px solid var(--border-color); cursor: pointer; font-size: 12px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;';
+                                
+                                cityBtn.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    
+                                    // 更新城市按钮样式
+                                    document.querySelectorAll('.city-tab').forEach(btn => {
+                                        btn.style.background = btn === this ? 'var(--accent-color)' : 'var(--bg-secondary)';
+                                        btn.style.color = btn === this ? 'white' : 'var(--text-primary)';
+                                        btn.style.border = btn === this ? 'none' : '1px solid var(--border-color)';
+                                    });
+                                    
+                                    currentSelectedCity = this.dataset.city;
+                                    const displayText = currentSelectedCity ? `${region} - ${currentSelectedCity}` : region;
+                                    if (displaySpan) {
+                                        displaySpan.textContent = displayText;
+                                    }
+                                    
+                                    // 更新图表（城市数据）
+                                    updateChartsForRegion(currentSelectedCity);
+                                });
+                                
+                                cityTabs.appendChild(cityBtn);
                             });
-
-                            const yoyChanges = [];
-                            for (let i = 0; i < sales.length; i++) {
-                                if (i >= 4 && sales[i-4] > 0) {
-                                    const change = ((sales[i] - sales[i-4]) / sales[i-4]) * 100;
-                                    yoyChanges.push(change);
-                                } else {
-                                    yoyChanges.push(0);
-                                }
-                            }
-
-                            return {
-                                id: index,
-                                name: product.name,
-                                sales: sales,
-                                yoy_changes: yoyChanges,
-                                market_share: product.market_share || []
-                            };
-                        });
-
-                        // 颜色方案
-                        const colors = [
-                            '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
-                            '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
-                            '#ec4899', '#06b6d4'
-                        ];
-
-                        // 更新销售额图表
-                        if (salesChart) {
-                            salesChart.data.datasets = regionProducts.map((product, idx) => ({
-                                label: product.name,
-                                data: product.sales,
-                                backgroundColor: colors[idx % colors.length] + '80',
-                                borderColor: colors[idx % colors.length],
-                                borderWidth: 1,
-                                borderRadius: 3
-                            }));
-                            salesChart.update();
                         }
-
-                        // 更新同比变化图表
-                        if (yoyChart) {
-                            yoyChart.data.datasets = regionProducts.map((product, idx) => ({
-                                label: product.name,
-                                data: product.yoy_changes,
-                                borderColor: colors[idx % colors.length],
-                                backgroundColor: colors[idx % colors.length] + '20',
-                                borderWidth: 2,
-                                fill: true,
-                                tension: 0.3,
-                                pointRadius: 3,
-                                pointHoverRadius: 5
-                            }));
-                            yoyChart.update();
+                        
+                        // 显示城市选择区域
+                        if (citySelectionArea) {
+                            citySelectionArea.style.display = 'block';
                         }
-
-                        // 更新市场份额图表
-                        if (marketShareChart) {
-                            marketShareChart.data.datasets = regionProducts.map((product, idx) => ({
-                                label: product.name,
-                                data: product.market_share,
-                                backgroundColor: colors[idx % colors.length],
-                                borderColor: colors[idx % colors.length],
-                                borderWidth: 1,
-                                borderRadius: 2
-                            }));
-                            marketShareChart.update();
+                        
+                        // 更新显示
+                        if (displaySpan) {
+                            displaySpan.textContent = region;
                         }
-
-                        // 更新数据表格
-                        updateDataTable(regionProducts);
-
+                        
+                        // 更新图表（省份数据）
+                        updateChartsForRegion(region);
+                        
                     } else {
-                        console.warn('区域' + region + '在regionDetailedData中未找到，使用全国数据');
-                        // 使用全国数据
-                        const colors = [
-                            '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
-                            '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6'
-                        ];
-
-                        if (salesChart) {
-                            salesChart.data.datasets = productData.products.map((product, idx) => ({
-                                label: product.name,
-                                data: product.sales,
-                                backgroundColor: colors[idx % colors.length] + '80',
-                                borderColor: colors[idx % colors.length],
-                                borderWidth: 1,
-                                borderRadius: 3
-                            }));
-                            salesChart.update();
+                        // 点击的是直辖市或全国，隐藏城市选择
+                        currentSelectedRegion = region;
+                        currentSelectedCity = null;
+                        
+                        if (citySelectionArea) {
+                            citySelectionArea.style.display = 'none';
                         }
-
-                        if (yoyChart) {
-                            yoyChart.data.datasets = productData.products.map((product, idx) => ({
-                                label: product.name,
-                                data: product.yoy_changes,
-                                borderColor: colors[idx % colors.length],
-                                backgroundColor: colors[idx % colors.length] + '20',
-                                borderWidth: 2,
-                                fill: true,
-                                tension: 0.3,
-                                pointRadius: 3,
-                                pointHoverRadius: 5
-                            }));
-                            yoyChart.update();
+                        
+                        // 更新显示
+                        if (displaySpan) {
+                            displaySpan.textContent = region;
                         }
-
-                        if (marketShareChart && productData.market_shares) {
-                            const msColors = [
-                                '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
-                                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
-                                '#ec4899', '#06b6d4'
-                            ];
-                            marketShareChart.data.datasets = productData.market_shares.products.map((product, idx) => ({
-                                label: product.name,
-                                data: product.shares,
-                                backgroundColor: msColors[idx % msColors.length],
-                                borderColor: msColors[idx % msColors.length],
-                                borderWidth: 1,
-                                borderRadius: 2
-                            }));
-                            marketShareChart.update();
-                        }
-
-                        updateDataTable(productData.products);
+                        
+                        // 更新图表
+                        updateChartsForRegion(region);
                     }
+
+                    console.log('切换到区域: ' + region + (currentSelectedCity ? ' - ' + currentSelectedCity : ''));
                 });
             });
 
