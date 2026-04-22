@@ -9,8 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- 区域销售数据 -->
     <script src="region_sales_data.js"></script>
-    <!-- 区域详细数据（销售额和市场份额） -->
-    <script src="region_detailed_data.js"></script>
+    <!-- 区域详细数据（销售额和市场份额）- 修正版 -->
+    <script src="region_detailed_data_corrected.js"></script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -568,18 +568,50 @@
             }
         }
         
-        // 根据区域获取产品数据
+        // 根据区域获取产品数据（使用修正后的详细数据）
         function getProductsByRegion(regionName) {
-            if (!window.regionSalesData || !window.regionSalesData.regions[regionName]) {
-                console.log(`未找到区域 ${regionName} 的数据，使用全国数据`);
+            console.log(`获取区域 ${regionName} 的产品数据`);
+            
+            // 优先使用修正后的详细数据
+            if (window.regionDetailedData && window.regionDetailedData.regions[regionName]) {
+                const regionData = window.regionDetailedData.regions[regionName];
+                const quarters = window.regionDetailedData.quarters || productData.quarters;
+                
+                console.log(`从修正数据中找到区域 ${regionName}，有 ${regionData.products.length} 个产品`);
+                
+                // 将区域产品数据转换为与全国数据相同的格式
+                const regionProducts = regionData.products.map((product, index) => {
+                    // 计算同比变化（需要至少2个季度的数据）
+                    const yoyChanges = [];
+                    for (let i = 0; i < product.sales.length; i++) {
+                        if (i >= 4 && product.sales[i-4] > 0) { // 同比：与去年同期比较
+                            const change = ((product.sales[i] - product.sales[i-4]) / product.sales[i-4]) * 100;
+                            yoyChanges.push(change);
+                        } else {
+                            yoyChanges.push(0);
+                        }
+                    }
+                    
+                    return {
+                        id: index + 1,
+                        name: product.name,
+                        sales: product.sales,
+                        yoy_changes: yoyChanges,
+                        market_share: product.market_share || []
+                    };
+                });
+                
+                return regionProducts;
+            }
+            
+            // 回退到简化的区域销售数据
+            if (window.regionSalesData && window.regionSalesData.regions[regionName]) {
+                console.log(`使用简化数据中的区域 ${regionName}`);
+                // 简化数据只有总销售额，没有产品详情，所以返回全国数据
                 return productData.products;
             }
             
-            const regionInfo = window.regionSalesData.regions[regionName];
-            console.log(`获取区域 ${regionName} 的数据，类型: ${regionInfo.type}`);
-            
-            // 这里需要根据区域数据重构产品数据
-            // 暂时返回全国数据，后续需要完善
+            console.warn(`区域 ${regionName} 的数据不存在，使用全国数据`);
             return productData.products;
         }
         
