@@ -1083,6 +1083,14 @@
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM加载完成,开始初始化...');
+            
+            // 检查关键元素是否存在
+            console.log('检查筛选器元素:');
+            console.log('  provinceFilter:', document.getElementById('provinceFilter') ? '存在' : '不存在');
+            console.log('  cityFilter:', document.getElementById('cityFilter') ? '存在' : '不存在');
+            console.log('  productFilter:', document.getElementById('productFilter') ? '存在' : '不存在');
+            console.log('  applyFilterBtn:', document.getElementById('applyFilterBtn') ? '存在' : '不存在');
+            console.log('  resetFilterBtn:', document.getElementById('resetFilterBtn') ? '存在' : '不存在');
 
             // 初始化图表
             initSalesChart();
@@ -1107,7 +1115,16 @@
             const resetFilterBtn = document.getElementById('resetFilterBtn');
             const currentRegionSpan = document.getElementById('currentRegion');
 
-            if (!provinceFilter || !applyFilterBtn) return;
+            if (!provinceFilter) {
+                console.error('错误: provinceFilter 元素未找到');
+                return;
+            }
+            if (!applyFilterBtn) {
+                console.error('错误: applyFilterBtn 元素未找到');
+                return;
+            }
+            
+            console.log('筛选器元素全部找到，开始初始化事件监听器');
 
             // 城市数据映射(包含所有29个城市)
             const cityData = {
@@ -1144,10 +1161,8 @@
                     });
                 }
                 
-                // 如果是全国，确保城市筛选器可用
-                if (selectedProvince === '全国') {
-                    cityFilter.disabled = false;
-                }
+                // 确保城市筛选器可用
+                cityFilter.disabled = false;
             }
             
             // 页面加载时初始化城市筛选器
