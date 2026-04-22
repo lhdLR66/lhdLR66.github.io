@@ -274,87 +274,34 @@
             </div>
 
             <div class="chart-content">
-                <!-- 三列筛选器:放在产品筛选器下方 -->
+                <!-- 区域切换标签 -->
                 <div style="background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid var(--border-color);">
                     <div style="font-size: 16px; font-weight: 500; color: var(--text-primary); margin-bottom: 15px;">
-                        <i class="fas fa-filter" style="color: var(--primary-color); margin-right: 8px;"></i>
-                        数据筛选器
+                        <i class="fas fa-map-marked-alt" style="color: var(--primary-color); margin-right: 8px;"></i>
+                        区域切换
+                        <span style="font-size: 12px; color: var(--text-secondary); font-weight: 400; margin-left: 8px;">点击切换查看不同省份/城市的数据</span>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 15px;">
-                        <!-- 省份筛选 -->
-                        <div>
-                            <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">
-                                <i class="fas fa-map" style="margin-right: 6px;"></i>
-                                省份
-                            </label>
-                            <select id="provinceFilter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-size: 14px; cursor: pointer;">
-                                <option value="全国">全国</option>
-                                <option value="江苏">江苏</option>
-                                <option value="浙江">浙江</option>
-                                <option value="安徽">安徽</option>
-                                <option value="山东">山东</option>
-                                <option value="广东">广东</option>
-                                <option value="四川">四川</option>
-                                <option value="湖北">湖北</option>
-                                <option value="湖南">湖南</option>
-                                <option value="河南">河南</option>
-                                <option value="河北">河北</option>
-                                <option value="江西">江西</option>
-                                <option value="陕西">陕西</option>
-                                <option value="云南">云南</option>
-                                <!-- 直辖市已移到城市维度 -->
-                            </select>
-                        </div>
-
-                        <!-- 城市筛选 -->
-                        <div>
-                            <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">
-                                <i class="fas fa-city" style="margin-right: 6px;"></i>
-                                城市
-                            </label>
-                            <select id="cityFilter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-size: 14px; cursor: pointer;">
-                                <option value="全部">全部城市</option>
-                                <!-- 城市选项将通过JavaScript动态加载 -->
-                            </select>
-                        </div>
-
-                        <!-- 产品筛选 -->
-                        <div>
-                            <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">
-                                <i class="fas fa-pills" style="margin-right: 6px;"></i>
-                                产品
-                            </label>
-                            <select id="productFilter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-size: 14px; cursor: pointer;">
-                                <option value="全部">全部产品</option>
-                                <option value="复方阿胶浆">复方阿胶浆</option>
-                                <option value="扬子江黄芪精">扬子江黄芪精</option>
-                                <option value="益安宁丸">益安宁丸</option>
-                                <option value="云丰气血康">云丰气血康</option>
-                                <option value="山东福牌阿胶">山东福牌阿胶</option>
-                                <option value="阿胶黄芪口服液">阿胶黄芪口服液</option>
-                                <option value="宏济堂阿胶">宏济堂阿胶</option>
-                                <option value="黄芪颗粒">黄芪颗粒</option>
-                                <option value="康缘黄芪精">康缘黄芪精</option>
-                                <option value="东阿阿胶">东阿阿胶</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- 筛选操作按钮 -->
-                    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 10px;">
-                        <button id="applyFilterBtn" style="padding: 10px 24px; background: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-check"></i>
-                            应用筛选
+                    <div id="regionTabs" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <button class="region-tab active" data-region="全国" style="padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; background: var(--primary-color); color: white; transition: all 0.2s;">
+                            <i class="fas fa-globe"></i> 全国
                         </button>
-                        <button id="resetFilterBtn" style="padding: 10px 20px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-redo"></i>
-                            重置
-                        </button>
+                        <button class="region-tab" data-region="江苏" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">江苏</button>
+                        <button class="region-tab" data-region="浙江" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">浙江</button>
+                        <button class="region-tab" data-region="安徽" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">安徽</button>
+                        <button class="region-tab" data-region="山东" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">山东</button>
+                        <button class="region-tab" data-region="广东" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">广东</button>
+                        <button class="region-tab" data-region="四川" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">四川</button>
+                        <button class="region-tab" data-region="湖北" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">湖北</button>
+                        <button class="region-tab" data-region="湖南" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">湖南</button>
+                        <button class="region-tab" data-region="河南" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">河南</button>
+                        <button class="region-tab" data-region="河北" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">河北</button>
+                        <button class="region-tab" data-region="江西" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">江西</button>
+                        <button class="region-tab" data-region="陕西" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">陕西</button>
+                        <button class="region-tab" data-region="云南" style="padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.2s;">云南</button>
                     </div>
-
-                    <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
                         <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
-                        此筛选器控制下方"季度销售额"和"销售额同比变化"图表,支持多维度筛选
+                        当前区域: <strong id="currentRegionDisplay" style="color: var(--primary-color);">全国</strong>
                     </div>
                 </div>
 
@@ -1146,161 +1093,188 @@
         });
 
         // 初始化三列筛选器
+
+        // 当前选中的区域
+        let currentSelectedRegion = '全国';
+
+        // 初始化区域切换标签
         function initFilterSelector() {
-            const provinceFilter = document.getElementById('provinceFilter');
-            const cityFilter = document.getElementById('cityFilter');
-            const productFilter = document.getElementById('productFilter');
-            const applyFilterBtn = document.getElementById('applyFilterBtn');
-            const resetFilterBtn = document.getElementById('resetFilterBtn');
-            const currentRegionSpan = document.getElementById('currentRegion');
+            const tabs = document.querySelectorAll('.region-tab');
+            const displaySpan = document.getElementById('currentRegionDisplay');
 
-            if (!provinceFilter) {
-                console.error('错误: provinceFilter 元素未找到');
+            if (!tabs.length) {
+                console.error('错误: 区域切换标签未找到');
                 return;
             }
-            if (!applyFilterBtn) {
-                console.error('错误: applyFilterBtn 元素未找到');
-                return;
-            }
-            
-            console.log('筛选器元素全部找到，开始初始化事件监听器');
 
-            // 城市数据映射(包含所有29个城市)
-            const cityData = {
-                '全国': ['全部城市', '北京', '上海', '天津', '重庆', '广州', '深圳', '成都', '武汉', '南京', '杭州', '苏州', '西安', '郑州', '长沙', '合肥', '济南', '青岛', '宁波', '温州', '无锡', '常州', '烟台', '临沂', '大连', '福州', '兰州', '昆明', '南昌', '石家庄'],
-                '江苏': ['全部城市', '南京', '苏州', '无锡', '常州'],
-                '浙江': ['全部城市', '杭州', '宁波', '温州'],
-                '安徽': ['全部城市', '合肥'],
-                '山东': ['全部城市', '济南', '青岛', '烟台', '临沂'],
-                '广东': ['全部城市', '广州', '深圳'],
-                '四川': ['全部城市', '成都'],
-                '湖北': ['全部城市', '武汉'],
-                '湖南': ['全部城市', '长沙'],
-                '河南': ['全部城市', '郑州'],
-                '河北': ['全部城市', '石家庄'],
-                '江西': ['全部城市', '南昌'],
-                '陕西': ['全部城市', '西安'],
-                '云南': ['全部城市', '昆明'],
-                '辽宁': ['全部城市', '大连'],
-                '福建': ['全部城市', '福州'],
-                '甘肃': ['全部城市', '兰州']
-            };
+            console.log('区域切换标签初始化完成，共' + tabs.length + '个标签');
 
-            // 初始化城市选择器
-            function updateCityFilter() {
-                const selectedProvince = provinceFilter.value;
-                cityFilter.innerHTML = '';
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const region = this.dataset.region;
 
-                if (cityData[selectedProvince]) {
-                    cityData[selectedProvince].forEach(city => {
-                        const option = document.createElement('option');
-                        option.value = city === '全部城市' ? '全部' : city;
-                        option.textContent = city;
-                        cityFilter.appendChild(option);
+                    // 更新按钮样式
+                    tabs.forEach(t => {
+                        t.style.background = t === this ? 'var(--primary-color)' : 'var(--bg-secondary)';
+                        t.style.color = t === this ? 'white' : 'var(--text-primary)';
+                        t.style.border = t === this ? 'none' : '1px solid var(--border-color)';
                     });
-                }
-                
-                // 确保城市筛选器可用
-                cityFilter.disabled = false;
-            }
-            
-            // 页面加载时初始化城市筛选器
-            updateCityFilter();
 
-            // 省份变化时更新城市列表
-            provinceFilter.addEventListener('change', updateCityFilter);
+                    // 更新显示
+                    currentSelectedRegion = region;
+                    if (displaySpan) {
+                        displaySpan.textContent = region;
+                    }
 
-            // 应用筛选
-            applyFilterBtn.addEventListener('click', function() {
-                const selectedProvince = provinceFilter.value;
-                const selectedCity = cityFilter.value;
-                const selectedProduct = productFilter.value;
+                    console.log('切换到区域: ' + region);
 
-                // 构建筛选描述
-                let filterDescription = '';
+                    // 根据选择的区域更新图表
+                    if (window.regionDetailedData && window.regionDetailedData.regions[region]) {
+                        const regionData = window.regionDetailedData.regions[region];
+                        const totalSales = regionData.total_sales;
 
-                if (selectedProvince === '全国') {
-                    filterDescription = '全国数据';
-                } else if (selectedCity === '全部') {
-                    filterDescription = `${selectedProvince}全省数据`;
-                } else {
-                    filterDescription = `${selectedProvince} - ${selectedCity}`;
-                }
+                        console.log('找到区域' + region + '数据，开始更新图表，共' + regionData.products.length + '个产品');
 
-                if (selectedProduct !== '全部') {
-                    filterDescription += ` | 产品:${selectedProduct}`;
-                }
+                        // 转换区域产品数据
+                        const regionProducts = regionData.products.map((product, index) => {
+                            const sales = product.market_share.map((share, i) => {
+                                if (i < totalSales.length && totalSales[i] > 0) {
+                                    return totalSales[i] * share / 100;
+                                }
+                                return 0;
+                            });
 
-                // 更新当前筛选显示
-                if (currentRegionSpan) {
-                    currentRegionSpan.textContent = filterDescription;
-                }
+                            const yoyChanges = [];
+                            for (let i = 0; i < sales.length; i++) {
+                                if (i >= 4 && sales[i-4] > 0) {
+                                    const change = ((sales[i] - sales[i-4]) / sales[i-4]) * 100;
+                                    yoyChanges.push(change);
+                                } else {
+                                    yoyChanges.push(0);
+                                }
+                            }
 
-                // 更新所有图表,包括市场份额图表
-                updateCharts();
+                            return {
+                                id: index,
+                                name: product.name,
+                                sales: sales,
+                                yoy_changes: yoyChanges,
+                                market_share: product.market_share || []
+                            };
+                        });
 
-                // 静默更新,不显示弹窗
+                        // 颜色方案
+                        const colors = [
+                            '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
+                            '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
+                            '#ec4899', '#06b6d4'
+                        ];
 
-                console.log(`筛选条件：省份=${selectedProvince}, 城市=${selectedCity}, 产品=${selectedProduct}`);
-                console.log(`筛选描述：${filterDescription}`);
-                
-                // 调试信息：检查数据可用性
-                console.log('regionDetailedData 可用:', !!window.regionDetailedData);
-                console.log('regionSalesData 可用:', !!window.regionSalesData);
-                console.log('productData 可用:', !!window.productData);
-                
-                if (window.regionDetailedData) {
-                    console.log('regionDetailedData 中的区域:', Object.keys(window.regionDetailedData.regions || {}));
-                    const targetRegion = selectedCity !== '全部' ? selectedCity : selectedProvince;
-                    console.log(`目标区域 ${targetRegion} 在 regionDetailedData 中:`, !!window.regionDetailedData.regions[targetRegion]);
-                }
+                        // 更新销售额图表
+                        if (salesChart) {
+                            salesChart.data.datasets = regionProducts.map((product, idx) => ({
+                                label: product.name,
+                                data: product.sales,
+                                backgroundColor: colors[idx % colors.length] + '80',
+                                borderColor: colors[idx % colors.length],
+                                borderWidth: 1,
+                                borderRadius: 3
+                            }));
+                            salesChart.update();
+                        }
 
-                // 给用户一个简单的视觉反馈
-                applyFilterBtn.style.background = '#2ecc71';
-                applyFilterBtn.innerHTML = '<i class="fas fa-check"></i> 已应用';
-                setTimeout(() => {
-                    applyFilterBtn.style.background = '';
-                    applyFilterBtn.innerHTML = '<i class="fas fa-check"></i> 应用筛选';
-                }, 1000);
+                        // 更新同比变化图表
+                        if (yoyChart) {
+                            yoyChart.data.datasets = regionProducts.map((product, idx) => ({
+                                label: product.name,
+                                data: product.yoy_changes,
+                                borderColor: colors[idx % colors.length],
+                                backgroundColor: colors[idx % colors.length] + '20',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 3,
+                                pointHoverRadius: 5
+                            }));
+                            yoyChart.update();
+                        }
+
+                        // 更新市场份额图表
+                        if (marketShareChart) {
+                            marketShareChart.data.datasets = regionProducts.map((product, idx) => ({
+                                label: product.name,
+                                data: product.market_share,
+                                backgroundColor: colors[idx % colors.length],
+                                borderColor: colors[idx % colors.length],
+                                borderWidth: 1,
+                                borderRadius: 2
+                            }));
+                            marketShareChart.update();
+                        }
+
+                        // 更新数据表格
+                        updateDataTable(regionProducts);
+
+                    } else {
+                        console.warn('区域' + region + '在regionDetailedData中未找到，使用全国数据');
+                        // 使用全国数据
+                        const colors = [
+                            '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
+                            '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6'
+                        ];
+
+                        if (salesChart) {
+                            salesChart.data.datasets = productData.products.map((product, idx) => ({
+                                label: product.name,
+                                data: product.sales,
+                                backgroundColor: colors[idx % colors.length] + '80',
+                                borderColor: colors[idx % colors.length],
+                                borderWidth: 1,
+                                borderRadius: 3
+                            }));
+                            salesChart.update();
+                        }
+
+                        if (yoyChart) {
+                            yoyChart.data.datasets = productData.products.map((product, idx) => ({
+                                label: product.name,
+                                data: product.yoy_changes,
+                                borderColor: colors[idx % colors.length],
+                                backgroundColor: colors[idx % colors.length] + '20',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 3,
+                                pointHoverRadius: 5
+                            }));
+                            yoyChart.update();
+                        }
+
+                        if (marketShareChart && productData.market_shares) {
+                            const msColors = [
+                                '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
+                                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
+                                '#ec4899', '#06b6d4'
+                            ];
+                            marketShareChart.data.datasets = productData.market_shares.products.map((product, idx) => ({
+                                label: product.name,
+                                data: product.shares,
+                                backgroundColor: msColors[idx % msColors.length],
+                                borderColor: msColors[idx % msColors.length],
+                                borderWidth: 1,
+                                borderRadius: 2
+                            }));
+                            marketShareChart.update();
+                        }
+
+                        updateDataTable(productData.products);
+                    }
+                });
             });
 
-            // 重置筛选
-            resetFilterBtn.addEventListener('click', function() {
-                provinceFilter.value = '全国';
-                productFilter.value = '全部';
-                updateCityFilter(); // 重置城市选择器
-
-                // 更新当前筛选显示
-                if (currentRegionSpan) {
-                    currentRegionSpan.textContent = '全国 | 全部产品';
-                }
-
-                // 更新所有图表
-                updateCharts();
-
-                // 给用户一个简单的视觉反馈
-                resetFilterBtn.style.background = '#e74c3c';
-                resetFilterBtn.style.color = 'white';
-                resetFilterBtn.innerHTML = '<i class="fas fa-redo"></i> 已重置';
-                setTimeout(() => {
-                    resetFilterBtn.style.background = '';
-                    resetFilterBtn.style.color = '';
-                    resetFilterBtn.innerHTML = '<i class="fas fa-redo"></i> 重置';
-                }, 1000);
-
-                console.log('筛选已重置');
-                const allProductIds = productData.products.map(p => p.id);
-                updateSalesAndYoyCharts(allProductIds);
-
-                // 静默重置
-                console.log('筛选器已重置');
-            });
-
-            // 初始化城市选择器
-            updateCityFilter();
-
-            console.log('三列筛选器初始化完成');
+            console.log('区域切换标签初始化完成');
         }
+-e 
     </script>
 </body>
 </html>
