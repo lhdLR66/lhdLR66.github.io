@@ -900,22 +900,18 @@
         function updateMarketShareChart() {
             if (!marketShareChart) return;
 
-            // 获取当前区域的产品数据
-            const regionProducts = getCurrentRegionProducts();
-            const selectedIds = getSelectedProductIds();
-            const selectedProducts = regionProducts.filter(p => selectedIds.includes(p.id));
-
             // 确定要使用的市场份额数据
             let marketShareDataToUse = [];
 
-            // 如果产品有market_share数据,直接使用
-            if (selectedProducts.length > 0 && selectedProducts[0].market_share && selectedProducts[0].market_share.length > 0) {
-                // 使用产品的市场份额数据
-                marketShareDataToUse = selectedProducts.map(product => ({
+            // 如果当前有选中的区域且该区域有市场份额数据
+            if (currentSelectedRegion && currentSelectedRegion !== '全国' && 
+                window.regionDetailedData && window.regionDetailedData.regions[currentSelectedRegion]) {
+                const regionData = window.regionDetailedData.regions[currentSelectedRegion];
+                marketShareDataToUse = regionData.products.map(product => ({
                     name: product.name,
                     shares: product.market_share
                 }));
-                console.log(`使用产品的市场份额数据,共${marketShareDataToUse.length}个产品`);
+                console.log(`使用${currentSelectedRegion}的市场份额数据,共${marketShareDataToUse.length}个产品`);
             } else {
                 // 回退到全国的市场份额数据
                 console.log(`使用全国市场份额数据`);
@@ -940,67 +936,10 @@
             }));
 
             marketShareChart.update();
-            console.log('市场份额图表更新完成(使用真实数据),共' + marketShareData.length + '个产品');
+            console.log('市场份额图表更新完成(使用真实数据),共' + marketShareDataToUse.length + '个产品');
         }
 
         // 更新图表
-        function updateCharts() {
-            const selectedIds = getSelectedProductIds();
-
-            // 获取当前区域的产品数据
-            const regionProducts = getCurrentRegionProducts();
-            const selectedProducts = regionProducts.filter(p => selectedIds.includes(p.id));
-
-            // 获取选中的区域
-            const provinceFilter = document.getElementById('provinceFilter');
-            const cityFilter = document.getElementById('cityFilter');
-            const selectedProvince = provinceFilter ? provinceFilter.value : '全国';
-            const selectedCity = cityFilter ? cityFilter.value : '全部';
-
-            console.log(`更新图表,区域: ${selectedProvince}${selectedCity !== '全部' ? ' - ' + selectedCity : ''}, 产品: ${selectedProducts.length}个`);
-
-            // 颜色方案
-            const colors = [
-                '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
-                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
-                '#ec4899', '#06b6d4'
-            ];
-
-            // 更新销售额图表
-            if (salesChart) {
-                salesChart.data.datasets = selectedProducts.map((product, index) => ({
-                    label: product.name,
-                    data: product.sales,
-                    backgroundColor: colors[index % colors.length] + '80', // 80表示50%透明度
-                    borderColor: colors[index % colors.length],
-                    borderWidth: 1,
-                    borderRadius: 3
-                }));
-                salesChart.update();
-            }
-
-            // 更新同比变化图表
-            if (yoyChart) {
-                yoyChart.data.datasets = selectedProducts.map((product, index) => ({
-                    label: product.name,
-                    data: product.yoy_changes,
-                    borderColor: colors[index % colors.length],
-                    backgroundColor: colors[index % colors.length] + '20', // 20表示12.5%透明度
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 3,
-                    pointHoverRadius: 5
-                }));
-                yoyChart.update();
-            }
-
-            // 更新市场份额图表
-            updateMarketShareChart();
-
-            updateDataTable(selectedProducts);
-        }
-
         // 只更新销售额和同比变化图表
         function updateSalesAndYoyCharts(selectedProductIds) {
             const selectedProducts = productData.products.filter(p => selectedProductIds.includes(p.id));
@@ -1121,8 +1060,9 @@
                 initSalesChart();
                 initYoyChart();
                 initMarketShareChart();
-                // 初始更新图表(显示所有产品)
-                updateCharts();
+                // 初始显示全国数据
+                updateMarketShareChart();
+                updateDataTable(productData.products);
             } catch(e) {
                 console.error('图表初始化出错:', e.message);
             }
