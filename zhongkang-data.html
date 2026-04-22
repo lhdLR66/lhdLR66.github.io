@@ -1091,17 +1091,21 @@
             console.log('  productFilter:', document.getElementById('productFilter') ? '存在' : '不存在');
             console.log('  applyFilterBtn:', document.getElementById('applyFilterBtn') ? '存在' : '不存在');
             console.log('  resetFilterBtn:', document.getElementById('resetFilterBtn') ? '存在' : '不存在');
+            console.log('  currentRegion:', document.getElementById('currentRegion') ? '存在' : '不存在');
 
-            // 初始化图表
-            initSalesChart();
-            initYoyChart();
-            initMarketShareChart();
-
-            // 初始更新图表(显示所有产品)
-            updateCharts();
-
-            // 初始化三列筛选器
+            // 先初始化三列筛选器(确保事件绑定不受图表初始化影响)
             initFilterSelector();
+
+            // 再初始化图表
+            try {
+                initSalesChart();
+                initYoyChart();
+                initMarketShareChart();
+                // 初始更新图表(显示所有产品)
+                updateCharts();
+            } catch(e) {
+                console.error('图表初始化出错:', e.message);
+            }
 
             console.log('页面初始化完成');
         });
