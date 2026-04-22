@@ -1109,9 +1109,9 @@
 
             if (!provinceFilter || !applyFilterBtn) return;
 
-            // 城市数据映射(包含直辖市)
+            // 城市数据映射(包含所有29个城市)
             const cityData = {
-                '全国': ['全部城市', '北京', '上海', '天津', '重庆'], // 直辖市放在全国下
+                '全国': ['全部城市', '北京', '上海', '天津', '重庆', '广州', '深圳', '成都', '武汉', '南京', '杭州', '苏州', '西安', '郑州', '长沙', '合肥', '济南', '青岛', '宁波', '温州', '无锡', '常州', '烟台', '临沂', '大连', '福州', '兰州', '昆明', '南昌', '石家庄'],
                 '江苏': ['全部城市', '南京', '苏州', '无锡', '常州'],
                 '浙江': ['全部城市', '杭州', '宁波', '温州'],
                 '安徽': ['全部城市', '合肥'],
@@ -1125,7 +1125,6 @@
                 '江西': ['全部城市', '南昌'],
                 '陕西': ['全部城市', '西安'],
                 '云南': ['全部城市', '昆明'],
-                // 其他城市(直辖市已移到全国)
                 '辽宁': ['全部城市', '大连'],
                 '福建': ['全部城市', '福州'],
                 '甘肃': ['全部城市', '兰州']
@@ -1144,7 +1143,15 @@
                         cityFilter.appendChild(option);
                     });
                 }
+                
+                // 如果是全国，确保城市筛选器可用
+                if (selectedProvince === '全国') {
+                    cityFilter.disabled = false;
+                }
             }
+            
+            // 页面加载时初始化城市筛选器
+            updateCityFilter();
 
             // 省份变化时更新城市列表
             provinceFilter.addEventListener('change', updateCityFilter);
@@ -1180,8 +1187,19 @@
 
                 // 静默更新,不显示弹窗
 
-                console.log(`筛选条件:省份=${selectedProvince}, 城市=${selectedCity}, 产品=${selectedProduct}`);
-                console.log(`筛选描述:${filterDescription}`);
+                console.log(`筛选条件：省份=${selectedProvince}, 城市=${selectedCity}, 产品=${selectedProduct}`);
+                console.log(`筛选描述：${filterDescription}`);
+                
+                // 调试信息：检查数据可用性
+                console.log('regionDetailedData 可用:', !!window.regionDetailedData);
+                console.log('regionSalesData 可用:', !!window.regionSalesData);
+                console.log('productData 可用:', !!window.productData);
+                
+                if (window.regionDetailedData) {
+                    console.log('regionDetailedData 中的区域:', Object.keys(window.regionDetailedData.regions || {}));
+                    const targetRegion = selectedCity !== '全部' ? selectedCity : selectedProvince;
+                    console.log(`目标区域 ${targetRegion} 在 regionDetailedData 中:`, !!window.regionDetailedData.regions[targetRegion]);
+                }
 
                 // 给用户一个简单的视觉反馈
                 applyFilterBtn.style.background = '#2ecc71';
@@ -1197,15 +1215,15 @@
                 provinceFilter.value = '全国';
                 productFilter.value = '全部';
                 updateCityFilter(); // 重置城市选择器
-                
+
                 // 更新当前筛选显示
                 if (currentRegionSpan) {
                     currentRegionSpan.textContent = '全国 | 全部产品';
                 }
-                
+
                 // 更新所有图表
                 updateCharts();
-                
+
                 // 给用户一个简单的视觉反馈
                 resetFilterBtn.style.background = '#e74c3c';
                 resetFilterBtn.style.color = 'white';
@@ -1215,7 +1233,7 @@
                     resetFilterBtn.style.color = '';
                     resetFilterBtn.innerHTML = '<i class="fas fa-redo"></i> 重置';
                 }, 1000);
-                
+
                 console.log('筛选已重置');
                 const allProductIds = productData.products.map(p => p.id);
                 updateSalesAndYoyCharts(allProductIds);
