@@ -876,12 +876,31 @@
             return marketShareData;
         }
         
-        // 更新市场份额图表（使用真实的销售额份额数据）
+        // 更新市场份额图表（使用区域或全国的真实销售额份额数据）
         function updateMarketShareChart() {
             if (!marketShareChart) return;
             
-            // 使用真实的市场份额数据
-            const marketShareData = productData.market_shares.products;
+            // 获取当前区域的产品数据
+            const regionProducts = getCurrentRegionProducts();
+            const selectedIds = getSelectedProductIds();
+            const selectedProducts = regionProducts.filter(p => selectedIds.includes(p.id));
+            
+            // 确定要使用的市场份额数据
+            let marketShareDataToUse = [];
+            
+            // 如果产品有market_share数据，直接使用
+            if (selectedProducts.length > 0 && selectedProducts[0].market_share && selectedProducts[0].market_share.length > 0) {
+                // 使用产品的市场份额数据
+                marketShareDataToUse = selectedProducts.map(product => ({
+                    name: product.name,
+                    shares: product.market_share
+                }));
+                console.log(`使用产品的市场份额数据，共${marketShareDataToUse.length}个产品`);
+            } else {
+                // 回退到全国的市场份额数据
+                console.log(`使用全国市场份额数据`);
+                marketShareDataToUse = productData.market_shares.products;
+            }
             
             // 颜色方案（为堆叠条形图使用更丰富的颜色）
             const colors = [
@@ -891,7 +910,7 @@
             ];
             
             // 更新图表数据
-            marketShareChart.data.datasets = marketShareData.map((product, index) => ({
+            marketShareChart.data.datasets = marketShareDataToUse.map((product, index) => ({
                 label: product.name,
                 data: product.shares,
                 backgroundColor: colors[index % colors.length],
