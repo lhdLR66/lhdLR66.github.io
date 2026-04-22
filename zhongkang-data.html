@@ -11,6 +11,11 @@
     <script src="region_sales_data.js"></script>
     <!-- 区域详细数据(销售额和市场份额)- 修正版 -->
     <script src="region_detailed_data_corrected.js"></script>
+    <script>
+        // const 声明的变量不会自动挂载到 window，手动挂载
+        window.regionDetailedData = regionDetailedData;
+        console.log('regionDetailedData 已挂载到 window，省份:', Object.keys(window.regionDetailedData.regions || {}).length);
+    </script>
     <style>
         :root {
             --primary-color: #4361ee;
