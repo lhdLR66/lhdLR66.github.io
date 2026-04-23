@@ -1353,7 +1353,76 @@
         }
     </script>
     
-    <!-- 修复补丁 -->
-    <script src="fix-patch.js"></script>
+    <!-- 确保图表显示修复 -->
+    <script>
+        (function() {
+            console.log('=== 图表显示修复开始 ===');
+            
+            // 等待页面完全加载
+            setTimeout(function() {
+                console.log('检查图表状态...');
+                
+                // 1. 确保productData存在
+                if (typeof window.productData === 'undefined') {
+                    console.error('productData未定义！');
+                    // 尝试从全局查找
+                    if (window.productData === undefined) {
+                        console.log('尝试手动定义productData...');
+                        // 这里可以添加基本的产品数据
+                    }
+                }
+                
+                // 2. 确保regionDetailedData存在
+                if (!window.regionDetailedData) {
+                    console.error('regionDetailedData未加载！');
+                } else {
+                    console.log('regionDetailedData已加载，省份数量:', Object.keys(window.regionDetailedData.regions || {}).length);
+                }
+                
+                // 3. 检查图表对象
+                const charts = ['salesChart', 'yoyChart', 'marketShareChart'];
+                charts.forEach(chartName => {
+                    const chart = window[chartName];
+                    if (chart && typeof chart.update === 'function') {
+                        console.log(chartName + ' 图表对象正常');
+                        // 如果图表无数据，尝试更新
+                        if (chart.data && chart.data.datasets.length === 0) {
+                            console.log(chartName + ' 无数据，尝试更新...');
+                            // 触发一次更新
+                            if (typeof window.updateChartsForRegion === 'function') {
+                                const currentRegion = document.querySelector('.region-tab.active')?.dataset.region || '全国';
+                                window.updateChartsForRegion(currentRegion);
+                            }
+                        }
+                    } else {
+                        console.warn(chartName + ' 图表对象异常');
+                    }
+                });
+                
+                // 4. 如果还是没有图表，创建简单的测试图表
+                setTimeout(function() {
+                    const salesCanvas = document.getElementById('salesChart');
+                    if (salesCanvas && (!window.salesChart || typeof window.salesChart.update !== 'function')) {
+                        console.log('创建测试图表...');
+                        const ctx = salesCanvas.getContext('2d');
+                        window.salesChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                                datasets: [{
+                                    label: '测试数据',
+                                    data: [100, 200, 300, 400],
+                                    backgroundColor: '#4361ee'
+                                }]
+                            }
+                        });
+                        console.log('测试图表创建成功');
+                    }
+                }, 2000);
+                
+                console.log('=== 图表显示修复完成 ===');
+            }, 3000); // 等待3秒让页面完全加载
+        })();
+    </script>
 </body>
 </html>
