@@ -8,266 +8,72 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="region_detailed_data_corrected.js"></script>
-    <script>
-        window.regionDetailedData = regionDetailedData;
-        console.log('regionDetailedData 已挂载，区域数:', Object.keys(window.regionDetailedData.regions || {}).length);
-    </script>
+    <script>window.regionDetailedData = regionDetailedData;</script>
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --accent-color: #f72585;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-card: #ffffff;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --text-muted: #adb5bd;
-            --border-color: #e9ecef;
-            --shadow-color: rgba(0, 0, 0, 0.08);
-            --border-radius: 12px;
+            --primary-color: #4361ee; --secondary-color: #3a0ca3; --accent-color: #f72585;
+            --bg-primary: #ffffff; --bg-secondary: #f8f9fa; --bg-card: #ffffff;
+            --text-primary: #212529; --text-secondary: #6c757d; --text-muted: #adb5bd;
+            --border-color: #e9ecef; --shadow-color: rgba(0,0,0,0.08); --border-radius: 12px;
         }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.6;padding:20px;min-height:100vh}
+        .container{max-width:1400px;margin:0 auto}
+        .header{text-align:center;margin-bottom:30px;padding:25px;background:var(--bg-card);border-radius:var(--border-radius);box-shadow:0 4px 20px var(--shadow-color)}
+        .header h1{font-size:28px;margin-bottom:8px;background:linear-gradient(135deg,#4361ee,#3a0ca3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .header p{font-size:14px;color:var(--text-secondary)}
+        .info-box{background:var(--bg-secondary);padding:16px 20px;border-radius:var(--border-radius);margin-bottom:24px;border-left:4px solid var(--primary-color)}
+        .info-box ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:8px}
+        .info-box li{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary)}
+        .info-box li i{color:var(--primary-color);font-size:14px}
+        .chart-card{background:var(--bg-card);border-radius:var(--border-radius);box-shadow:0 4px 20px var(--shadow-color);overflow:hidden;margin-bottom:24px}
+        .chart-header{padding:20px 25px;border-bottom:1px solid var(--border-color)}
+        .chart-title{font-size:22px;font-weight:600;display:flex;align-items:center;gap:12px}
+        .chart-title i{color:var(--primary-color)}
+        .chart-content{padding:24px}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        .container { max-width: 1400px; margin: 0 auto; }
+        .filter-section{background:var(--bg-secondary);border-radius:10px;padding:18px;margin-bottom:24px}
+        .filter-row{margin-bottom:14px}
+        .filter-row:last-child{margin-bottom:0}
+        .filter-label{font-size:13px;color:var(--text-secondary);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .filter-label i{font-size:14px}
+        .filter-buttons{display:flex;flex-wrap:wrap;gap:6px}
+        .filter-btn{padding:6px 14px;border-radius:18px;border:1px solid #dee2e6;cursor:pointer;font-size:12px;font-weight:500;background:#fff;color:#495057;transition:all .15s ease;white-space:nowrap}
+        .filter-btn:hover:not(.disabled){border-color:var(--primary-color);color:var(--primary-color)}
+        .filter-btn.selected{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+        .filter-btn.selected:hover:not(.disabled){background:#3651d4;border-color:#3651d4}
+        .filter-btn.disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+        .filter-btn.all-btn{font-weight:600;border:1.5px solid #adb5bd}
+        .filter-btn.all-btn.selected{border-color:var(--primary-color)}
+        .filter-status{font-size:12px;color:var(--text-secondary);margin-top:10px;padding-top:10px;border-top:1px solid var(--border-color)}
+        .filter-status strong{color:var(--primary-color)}
+        .selection-hint{font-size:11px;color:var(--text-muted);font-weight:400;margin-left:auto}
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 25px;
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 20px var(--shadow-color);
-        }
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #4361ee, #3a0ca3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .header p { font-size: 14px; color: var(--text-secondary); }
-
-        .info-box {
-            background: var(--bg-secondary);
-            padding: 16px 20px;
-            border-radius: var(--border-radius);
-            margin-bottom: 24px;
-            border-left: 4px solid var(--primary-color);
-        }
-        .info-box ul {
-            list-style: none;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 10px;
-            margin-top: 8px;
-        }
-        .info-box li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
-        .info-box li i { color: var(--primary-color); font-size: 14px; }
-
-        .chart-card {
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 20px var(--shadow-color);
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-        .chart-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); }
-        .chart-title { font-size: 22px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
-        .chart-title i { color: var(--primary-color); }
-        .chart-content { padding: 24px; }
-
-        /* Filter Area */
-        .filter-section {
-            background: var(--bg-secondary);
-            border-radius: 10px;
-            padding: 18px;
-            margin-bottom: 24px;
-        }
-        .filter-row {
-            margin-bottom: 14px;
-        }
-        .filter-row:last-child { margin-bottom: 0; }
-        .filter-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .filter-label i { font-size: 14px; }
-        .filter-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .filter-btn {
-            padding: 6px 14px;
-            border-radius: 18px;
-            border: 1px solid #dee2e6;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            background: #fff;
-            color: #495057;
-            transition: all 0.15s ease;
-            white-space: nowrap;
-        }
-        .filter-btn:hover:not(.disabled) {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-        .filter-btn.selected {
-            background: var(--primary-color);
-            color: #fff;
-            border-color: var(--primary-color);
-        }
-        .filter-btn.selected:hover:not(.disabled) {
-            background: #3651d4;
-            border-color: #3651d4;
-        }
-        .filter-btn.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-        .filter-btn.all-btn {
-            font-weight: 600;
-            border: 1.5px solid #adb5bd;
-        }
-        .filter-btn.all-btn.selected {
-            border-color: var(--primary-color);
-        }
-
-        .filter-status {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid var(--border-color);
-        }
-        .filter-status strong { color: var(--primary-color); }
-
-        .selection-hint {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 400;
-            margin-left: auto;
-        }
-
-        /* Charts */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        @media (max-width: 1024px) { .charts-grid { grid-template-columns: 1fr; } }
-        .chart-subtitle {
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .chart-container { position: relative; height: 380px; width: 100%; }
-
-        .market-share-section { margin-bottom: 32px; }
-        .market-share-section h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .market-share-section .desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        /* Data Table */
-        .data-table-container {
-            overflow-x: auto;
-            margin-top: 24px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-        }
-        .data-table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        .data-table th {
-            background: var(--bg-secondary);
-            padding: 10px 12px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 12px;
-            border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
-        }
-        .data-table td {
-            padding: 8px 12px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 12px;
-        }
-        .data-table tr:hover { background: var(--bg-secondary); }
-        .data-table td:first-child { font-weight: 500; }
-        .data-table td:not(:first-child) { text-align: right; font-family: 'Courier New', monospace; }
-
-        .footer-note {
-            text-align: center;
-            margin-top: 32px;
-            padding: 16px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .positive { color: #10b981; font-weight: 500; }
-        .negative { color: #ef4444; font-weight: 500; }
-
-        .loading-overlay {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.7); z-index: 999;
-            justify-content: center; align-items: center;
-        }
-        .loading-overlay.show { display: flex; }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid var(--border-color);
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+        @media(max-width:1024px){.charts-grid{grid-template-columns:1fr}}
+        .chart-subtitle{font-size:15px;font-weight:500;color:var(--text-secondary);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+        .chart-container{position:relative;height:380px;width:100%}
+        .market-share-section{margin-bottom:32px}
+        .market-share-section h3{font-size:18px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+        .market-share-section .desc{font-size:13px;color:var(--text-secondary);margin-bottom:16px}
+        .data-table-container{overflow-x:auto;margin-top:24px;border:1px solid var(--border-color);border-radius:8px}
+        .data-table{width:100%;border-collapse:collapse;min-width:800px}
+        .data-table th{background:var(--bg-secondary);padding:10px 12px;text-align:left;font-weight:600;font-size:12px;border-bottom:2px solid var(--border-color);white-space:nowrap}
+        .data-table td{padding:8px 12px;border-bottom:1px solid var(--border-color);font-size:12px}
+        .data-table tr:hover{background:var(--bg-secondary)}
+        .data-table td:first-child{font-weight:500}
+        .data-table td:not(:first-child){text-align:right;font-family:'Courier New',monospace}
+        .footer-note{text-align:center;margin-top:32px;padding:16px;font-size:13px;color:var(--text-secondary);border-top:1px solid var(--border-color)}
     </style>
 </head>
 <body>
-    <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
-
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-chart-bar"></i> 补气补血中成药市场 - 区域竞争格局</h1>
             <p>22Q1-25Q4 完整季度序列分析 | TOP10产品销售额、同比变化与市场份额</p>
         </div>
-
         <div class="info-box">
-            <div style="font-weight: 500; color: var(--text-primary); margin-bottom: 8px;">
-                <i class="fas fa-info-circle"></i> 数据说明
-            </div>
+            <div style="font-weight:500;color:var(--text-primary);margin-bottom:8px"><i class="fas fa-info-circle"></i> 数据说明</div>
             <ul>
                 <li><i class="fas fa-database"></i> 数据来源：细分市场工作表 - 补气补血TOP10</li>
                 <li><i class="fas fa-chart-pie"></i> 市场份额数据：区域竞争格局子表</li>
@@ -277,566 +83,451 @@
                 <li><i class="fas fa-percentage"></i> 同比：基于去年同期计算</li>
             </ul>
         </div>
-
         <div class="chart-card">
-            <div class="chart-header">
-                <div class="chart-title"><i class="fas fa-chart-line"></i> 区域竞争格局分析</div>
-            </div>
-
+            <div class="chart-header"><div class="chart-title"><i class="fas fa-chart-line"></i> 区域竞争格局分析</div></div>
             <div class="chart-content">
-                <!-- Filter Area -->
                 <div class="filter-section" id="filterArea">
                     <div class="filter-row" id="provinceRow">
-                        <div class="filter-label">
-                            <i class="fas fa-map" style="color:var(--primary-color);"></i> 省份
-                            <span class="selection-hint">多选，与城市互斥</span>
-                        </div>
+                        <div class="filter-label"><i class="fas fa-map" style="color:var(--primary-color)"></i> 省份<span class="selection-hint">多选，与城市互斥</span></div>
                         <div class="filter-buttons" id="provinceButtons"></div>
                     </div>
-
                     <div class="filter-row" id="cityRow">
-                        <div class="filter-label">
-                            <i class="fas fa-city" style="color:var(--primary-color);"></i> 城市
-                            <span class="selection-hint">多选，与省份互斥</span>
-                        </div>
+                        <div class="filter-label"><i class="fas fa-city" style="color:var(--primary-color)"></i> 城市<span class="selection-hint">多选，与省份互斥</span></div>
                         <div class="filter-buttons" id="cityButtons"></div>
                     </div>
-
-                    <div class="filter-status">
-                        <i class="fas fa-info-circle" style="margin-right:4px;"></i>
-                        当前区域：<strong id="currentRegionDisplay">全国</strong>
+                    <div class="filter-row" id="productRow">
+                        <div class="filter-label"><i class="fas fa-pills" style="color:var(--primary-color)"></i> 产品<span class="selection-hint">多选，独立过滤</span></div>
+                        <div class="filter-buttons" id="productButtons"></div>
                     </div>
+                    <div class="filter-status"><i class="fas fa-info-circle" style="margin-right:4px"></i> 当前筛选：<strong id="currentRegionDisplay">全国</strong></div>
                 </div>
 
-                <!-- Sales & YoY Charts -->
                 <div class="charts-grid">
-                    <div>
-                        <div class="chart-subtitle"><i class="fas fa-coins"></i> 季度销售额（百万元）</div>
-                        <div class="chart-container"><canvas id="salesChart"></canvas></div>
-                    </div>
-                    <div>
-                        <div class="chart-subtitle"><i class="fas fa-chart-line"></i> 销售额同比变化（%）</div>
-                        <div class="chart-container"><canvas id="yoyChart"></canvas></div>
-                    </div>
+                    <div><div class="chart-subtitle"><i class="fas fa-coins"></i> 季度销售额（百万元）</div><div class="chart-container"><canvas id="salesChart"></canvas></div></div>
+                    <div><div class="chart-subtitle"><i class="fas fa-chart-line"></i> 销售额同比变化（%）</div><div class="chart-container"><canvas id="yoyChart"></canvas></div></div>
                 </div>
 
-                <!-- Market Share Stacked Bar -->
                 <div class="market-share-section">
-                    <h3><i class="fas fa-chart-pie" style="color:var(--primary-color);"></i> TOP10产品销售额份额季度变化（堆叠条形图）</h3>
-                    <div class="desc">
-                        <strong>数据说明：</strong>展示22Q1-25Q4期间TOP10产品<strong>销售额份额（MS%）</strong>随季度的变化<br>
-                        <strong>当前筛选：</strong><span id="currentRegion" style="font-weight:500;color:var(--primary-color);">全国</span>
-                    </div>
-                    <div class="chart-container" style="height:420px;">
-                        <canvas id="marketShareChart"></canvas>
-                    </div>
+                    <h3><i class="fas fa-chart-pie" style="color:var(--primary-color)"></i> TOP10产品销售额份额季度变化（堆叠条形图）</h3>
+                    <div class="desc"><strong>数据说明：</strong>展示22Q1-25Q4期间TOP10产品<strong>销售额份额（MS%）</strong>随季度的变化<br><strong>当前筛选：</strong><span id="currentRegion" style="font-weight:500;color:var(--primary-color)">全国</span></div>
+                    <div class="chart-container" style="height:420px"><canvas id="marketShareChart"></canvas></div>
                 </div>
 
-                <!-- Data Table -->
                 <div>
-                    <div class="chart-subtitle" style="margin-bottom:12px;"><i class="fas fa-table"></i> 数据明细表</div>
-                    <div class="data-table-container">
-                        <table class="data-table" id="dataTable">
-                            <thead><tr><th>产品</th></tr></thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+                    <div class="chart-subtitle" style="margin-bottom:12px"><i class="fas fa-table"></i> 数据明细表</div>
+                    <div class="data-table-container"><table class="data-table" id="dataTable"><thead><tr><th>产品</th></tr></thead><tbody></tbody></table></div>
                 </div>
             </div>
         </div>
-
-        <div class="footer-note">
-            <p><i class="fas fa-exclamation-circle"></i> 注：数据基于细分市场工作表的补气补血TOP10产品整理。销售额单位为百万元，同比变化基于去年同期计算。</p>
-        </div>
+        <div class="footer-note"><p><i class="fas fa-exclamation-circle"></i> 注：数据基于细分市场工作表的补气补血TOP10产品整理。销售额单位为百万元，同比变化基于去年同期计算。</p></div>
     </div>
 
     <script>
-        // ============ PRODUCT DATA (National) ============
-        const productData = {"quarters":["22Q1","22Q2","22Q3","22Q4","23Q1","23Q2","23Q3","23Q4","24Q1","24Q2","24Q3","24Q4","25Q1","25Q2","25Q3","25Q4"],"products":[{"id":"复方阿胶浆","name":"复方阿胶浆","sales":[354.99,300.23,358.04,414.22,492.08,422.44,448.78,653.87,569.19,510.88,501.69,733.10,530.91,482.52,456.44,578.75],"yoy_changes":[0,0,0,0,38.6,40.7,25.3,57.9,15.7,20.9,11.8,12.1,-6.7,-5.5,-9.0,-21.1]},{"id":"扬子江黄芪精","name":"扬子江黄芪精","sales":[191.58,218.90,272.85,233.80,338.31,346.07,404.71,325.83,279.15,305.29,375.55,339.35,264.82,255.40,298.21,269.75],"yoy_changes":[0,0,0,0,76.6,58.1,48.3,39.4,-17.5,-11.8,-7.2,4.2,-5.1,-16.3,-20.6,-20.5]},{"id":"益安宁丸","name":"益安宁丸","sales":[354.69,375.50,329.83,401.62,380.47,335.00,298.40,376.50,230.46,286.86,280.19,375.18,228.17,239.33,238.14,302.43],"yoy_changes":[0,0,0,0,7.3,-10.8,-9.5,-6.3,-39.4,-14.4,-6.1,-0.4,-1.0,-16.6,-15.0,-19.4]},{"id":"云丰气血康","name":"云丰气血康","sales":[78.44,84.25,85.87,72.76,80.65,81.21,84.60,81.30,79.93,82.78,100.61,162.48,156.86,196.75,220.59,282.10],"yoy_changes":[0,0,0,0,2.8,-3.6,-1.5,11.7,-0.9,1.9,18.9,99.8,96.3,137.7,119.3,73.6]},{"id":"山东福牌阿胶","name":"山东福牌阿胶","sales":[173.43,120.98,171.46,284.43,178.69,119.75,159.22,338.14,147.53,99.43,104.30,265.47,109.52,69.76,78.65,162.97],"yoy_changes":[0,0,0,0,3.0,-1.0,-7.1,18.9,-17.4,-17.0,-34.5,-21.5,-25.8,-29.8,-24.6,-38.6]},{"id":"阿胶黄芪口服液","name":"阿胶黄芪口服液","sales":[5.86,7.72,11.01,13.18,20.58,21.75,27.06,40.71,36.40,46.57,52.03,56.21,47.68,44.42,75.29,82.74],"yoy_changes":[0,0,0,0,251.4,181.8,145.9,208.8,76.9,114.1,92.3,38.1,31.0,-4.6,44.7,47.2]},{"id":"宏济堂阿胶","name":"宏济堂阿胶","sales":[89.23,59.65,65.78,156.83,77.88,58.79,71.43,159.06,74.02,50.09,54.96,139.59,66.04,35.42,41.39,86.26],"yoy_changes":[0,0,0,0,-12.7,-1.4,8.6,1.4,-5.0,-14.8,-23.0,-12.2,-10.8,-29.3,-24.7,-38.2]},{"id":"黄芪颗粒","name":"黄芪颗粒","sales":[65.10,65.12,63.81,61.49,69.65,71.69,88.80,133.17,69.19,73.69,81.34,104.95,54.25,50.87,52.11,61.10],"yoy_changes":[0,0,0,0,7.0,10.1,39.2,116.6,-0.7,2.8,-8.4,-21.2,-21.6,-31.0,-35.9,-41.8]},{"id":"康缘黄芪精","name":"康缘黄芪精","sales":[30.94,32.62,39.47,33.86,39.26,57.27,56.44,49.28,44.21,55.25,61.01,54.75,44.00,52.05,60.76,58.40],"yoy_changes":[0,0,0,0,26.9,75.6,43.0,45.5,12.6,-3.5,8.1,11.1,-0.5,-5.8,-0.4,6.7]},{"id":"东阿阿胶","name":"东阿阿胶","sales":[85.50,92.30,105.70,128.40,145.20,138.70,156.80,178.90,162.30,155.60,168.90,192.40,175.80,168.20,182.50,198.70],"yoy_changes":[0,0,0,0,69.9,50.3,48.3,39.3,11.8,12.2,7.7,7.5,8.3,8.1,8.0,3.3]}]};
+    // ============ NATIONAL PRODUCT DATA ============
+    const productData = {"quarters":["22Q1","22Q2","22Q3","22Q4","23Q1","23Q2","23Q3","23Q4","24Q1","24Q2","24Q3","24Q4","25Q1","25Q2","25Q3","25Q4"],"products":[{"id":"复方阿胶浆","name":"复方阿胶浆","sales":[354.99,300.23,358.04,414.22,492.08,422.44,448.78,653.87,569.19,510.88,501.69,733.10,530.91,482.52,456.44,578.75],"yoy_changes":[0,0,0,0,38.6,40.7,25.3,57.9,15.7,20.9,11.8,12.1,-6.7,-5.5,-9.0,-21.1]},{"id":"扬子江黄芪精","name":"扬子江黄芪精","sales":[191.58,218.90,272.85,233.80,338.31,346.07,404.71,325.83,279.15,305.29,375.55,339.35,264.82,255.40,298.21,269.75],"yoy_changes":[0,0,0,0,76.6,58.1,48.3,39.4,-17.5,-11.8,-7.2,4.2,-5.1,-16.3,-20.6,-20.5]},{"id":"益安宁丸","name":"益安宁丸","sales":[354.69,375.50,329.83,401.62,380.47,335.00,298.40,376.50,230.46,286.86,280.19,375.18,228.17,239.33,238.14,302.43],"yoy_changes":[0,0,0,0,7.3,-10.8,-9.5,-6.3,-39.4,-14.4,-6.1,-0.4,-1.0,-16.6,-15.0,-19.4]},{"id":"云丰气血康","name":"云丰气血康","sales":[78.44,84.25,85.87,72.76,80.65,81.21,84.60,81.30,79.93,82.78,100.61,162.48,156.86,196.75,220.59,282.10],"yoy_changes":[0,0,0,0,2.8,-3.6,-1.5,11.7,-0.9,1.9,18.9,99.8,96.3,137.7,119.3,73.6]},{"id":"山东福牌阿胶","name":"山东福牌阿胶","sales":[173.43,120.98,171.46,284.43,178.69,119.75,159.22,338.14,147.53,99.43,104.30,265.47,109.52,69.76,78.65,162.97],"yoy_changes":[0,0,0,0,3.0,-1.0,-7.1,18.9,-17.4,-17.0,-34.5,-21.5,-25.8,-29.8,-24.6,-38.6]},{"id":"阿胶黄芪口服液","name":"阿胶黄芪口服液","sales":[5.86,7.72,11.01,13.18,20.58,21.75,27.06,40.71,36.40,46.57,52.03,56.21,47.68,44.42,75.29,82.74],"yoy_changes":[0,0,0,0,251.4,181.8,145.9,208.8,76.9,114.1,92.3,38.1,31.0,-4.6,44.7,47.2]},{"id":"宏济堂阿胶","name":"宏济堂阿胶","sales":[89.23,59.65,65.78,156.83,77.88,58.79,71.43,159.06,74.02,50.09,54.96,139.59,66.04,35.42,41.39,86.26],"yoy_changes":[0,0,0,0,-12.7,-1.4,8.6,1.4,-5.0,-14.8,-23.0,-12.2,-10.8,-29.3,-24.7,-38.2]},{"id":"黄芪颗粒","name":"黄芪颗粒","sales":[65.10,65.12,63.81,61.49,69.65,71.69,88.80,133.17,69.19,73.69,81.34,104.95,54.25,50.87,52.11,61.10],"yoy_changes":[0,0,0,0,7.0,10.1,39.2,116.6,-0.7,2.8,-8.4,-21.2,-21.6,-31.0,-35.9,-41.8]},{"id":"康缘黄芪精","name":"康缘黄芪精","sales":[30.94,32.62,39.47,33.86,39.26,57.27,56.44,49.28,44.21,55.25,61.01,54.75,44.00,52.05,60.76,58.40],"yoy_changes":[0,0,0,0,26.9,75.6,43.0,45.5,12.6,-3.5,8.1,11.1,-0.5,-5.8,-0.4,6.7]},{"id":"东阿阿胶","name":"东阿阿胶","sales":[85.50,92.30,105.70,128.40,145.20,138.70,156.80,178.90,162.30,155.60,168.90,192.40,175.80,168.20,182.50,198.70],"yoy_changes":[0,0,0,0,69.9,50.3,48.3,39.3,11.8,12.2,7.7,7.5,8.3,8.1,8.0,3.3]}]};
 
-        // ============ REGION DEFINITIONS ============
-        const ALL_PROVINCES = ['江苏','浙江','安徽','山东','广东','四川','湖北','湖南','河南','河北','江西','陕西','云南'];
-        const ALL_CITIES = ['北京','上海','天津','重庆','广州','成都','深圳','苏州','武汉','杭州','西安','南京','无锡','温州','长沙','青岛','济南','烟台','合肥','昆明','南昌','石家庄','郑州','常州','临沂','大连','兰州','福州','宁波'];
+    // ============ PRODUCT NAME ABBREVIATION ============
+    const PRODUCT_NAME_MAP = {
+        '东阿阿胶(阿胶)':'东阿阿胶','东阿阿胶(复方阿胶浆)':'复方阿胶浆',
+        '黄芪精(扬子江药业集团江苏龙凤堂中药有限公司)':'扬子江黄芪精',
+        '阿胶(山东福牌阿胶股份有限公司)':'山东福牌阿胶',
+        '云丰(气血康口服液)':'云丰气血康','益安宁丸(同溢堂药业有限公司)':'益安宁丸',
+        '宏济堂(阿胶)':'宏济堂阿胶','黄芪颗粒(四川百利药业有限责任公司)':'黄芪颗粒',
+        '阿胶黄芪口服液(河北君临药业有限公司)':'阿胶黄芪口服液',
+        '气血康口服液(先声药业有限公司)':'先声气血康',
+        '阿胶(山东东阿国胶堂阿胶药业有限公司)':'东阿国胶堂阿胶',
+        '黄芪精(江苏康缘阳光药业有限公司)':'康缘黄芪精',
+        '黄芪精(江苏聚荣制药集团有限公司)':'聚荣黄芪精',
+        '黄芪精(台州南峰药业有限公司)':'南峰黄芪精',
+        '生脉饮(扬子江药业集团江苏龙凤堂中药有限公司)':'扬子江生脉饮',
+        '桃花姬(阿胶核桃芝麻糕)':'桃花姬','青春宝(抗衰老片)':'青春宝',
+        '九芝堂(驴胶补血颗粒)':'九芝堂驴胶补血颗粒','九芝堂(阿胶)':'九芝堂阿胶',
+        '西帕(石榴补血糖浆)':'西帕石榴补血糖浆',
+        '复方红衣补血口服液(翔宇药业股份有限公司)':'翔宇复方红衣补血口服液',
+        '益气养血口服液(通药制药集团股份有限公司)':'通药益气养血口服液',
+        '益气养血口服液(通化万通药业股份有限公司)':'万通益气养血口服液',
+        '益气养血口服液(通化汇金堂药业股份有限公司)':'汇金堂益气养血口服液',
+        '益气养血口服液(吉林玉仁制药股份有限公司)':'玉仁益气养血口服液',
+        '益气维血颗粒(广东红珊瑚药业有限公司)':'红珊瑚益气维血颗粒',
+        '益气维血胶囊(广东红珊瑚药业有限公司)':'红珊瑚益气维血胶囊',
+        '阿胶(北京同仁堂(唐山)营养保健品有限公司)':'同仁堂阿胶',
+        '阿胶(伊犁全鹿制药有限公司)':'伊犁全鹿阿胶',
+        '阿胶(太极集团甘肃天水羲皇阿胶有限公司)':'天水羲皇阿胶',
+        '阿胶(山东古阿井阿胶有限公司)':'古阿井阿胶',
+        '阿胶(湖南东健药业有限公司)':'东健阿胶',
+        '参茸阿胶(山东福牌阿胶股份有限公司)':'福牌参茸阿胶',
+        '阿胶益寿口服液(东阿阿胶股份有限公司)':'东阿阿胶益寿口服液',
+        '阿胶补血口服液(山东福牌制药有限公司)':'福牌阿胶补血口服液',
+        '阿胶补血口服液(江西省芙蓉堂药业股份有限公司)':'芙蓉堂阿胶补血口服液',
+        '同仁堂(生脉饮(人参方))':'同仁堂生脉饮(人参方)',
+        '同仁堂(生脉饮(党参方))':'同仁堂生脉饮(党参方)',
+        '健脾生血颗粒(健民集团叶开泰国药(随州)有限公司)':'健民健脾生血颗粒',
+        '和美(当归补血口服液)':'和美当归补血口服液',
+        '长春宝口服液(重庆芸峰药业有限公司)':'芸峰长春宝口服液',
+        '长春宝口服液(苏州华葆药业股份有限公司)':'华葆长春宝口服液',
+        '心脑舒口服液(荣昌制药(淄博)有限公司)':'荣昌心脑舒口服液',
+        '黄芪生脉饮(江西南昌济生制药有限责任公司)':'南昌济生黄芪生脉饮',
+        '黄芪生脉饮(浙江新光药业股份有限公司)':'新光黄芪生脉饮',
+        '生脉饮(吉林巨仁堂药业股份有限公司)':'巨仁堂生脉饮',
+        '生脉饮(吉林省康福药业有限公司)':'康福生脉饮',
+        '生脉饮(四平正和制药有限公司)':'正和生脉饮',
+        '生脉饮(洛阳顺势药业有限公司)':'顺势生脉饮',
+        '生脉饮(黄山精制药业有限公司)':'黄山生脉饮',
+        '生脉饮口服液(长春大政药业科技有限公司)':'大政生脉饮口服液',
+        '生脉饮口服液(黑龙江瑞格制药有限公司)':'瑞格生脉饮口服液',
+        '生脉注射液(华润三九(雅安)药业有限公司)':'华润三九生脉注射液',
+        '生脉片(四川森科制药有限公司)':'森科生脉片',
+        '益血生胶囊(吉林三九金复康药业有限公司)':'金复康益血生胶囊',
+        '益血生片(吉林吉尔吉药业有限公司)':'吉尔吉益血生片',
+        '人参养荣丸(石家庄御和堂药业股份有限公司)':'御和堂人参养荣丸',
+        '红芪口服液(甘肃之骄制药有限公司)':'之骄红芪口服液',
+        '肝精补血素口服液(河南省奥林特药业有限公司)':'奥林特肝精补血素口服液',
+        '三七参蜂口服液(云南白药集团股份有限公司)':'云南白药三七参蜂口服液',
+        '黄芪精颗粒(颈复康药业集团赤峰丹龙药业有限公司)':'丹龙黄芪精颗粒',
+        '十全大补酒(南昌恒湖药酒有限责任公司)':'南昌恒湖十全大补酒',
+        '玫瑰花口服液(喀什昆仑维吾尔药业有限公司)':'昆仑玫瑰花口服液',
+        '金日(美国洋参胶囊)':'金日美国洋参胶囊',
+        '温补气血口服液(广西百琪药业有限公司)':'百琪温补气血口服液'
+    };
 
-        // ============ STATE ============
-        let selectedProvinceSet = new Set();
-        let selectedCitySet = new Set();
-        let activeSection = null; // 'province' | 'city' | null
-
-        // ============ CHARTS ============
-        let salesChart = null, yoyChart = null, marketShareChart = null;
-
-        const CHART_COLORS = [
-            '#4361ee','#f72585','#4cc9f0','#7209b7','#f8961e',
-            '#06d6a0','#ef476f','#118ab2','#ffd166','#073b4c'
-        ];
-
-        // ============ BUILD FILTER UI ============
-        function buildFilterUI() {
-            const provContainer = document.getElementById('provinceButtons');
-            const cityContainer = document.getElementById('cityButtons');
-
-            // Province buttons: 全国 + 13 provinces
-            provContainer.innerHTML = '';
-            const allBtn = document.createElement('button');
-            allBtn.className = 'filter-btn all-btn selected';
-            allBtn.textContent = '全国';
-            allBtn.dataset.region = '全国';
-            allBtn.addEventListener('click', () => onProvinceClick('全国'));
-            provContainer.appendChild(allBtn);
-
-            ALL_PROVINCES.forEach(p => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.textContent = p;
-                btn.dataset.region = p;
-                btn.addEventListener('click', () => onProvinceClick(p));
-                provContainer.appendChild(btn);
-            });
-
-            // City buttons: 全部城市 + all cities
-            cityContainer.innerHTML = '';
-            const allCityBtn = document.createElement('button');
-            allCityBtn.className = 'filter-btn all-btn';
-            allCityBtn.textContent = '全部城市';
-            allCityBtn.dataset.region = '全部城市';
-            allCityBtn.addEventListener('click', () => onCityClick('全部城市'));
-            cityContainer.appendChild(allCityBtn);
-
-            ALL_CITIES.forEach(c => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.textContent = c;
-                btn.dataset.region = c;
-                btn.addEventListener('click', () => onCityClick(c));
-                cityContainer.appendChild(btn);
-            });
+    function abbreviateProductName(fullName) {
+        if (PRODUCT_NAME_MAP[fullName]) return PRODUCT_NAME_MAP[fullName];
+        const m = fullName.match(/^(.+?)\\((.+?)\\)$/);
+        if (m) {
+            const companies = ['扬子江','东阿阿胶','福牌','同仁堂','九芝堂','宏济堂','云丰','康缘','聚荣','南峰','万通','汇金堂','玉仁','红珊瑚','健民','和美','芸峰','华葆','荣昌','南昌济生','新光','巨仁堂','康福','正和','顺势','黄山','大政','瑞格','之骄','奥林特','百琪','昆仑','先声','古阿井','东健','伊犁全鹿','天水羲皇','云南白药','金日'];
+            let company = m[2];
+            for (const c of companies) { if (company.includes(c)) { company = c; break; } }
+            if (company.length > 6) company = company.substring(0, 4);
+            return company + m[1];
         }
+        return fullName;
+    }
 
-        // ============ PROVINCE CLICK LOGIC ============
-        function onProvinceClick(region) {
-            if (activeSection === 'city') return; // cities active, provinces disabled
+    // ============ REGIONS ============
+    const ALL_PROVINCES = ['江苏','浙江','安徽','山东','广东','四川','湖北','湖南','河南','河北','江西','陕西','云南'];
+    const ALL_CITIES = ['北京','上海','天津','重庆','广州','成都','深圳','苏州','武汉','杭州','西安','南京','无锡','温州','长沙','青岛','济南','烟台','合肥','昆明','南昌','石家庄','郑州','常州','临沂','大连','兰州','福州','宁波'];
 
-            if (region === '全国') {
-                // 全国：清空所有省份选择
-                selectedProvinceSet.clear();
-                activeSection = null;
-                updateAllButtonStyles();
-                updateChartData();
-                return;
-            }
+    // ============ STATE ============
+    let selectedProvinceSet = new Set();
+    let selectedCitySet = new Set();
+    let selectedProductSet = new Set();
+    let allProductNames = [];
+    let activeSection = null; // 'province' | 'city' | null
 
-            // 省份点击：激活省份区，取消全国
-            activeSection = 'province';
+    // ============ CHARTS ============
+    let salesChart = null, yoyChart = null, marketShareChart = null;
+    const CHART_COLORS = ['#4361ee','#f72585','#4cc9f0','#7209b7','#f8961e','#06d6a0','#ef476f','#118ab2','#ffd166','#073b4c'];
 
-            if (selectedProvinceSet.has(region)) {
-                selectedProvinceSet.delete(region);
-                if (selectedProvinceSet.size === 0) {
-                    activeSection = null;
-                }
-            } else {
-                selectedProvinceSet.add(region);
-            }
+    // ============ BUILD FILTER UI ============
+    function buildFilterUI() {
+        const provContainer = document.getElementById('provinceButtons');
+        const cityContainer = document.getElementById('cityButtons');
 
-            updateAllButtonStyles();
-            updateChartData();
+        // Provinces
+        provContainer.innerHTML = '';
+        const allBtn = document.createElement('button');
+        allBtn.className = 'filter-btn all-btn selected';
+        allBtn.textContent = '全国'; allBtn.dataset.region = '全国';
+        allBtn.addEventListener('click', () => onProvinceClick('全国'));
+        provContainer.appendChild(allBtn);
+        ALL_PROVINCES.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn'; btn.textContent = p; btn.dataset.region = p;
+            btn.addEventListener('click', () => onProvinceClick(p));
+            provContainer.appendChild(btn);
+        });
+
+        // Cities
+        cityContainer.innerHTML = '';
+        const allCityBtn = document.createElement('button');
+        allCityBtn.className = 'filter-btn all-btn'; allCityBtn.textContent = '全部城市';
+        allCityBtn.dataset.region = '全部城市';
+        allCityBtn.addEventListener('click', () => onCityClick('全部城市'));
+        cityContainer.appendChild(allCityBtn);
+        ALL_CITIES.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn'; btn.textContent = c; btn.dataset.region = c;
+            btn.addEventListener('click', () => onCityClick(c));
+            cityContainer.appendChild(btn);
+        });
+
+        // Products built after first data load
+        rebuildProductFilter();
+    }
+
+    function rebuildProductFilter() {
+        const prodContainer = document.getElementById('productButtons');
+        if (!prodContainer) return;
+        prodContainer.innerHTML = '';
+
+        const allProducts = getMergedProductsRaw();
+        allProductNames = allProducts.map(p => p.name);
+
+        const allProdBtn = document.createElement('button');
+        allProdBtn.className = 'filter-btn all-btn selected';
+        allProdBtn.textContent = '全部产品';
+        allProdBtn.addEventListener('click', () => onProductClick('全部产品'));
+        prodContainer.appendChild(allProdBtn);
+
+        allProducts.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn';
+            btn.textContent = abbreviateProductName(p.name);
+            btn.dataset.product = p.name;
+            btn.addEventListener('click', () => onProductClick(p.name));
+            prodContainer.appendChild(btn);
+        });
+    }
+
+    // ============ CLICK HANDLERS ============
+    function onProvinceClick(region) {
+        if (activeSection === 'city') return;
+        if (region === '全国') {
+            selectedProvinceSet.clear(); activeSection = null;
+            updateAllButtonStyles(); updateChartData(true); return;
         }
+        activeSection = 'province';
+        if (selectedProvinceSet.has(region)) { selectedProvinceSet.delete(region); if (selectedProvinceSet.size === 0) activeSection = null; }
+        else { selectedProvinceSet.add(region); }
+        updateAllButtonStyles(); updateChartData(true);
+    }
 
-        // ============ CITY CLICK LOGIC ============
-        function onCityClick(region) {
-            if (activeSection === 'province') return; // provinces active, cities disabled
-
-            if (region === '全部城市') {
-                // 全部城市：选中所有城市
-                activeSection = 'city';
-                if (selectedCitySet.size === ALL_CITIES.length) {
-                    // already all selected → deselect all
-                    selectedCitySet.clear();
-                    activeSection = null;
-                } else {
-                    selectedCitySet = new Set(ALL_CITIES);
-                }
-                updateAllButtonStyles();
-                updateChartData();
-                return;
-            }
-
-            // 单个城市点击
+    function onCityClick(region) {
+        if (activeSection === 'province') return;
+        if (region === '全部城市') {
             activeSection = 'city';
-
-            if (selectedCitySet.has(region)) {
-                selectedCitySet.delete(region);
-                if (selectedCitySet.size === 0) {
-                    activeSection = null;
-                }
-            } else {
-                selectedCitySet.add(region);
-            }
-
-            updateAllButtonStyles();
-            updateChartData();
+            if (selectedCitySet.size === ALL_CITIES.length) { selectedCitySet.clear(); activeSection = null; }
+            else { selectedCitySet = new Set(ALL_CITIES); }
+            updateAllButtonStyles(); updateChartData(true); return;
         }
+        activeSection = 'city';
+        if (selectedCitySet.has(region)) { selectedCitySet.delete(region); if (selectedCitySet.size === 0) activeSection = null; }
+        else { selectedCitySet.add(region); }
+        updateAllButtonStyles(); updateChartData(true);
+    }
 
-        // ============ UPDATE BUTTON STYLES ============
-        function updateAllButtonStyles() {
-            const provContainer = document.getElementById('provinceButtons');
-            const cityContainer = document.getElementById('cityButtons');
-
-            // Province buttons
-            const provBtns = provContainer.querySelectorAll('.filter-btn');
-            provBtns.forEach(btn => {
-                const r = btn.dataset.region;
-                btn.classList.remove('selected', 'disabled');
-
-                // Disabled state: cities are active
-                if (activeSection === 'city') {
-                    btn.classList.add('disabled');
-                } else if (r === '全国') {
-                    if (selectedProvinceSet.size === 0 && activeSection !== 'province') {
-                        btn.classList.add('selected');
-                    }
-                } else {
-                    if (selectedProvinceSet.has(r)) {
-                        btn.classList.add('selected');
-                    }
-                }
-            });
-
-            // City buttons
-            const cityBtns = cityContainer.querySelectorAll('.filter-btn');
-            cityBtns.forEach(btn => {
-                const r = btn.dataset.region;
-                btn.classList.remove('selected', 'disabled');
-
-                // Disabled state: provinces are active
-                if (activeSection === 'province') {
-                    btn.classList.add('disabled');
-                } else if (r === '全部城市') {
-                    if (selectedCitySet.size === ALL_CITIES.length) {
-                        btn.classList.add('selected');
-                    }
-                } else {
-                    if (selectedCitySet.has(r)) {
-                        btn.classList.add('selected');
-                    }
-                }
-            });
+    function onProductClick(productName) {
+        if (productName === '全部产品') {
+            if (selectedProductSet.size === allProductNames.length) selectedProductSet.clear();
+            else selectedProductSet = new Set(allProductNames);
+        } else {
+            if (selectedProductSet.has(productName)) selectedProductSet.delete(productName);
+            else selectedProductSet.add(productName);
         }
+        updateProductButtonStyles(); updateChartData(false);
+    }
 
-        // ============ DATA RETRIEVAL & MERGING ============
-        function getMergedProducts() {
-            const quarters = productData.quarters;
+    // ============ BUTTON STYLES ============
+    function updateAllButtonStyles() {
+        const provBtns = document.querySelectorAll('#provinceButtons .filter-btn');
+        provBtns.forEach(btn => {
+            const r = btn.dataset.region;
+            btn.classList.remove('selected', 'disabled');
+            if (activeSection === 'city') { btn.classList.add('disabled'); }
+            else if (r === '全国') { if (selectedProvinceSet.size === 0 && activeSection !== 'province') btn.classList.add('selected'); }
+            else { if (selectedProvinceSet.has(r)) btn.classList.add('selected'); }
+        });
+        const cityBtns = document.querySelectorAll('#cityButtons .filter-btn');
+        cityBtns.forEach(btn => {
+            const r = btn.dataset.region;
+            btn.classList.remove('selected', 'disabled');
+            if (activeSection === 'province') { btn.classList.add('disabled'); }
+            else if (r === '全部城市') { if (selectedCitySet.size === ALL_CITIES.length) btn.classList.add('selected'); }
+            else { if (selectedCitySet.has(r)) btn.classList.add('selected'); }
+        });
+    }
 
-            // Determine which regions to use
-            let regions = [];
-            if (selectedProvinceSet.size > 0) {
-                regions = [...selectedProvinceSet];
-            } else if (selectedCitySet.size > 0) {
-                regions = [...selectedCitySet];
+    function updateProductButtonStyles() {
+        const prodContainer = document.getElementById('productButtons');
+        if (!prodContainer) return;
+        prodContainer.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('selected');
+            if (btn.textContent === '全部产品') {
+                if (selectedProductSet.size === 0 || selectedProductSet.size === allProductNames.length) btn.classList.add('selected');
+            } else if (selectedProductSet.has(btn.dataset.product)) {
+                btn.classList.add('selected');
             }
+        });
+    }
 
-            // If nothing selected, use national data
-            if (regions.length === 0) {
-                return productData.products.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    sales: p.sales.slice(),
-                    yoy_changes: p.yoy_changes.slice(),
-                    market_share_vals: null
-                }));
-            }
+    // ============ DATA MERGING ============
+    function getMergedProductsRaw() { return _doMerge(false); }
+    function getMergedProducts() { return _doMerge(true); }
 
-            // Fetch region data
-            const rd = window.regionDetailedData;
-            if (!rd || !rd.regions) return productData.products;
+    function _doMerge(applyProductFilter) {
+        let regions = [];
+        if (selectedProvinceSet.size > 0) regions = [...selectedProvinceSet];
+        else if (selectedCitySet.size > 0) regions = [...selectedCitySet];
 
-            // Collect all region data
-            const regionDataItems = [];
-            regions.forEach(name => {
-                if (rd.regions[name]) {
-                    regionDataItems.push(rd.regions[name]);
-                }
-            });
-
-            if (regionDataItems.length === 0) return productData.products;
-
-            // Merge: sum total_sales and weighted market shares
-            const mergedTotalSales = new Array(16).fill(0);
-            // For each region, collect product market shares weighted by region total_sales
-            // productName → array of 16 sales values
-            const productSalesMap = {};
-
-            regionDataItems.forEach(regionData => {
-                const ts = regionData.total_sales || [];
-                const products = regionData.products || [];
-
-                for (let q = 0; q < 16; q++) {
-                    mergedTotalSales[q] += (ts[q] || 0);
-                }
-
-                products.forEach(prod => {
-                    const name = prod.name;
-                    const shares = prod.market_share || [];
-                    if (!productSalesMap[name]) {
-                        productSalesMap[name] = new Array(16).fill(0);
-                    }
-                    for (let q = 0; q < 16; q++) {
-                        const sale = (ts[q] || 0) * (shares[q] || 0) / 100;
-                        productSalesMap[name][q] += sale;
-                    }
-                });
-            });
-
-            // Map product names to standard IDs
-            const productNames = Object.keys(productSalesMap);
-            const nameToStdId = {};
-            productData.products.forEach(p => {
-                nameToStdId[p.name] = p.id;
-                nameToStdId[p.id] = p.id;
-            });
-
-            // Build merged products sorted by total sales desc
-            const mergedProducts = productNames.map(name => {
-                const sales = productSalesMap[name];
-                const totalSum = sales.reduce((a, b) => a + b, 0);
-
-                // Calculate YoY
-                const yoy = [];
-                for (let i = 0; i < 16; i++) {
-                    if (i >= 4 && sales[i - 4] > 0) {
-                        yoy.push(((sales[i] - sales[i - 4]) / sales[i - 4]) * 100);
-                    } else {
-                        yoy.push(0);
-                    }
-                }
-
-                // Calculate market share: product_sales[q] / mergedTotalSales[q] * 100
-                const marketShareVals = [];
-                for (let q = 0; q < 16; q++) {
-                    if (mergedTotalSales[q] > 0) {
-                        marketShareVals.push((sales[q] / mergedTotalSales[q]) * 100);
-                    } else {
-                        marketShareVals.push(0);
-                    }
-                }
-
-                // Match to standard ID
-                let stdId = nameToStdId[name];
-                if (!stdId) {
-                    for (const p of productData.products) {
-                        if (name.includes(p.name) || p.name.includes(name)) {
-                            stdId = p.id;
-                            break;
-                        }
-                    }
-                }
-                if (!stdId) stdId = name;
-
-                return {
-                    id: stdId,
-                    name: name,
-                    sales: sales,
-                    total: totalSum,
-                    yoy_changes: yoy,
-                    market_share_vals: marketShareVals
-                };
-            });
-
-            // Sort by total sales descending, then remove total=0 entries
-            mergedProducts.sort((a, b) => b.total - a.total);
-            // Keep top 10 non-zero products
-            const top10 = mergedProducts.filter(p => p.total > 0).slice(0, 10);
-
-            // Map product names to shorter display names for chart labels
-            const displayNameMap = {};
-            productData.products.forEach(p => { displayNameMap[p.id] = p.name; });
-
-            return top10.map(p => {
-                let displayName = p.name;
-                for (const dp of productData.products) {
-                    if (p.name.includes(dp.name)) { displayName = dp.name; break; }
-                }
-                return { ...p, displayName: displayName };
-            });
-        }
-
-        // ============ UPDATE CHARTS ============
-        function updateChartData() {
-            const products = getMergedProducts();
-            const quarters = productData.quarters;
-
-            // Update status display
-            const displayEl = document.getElementById('currentRegionDisplay');
-            const shareDisplayEl = document.getElementById('currentRegion');
-            let label;
-            if (selectedProvinceSet.size > 0) {
-                label = [...selectedProvinceSet].join(' + ');
-            } else if (selectedCitySet.size > 0) {
-                label = [...selectedCitySet].join(' + ');
-            } else {
-                label = '全国';
-            }
-            displayEl.textContent = label;
-            shareDisplayEl.textContent = label;
-
-            // --- Sales Chart ---
-            const salesDatasets = products.map((p, i) => ({
-                label: p.displayName || p.name,
-                data: p.sales,
-                backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
-                borderColor: CHART_COLORS[i % CHART_COLORS.length],
-                borderWidth: 1,
-                borderRadius: 3
+        if (regions.length === 0) {
+            return productData.products.map(p => ({
+                id: p.id, name: p.name, sales: p.sales.slice(), yoy_changes: p.yoy_changes.slice(), market_share_vals: null
             }));
-
-            if (salesChart) {
-                salesChart.data.datasets = salesDatasets;
-                salesChart.update();
-            }
-
-            // --- YoY Chart ---
-            const yoyDatasets = products.map((p, i) => ({
-                label: p.displayName || p.name,
-                data: p.yoy_changes,
-                borderColor: CHART_COLORS[i % CHART_COLORS.length],
-                backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
-                borderWidth: 2,
-                pointRadius: 2,
-                pointHoverRadius: 4,
-                tension: 0.3,
-                fill: false
-            }));
-
-            if (yoyChart) {
-                yoyChart.data.datasets = yoyDatasets;
-                yoyChart.update();
-            }
-
-            // --- Market Share Chart ---
-            const msDatasets = products.map((p, i) => ({
-                label: p.displayName || p.name,
-                data: p.market_share_vals,
-                backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
-                borderColor: '#fff',
-                borderWidth: 1
-            }));
-
-            if (marketShareChart) {
-                marketShareChart.data.datasets = msDatasets;
-                marketShareChart.update();
-            }
-
-            // Reset disabled state
-            if (activeSection === 'province') {
-                document.querySelectorAll('#cityButtons .filter-btn').forEach(b => b.classList.add('disabled'));
-            } else if (activeSection === 'city') {
-                document.querySelectorAll('#provinceButtons .filter-btn').forEach(b => b.classList.add('disabled'));
-            }
-
-            // --- Data Table ---
-            updateDataTable(products, quarters);
         }
 
-        // ============ UPDATE DATA TABLE ============
-        function updateDataTable(products, quarters) {
-            const thead = document.querySelector('#dataTable thead tr');
-            const tbody = document.querySelector('#dataTable tbody');
+        const rd = window.regionDetailedData;
+        if (!rd || !rd.regions) return productData.products;
 
-            // Build table header
-            thead.innerHTML = '<th>产品</th>';
-            quarters.forEach(q => { thead.innerHTML += `<th>${q}</th>`; });
+        const regionDataItems = regions.map(n => rd.regions[n]).filter(Boolean);
+        if (regionDataItems.length === 0) return productData.products;
 
-            // Build table body - show sales
-            tbody.innerHTML = '';
-            products.forEach(p => {
-                let row = `<td>${p.displayName || p.name}</td>`;
-                p.sales.forEach((s, i) => {
-                    row += `<td>${s.toFixed(2)}</td>`;
-                });
-                tbody.innerHTML += `<tr>${row}</tr>`;
+        const mergedTotalSales = new Array(16).fill(0);
+        const productSalesMap = {};
+
+        regionDataItems.forEach(rdata => {
+            const ts = rdata.total_sales || [];
+            for (let q = 0; q < 16; q++) mergedTotalSales[q] += (ts[q] || 0);
+            (rdata.products || []).forEach(prod => {
+                const name = prod.name, shares = prod.market_share || [];
+                if (!productSalesMap[name]) productSalesMap[name] = new Array(16).fill(0);
+                for (let q = 0; q < 16; q++) productSalesMap[name][q] += (ts[q] || 0) * (shares[q] || 0) / 100;
             });
+        });
+
+        const mergedProducts = Object.entries(productSalesMap).map(([name, sales]) => {
+            const totalSum = sales.reduce((a, b) => a + b, 0);
+            const yoy = [];
+            for (let i = 0; i < 16; i++) {
+                if (i >= 4 && sales[i - 4] > 0) yoy.push(((sales[i] - sales[i - 4]) / sales[i - 4]) * 100);
+                else yoy.push(0);
+            }
+            const msVals = [];
+            for (let q = 0; q < 16; q++) msVals.push(mergedTotalSales[q] > 0 ? (sales[q] / mergedTotalSales[q]) * 100 : 0);
+
+            let stdId = null;
+            for (const p of productData.products) { if (name.includes(p.name) || p.name.includes(name)) { stdId = p.id; break; } }
+            return { id: stdId || name, name, sales, total: totalSum, yoy_changes: yoy, market_share_vals: msVals };
+        });
+
+        mergedProducts.sort((a, b) => b.total - a.total);
+        let result = mergedProducts.filter(p => p.total > 0).slice(0, 10);
+
+        if (applyProductFilter && selectedProductSet.size > 0 && selectedProductSet.size < allProductNames.length) {
+            result = result.filter(p => selectedProductSet.has(p.name));
         }
 
-        // ============ INIT CHARTS ============
-        function initSalesChart() {
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            salesChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: productData.quarters, datasets: [] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 10, padding: 12, usePointStyle: true } },
-                        tooltip: {
-                            mode: 'index', intersect: false,
-                            callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '百万' }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 16, autoSkip: false } },
-                        y: { beginAtZero: true, ticks: { callback: v => v.toFixed(0) + '百万', font: { size: 10 } }, title: { display: true, text: '销售额（百万元）' } }
-                    },
-                    interaction: { intersect: false, mode: 'index' }
-                }
-            });
-        }
+        return result.map(p => ({ ...p, displayName: abbreviateProductName(p.name) }));
+    }
 
-        function initYoyChart() {
-            const ctx = document.getElementById('yoyChart').getContext('2d');
-            yoyChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: productData.quarters, datasets: [] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 10, padding: 12, usePointStyle: true } },
-                        tooltip: {
-                            mode: 'index', intersect: false,
-                            callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%' }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 16, autoSkip: false } },
-                        y: { ticks: { callback: v => v.toFixed(0) + '%', font: { size: 10 } }, title: { display: true, text: '同比变化（%）' } }
-                    },
-                    interaction: { intersect: false, mode: 'index' }
-                }
-            });
-        }
+    // ============ UPDATE CHARTS ============
+    function updateChartData(rebuildProducts) {
+        if (rebuildProducts) { rebuildProductFilter(); selectedProductSet.clear(); updateProductButtonStyles(); }
 
-        function initMarketShareChart() {
-            const ctx = document.getElementById('marketShareChart').getContext('2d');
-            marketShareChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: productData.quarters, datasets: [] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { font: { size: 10 }, boxWidth: 8, padding: 10, usePointStyle: true } },
-                        tooltip: {
-                            mode: 'index', intersect: false,
-                            callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%' }
-                        }
-                    },
-                    scales: {
-                        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 16, autoSkip: false } },
-                        y: { stacked: true, ticks: { callback: v => v + '%', font: { size: 10 } }, max: 100, title: { display: true, text: '销售额份额（%）' } }
-                    },
-                    interaction: { intersect: false, mode: 'index' }
-                }
-            });
-        }
+        const products = getMergedProducts();
+        const quarters = productData.quarters;
 
-        // ============ INIT ============
-        function init() {
-            buildFilterUI();
-            initSalesChart();
-            initYoyChart();
-            initMarketShareChart();
-            updateChartData();
-        }
+        const label = selectedProvinceSet.size > 0 ? [...selectedProvinceSet].join(' + ')
+            : selectedCitySet.size > 0 ? [...selectedCitySet].join(' + ') : '全国';
 
-        document.addEventListener('DOMContentLoaded', init);
+        document.getElementById('currentRegionDisplay').textContent = label;
+        document.getElementById('currentRegion').textContent = label;
+
+        // Sales chart
+        salesChart.data.datasets = products.map((p, i) => ({
+            label: p.displayName, data: p.sales,
+            backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+            borderColor: CHART_COLORS[i % CHART_COLORS.length], borderWidth: 1, borderRadius: 3
+        }));
+        salesChart.update();
+
+        // YoY chart
+        yoyChart.data.datasets = products.map((p, i) => ({
+            label: p.displayName, data: p.yoy_changes,
+            borderColor: CHART_COLORS[i % CHART_COLORS.length],
+            backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+            borderWidth: 2, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
+        }));
+        yoyChart.update();
+
+        // Market share chart
+        marketShareChart.data.datasets = products.map((p, i) => ({
+            label: p.displayName, data: p.market_share_vals,
+            backgroundColor: CHART_COLORS[i % CHART_COLORS.length], borderColor: '#fff', borderWidth: 1
+        }));
+        marketShareChart.update();
+
+        // Data table
+        const thead = document.querySelector('#dataTable thead tr');
+        const tbody = document.querySelector('#dataTable tbody');
+        thead.innerHTML = '<th>产品</th>' + quarters.map(q => `<th>${q}</th>`).join('');
+        tbody.innerHTML = '';
+        products.forEach(p => {
+            let row = `<td>${p.displayName}</td>`;
+            p.sales.forEach(s => { row += `<td>${s.toFixed(2)}</td>`; });
+            tbody.innerHTML += `<tr>${row}</tr>`;
+        });
+    }
+
+    // ============ INIT CHARTS ============
+    function initSalesChart() {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        salesChart = new Chart(ctx, {
+            type: 'bar', data: { labels: productData.quarters, datasets: [] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                onClick: () => {},
+                plugins: {
+                    legend: { position: 'top', onClick: () => {}, labels: { font:{size:11}, boxWidth:10, padding:12, usePointStyle:true } },
+                    tooltip: { mode:'index', intersect:false, callbacks:{ label: c => c.dataset.label+': '+c.parsed.y.toFixed(1)+'百万' } }
+                },
+                scales: {
+                    x: { grid:{display:false}, ticks:{font:{size:10},maxTicksLimit:16,autoSkip:false} },
+                    y: { beginAtZero:true, ticks:{callback:v=>v.toFixed(0)+'百万',font:{size:10}}, title:{display:true,text:'销售额（百万元）'} }
+                },
+                interaction: { intersect:false, mode:'index' }
+            }
+        });
+    }
+
+    function initYoyChart() {
+        const ctx = document.getElementById('yoyChart').getContext('2d');
+        yoyChart = new Chart(ctx, {
+            type: 'line', data: { labels: productData.quarters, datasets: [] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                onClick: () => {},
+                plugins: {
+                    legend: { position: 'top', onClick: () => {}, labels: { font:{size:11}, boxWidth:10, padding:12, usePointStyle:true } },
+                    tooltip: { mode:'index', intersect:false, callbacks:{ label: c => c.dataset.label+': '+c.parsed.y.toFixed(1)+'%' } }
+                },
+                scales: {
+                    x: { grid:{display:false}, ticks:{font:{size:10},maxTicksLimit:16,autoSkip:false} },
+                    y: { ticks:{callback:v=>v.toFixed(0)+'%',font:{size:10}}, title:{display:true,text:'同比变化（%）'} }
+                },
+                interaction: { intersect:false, mode:'index' }
+            }
+        });
+    }
+
+    function initMarketShareChart() {
+        const ctx = document.getElementById('marketShareChart').getContext('2d');
+        marketShareChart = new Chart(ctx, {
+            type: 'bar', data: { labels: productData.quarters, datasets: [] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                onClick: () => {},
+                plugins: {
+                    legend: { position: 'top', onClick: () => {}, labels: { font:{size:10}, boxWidth:8, padding:10, usePointStyle:true } },
+                    tooltip: { mode:'index', intersect:false, callbacks:{ label: c => c.dataset.label+': '+c.parsed.y.toFixed(1)+'%' } }
+                },
+                scales: {
+                    x: { stacked:true, grid:{display:false}, ticks:{font:{size:10},maxTicksLimit:16,autoSkip:false} },
+                    y: { stacked:true, ticks:{callback:v=>v+'%',font:{size:10}}, max:100, title:{display:true,text:'销售额份额（%）'} }
+                },
+                interaction: { intersect:false, mode:'index' }
+            }
+        });
+    }
+
+    // ============ INIT ============
+    function init() {
+        buildFilterUI();
+        initSalesChart();
+        initYoyChart();
+        initMarketShareChart();
+        updateChartData(false);
+    }
+    document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
