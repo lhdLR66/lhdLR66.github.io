@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="region_detailed_data_corrected.js"></script>
     <script src="region_sales_data.js"></script>
     <script src="region_detailed_data_corrected.js"></script>
     <script>window.regionDetailedData = regionDetailedData;</script>
@@ -371,8 +370,13 @@
         else if (selectedCitySet.size > 0) regions = [...selectedCitySet];
 
         if (regions.length === 0) {
+            const totalSalesPerQuarter = new Array(16).fill(0);
+            productData.products.forEach(p => {
+                p.sales.forEach((s, q) => { totalSalesPerQuarter[q] += s; });
+            });
             return productData.products.map(p => ({
-                id: p.id, name: p.name, sales: p.sales.slice(), yoy_changes: p.yoy_changes.slice(), market_share_vals: null
+                id: p.id, name: p.name, sales: p.sales.slice(), yoy_changes: p.yoy_changes.slice(),
+                market_share_vals: p.sales.map((s, q) => totalSalesPerQuarter[q] > 0 ? (s / totalSalesPerQuarter[q]) * 100 : 0)
             }));
         }
 
