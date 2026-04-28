@@ -374,11 +374,15 @@
             productData.products.forEach(p => {
                 p.sales.forEach((s, q) => { totalSalesPerQuarter[q] += s; });
             });
-            return productData.products.map(p => ({
+            let result = productData.products.map(p => ({
                 id: p.id, name: p.name, displayName: abbreviateProductName(p.name),
                 sales: p.sales.slice(), yoy_changes: p.yoy_changes.slice(),
                 market_share_vals: p.sales.map((s, q) => totalSalesPerQuarter[q] > 0 ? (s / totalSalesPerQuarter[q]) * 100 : 0)
             }));
+            if (applyProductFilter && selectedProductSet.size > 0 && selectedProductSet.size < allProductNames.length) {
+                result = result.filter(p => selectedProductSet.has(p.name));
+            }
+            return result;
         }
 
         const rd = window.regionDetailedData;
