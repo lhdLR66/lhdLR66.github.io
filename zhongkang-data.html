@@ -375,16 +375,23 @@
                 p.sales.forEach((s, q) => { totalSalesPerQuarter[q] += s; });
             });
             return productData.products.map(p => ({
-                id: p.id, name: p.name, sales: p.sales.slice(), yoy_changes: p.yoy_changes.slice(),
+                id: p.id, name: p.name, displayName: abbreviateProductName(p.name),
+                sales: p.sales.slice(), yoy_changes: p.yoy_changes.slice(),
                 market_share_vals: p.sales.map((s, q) => totalSalesPerQuarter[q] > 0 ? (s / totalSalesPerQuarter[q]) * 100 : 0)
             }));
         }
 
         const rd = window.regionDetailedData;
-        if (!rd || !rd.regions) return productData.products;
+        if (!rd || !rd.regions) return productData.products.map(p => ({
+            id: p.id, name: p.name, displayName: abbreviateProductName(p.name),
+            sales: p.sales.slice(), yoy_changes: p.yoy_changes.slice(), market_share_vals: null
+        }));
 
         const regionDataItems = regions.map(n => rd.regions[n]).filter(Boolean);
-        if (regionDataItems.length === 0) return productData.products;
+        if (regionDataItems.length === 0) return productData.products.map(p => ({
+            id: p.id, name: p.name, displayName: abbreviateProductName(p.name),
+            sales: p.sales.slice(), yoy_changes: p.yoy_changes.slice(), market_share_vals: null
+        }));
 
         const mergedTotalSales = new Array(16).fill(0);
         const productSalesMap = {};
