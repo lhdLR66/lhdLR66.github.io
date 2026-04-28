@@ -3,1216 +3,542 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>补气补血TOP10产品季度数据</title>
+    <title>补气补血中成药市场 - 区域竞争格局</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- 区域销售数据 -->
-    <script src="region_sales_data.js"></script>
-    <!-- 区域详细数据（销售额和市场份额）- 修正版 -->
     <script src="region_detailed_data_corrected.js"></script>
+    <script src="region_sales_data.js"></script>
+    <script src="region_detailed_data_corrected.js"></script>
+    <script>window.regionDetailedData = regionDetailedData;</script>
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --accent-color: #f72585;
-            --success-color: #4cc9f0;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-card: #ffffff;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --border-color: #e9ecef;
-            --shadow-color: rgba(0, 0, 0, 0.08);
-            --border-radius: 12px;
-            --transition: all 0.3s ease;
+            --primary-color: #4361ee; --secondary-color: #3a0ca3; --accent-color: #f72585;
+            --bg-primary: #ffffff; --bg-secondary: #f8f9fa; --bg-card: #ffffff;
+            --text-primary: #212529; --text-secondary: #6c757d; --text-muted: #adb5bd;
+            --border-color: #e9ecef; --shadow-color: rgba(0,0,0,0.08); --border-radius: 12px;
         }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background: var(--bg-primary); 
-            color: var(--text-primary); 
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px;
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 20px var(--shadow-color);
-        }
-        
-        .header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #4361ee, #3a0ca3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .header p {
-            font-size: 16px;
-            color: var(--text-secondary);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .info-box {
-            background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin-bottom: 30px;
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .info-box ul {
-            list-style: none;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 10px;
-        }
-        
-        .info-box li {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-        
-        .info-box li i {
-            color: var(--primary-color);
-            font-size: 16px;
-        }
-        
-        .chart-card {
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 20px var(--shadow-color);
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-        
-        .chart-header {
-            padding: 25px 30px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .chart-title {
-            font-size: 24px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .chart-title i {
-            color: var(--primary-color);
-        }
-        
-        .product-filter {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 20px;
-            padding: 15px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-        }
-        
-        .product-filter label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 6px 12px;
-            background: white;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            transition: var(--transition);
-        }
-        
-        .product-filter label:hover {
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px var(--shadow-color);
-        }
-        
-        .product-filter input[type="checkbox"] {
-            cursor: pointer;
-        }
-        
-        .chart-content {
-            padding: 30px;
-        }
-        
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-        
-        @media (max-width: 1024px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        
-        .data-table-container {
-            overflow-x: auto;
-            margin-top: 30px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-        }
-        
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-        
-        .data-table th {
-            background: var(--bg-secondary);
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-            border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
-        }
-        
-        .data-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-        }
-        
-        .data-table tr:hover {
-            background: var(--bg-secondary);
-        }
-        
-        .data-table td:first-child {
-            font-weight: 500;
-        }
-        
-        .data-table td:not(:first-child) {
-            text-align: right;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .footer-note {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .footer-note i {
-            color: var(--primary-color);
-            margin-right: 8px;
-        }
-        
-        .positive {
-            color: #10b981;
-            font-weight: 500;
-        }
-        
-        .negative {
-            color: #ef4444;
-            font-weight: 500;
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.6;padding:20px;min-height:100vh}
+        .container{max-width:1400px;margin:0 auto}
+        .header{text-align:center;margin-bottom:30px;padding:25px;background:var(--bg-card);border-radius:var(--border-radius);box-shadow:0 4px 20px var(--shadow-color)}
+        .header h1{font-size:28px;margin-bottom:8px;background:linear-gradient(135deg,#4361ee,#3a0ca3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .header p{font-size:14px;color:var(--text-secondary)}
+        .info-box{background:var(--bg-secondary);padding:16px 20px;border-radius:var(--border-radius);margin-bottom:24px;border-left:4px solid var(--primary-color)}
+        .info-box ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:8px}
+        .info-box li{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary)}
+        .info-box li i{color:var(--primary-color);font-size:14px}
+        .chart-card{background:var(--bg-card);border-radius:var(--border-radius);box-shadow:0 4px 20px var(--shadow-color);overflow:hidden;margin-bottom:24px}
+        .chart-header{padding:20px 25px;border-bottom:1px solid var(--border-color)}
+        .chart-title{font-size:22px;font-weight:600;display:flex;align-items:center;gap:12px}
+        .chart-title i{color:var(--primary-color)}
+        .chart-content{padding:24px}
+
+        .filter-section{background:var(--bg-secondary);border-radius:10px;padding:18px;margin-bottom:24px}
+        .filter-row{margin-bottom:14px}
+        .filter-row:last-child{margin-bottom:0}
+        .filter-label{font-size:13px;color:var(--text-secondary);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .filter-label i{font-size:14px}
+        .filter-buttons{display:flex;flex-wrap:wrap;gap:6px}
+        .filter-btn{padding:6px 14px;border-radius:18px;border:1px solid #dee2e6;cursor:pointer;font-size:12px;font-weight:500;background:#fff;color:#495057;transition:all .15s ease;white-space:nowrap}
+        .filter-btn:hover:not(.disabled){border-color:var(--primary-color);color:var(--primary-color)}
+        .filter-btn.selected{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+        .filter-btn.selected:hover:not(.disabled){background:#3651d4;border-color:#3651d4}
+        .filter-btn.disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+        .filter-btn.all-btn{font-weight:600;border:1.5px solid #adb5bd}
+        .filter-btn.all-btn.selected{border-color:var(--primary-color)}
+        .filter-status{font-size:12px;color:var(--text-secondary);margin-top:10px;padding-top:10px;border-top:1px solid var(--border-color)}
+        .filter-status strong{color:var(--primary-color)}
+        .selection-hint{font-size:11px;color:var(--text-muted);font-weight:400;margin-left:auto}
+
+        .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+        @media(max-width:1024px){.charts-grid{grid-template-columns:1fr}}
+        .chart-subtitle{font-size:15px;font-weight:500;color:var(--text-secondary);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+        .chart-container{position:relative;height:380px;width:100%}
+        .market-share-section{margin-bottom:32px}
+        .market-share-section h3{font-size:18px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+        .market-share-section .desc{font-size:13px;color:var(--text-secondary);margin-bottom:16px}
+        .data-table-container{overflow-x:auto;margin-top:24px;border:1px solid var(--border-color);border-radius:8px}
+        .data-table{width:100%;border-collapse:collapse;min-width:800px}
+        .data-table th{background:var(--bg-secondary);padding:10px 12px;text-align:left;font-weight:600;font-size:12px;border-bottom:2px solid var(--border-color);white-space:nowrap}
+        .data-table td{padding:8px 12px;border-bottom:1px solid var(--border-color);font-size:12px}
+        .data-table tr:hover{background:var(--bg-secondary)}
+        .data-table td:first-child{font-weight:500}
+        .data-table td:not(:first-child){text-align:right;font-family:'Courier New',monospace}
+        .footer-note{text-align:center;margin-top:32px;padding:16px;font-size:13px;color:var(--text-secondary);border-top:1px solid var(--border-color)}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-chart-bar"></i> 补气补血TOP10产品季度数据</h1>
-            <p>22Q1-25Q4 完整季度序列分析 | 10个TOP产品销售额与同比变化</p>
+            <h1><i class="fas fa-chart-bar"></i> 补气补血中成药市场 - 区域竞争格局</h1>
+            <p>22Q1-25Q4 完整季度序列分析 | TOP10产品销售额、同比变化与市场份额</p>
         </div>
-        
         <div class="info-box">
-            <div style="font-weight: 500; color: var(--text-primary); margin-bottom: 10px;">
-                <i class="fas fa-info-circle"></i> 数据说明
-            </div>
+            <div style="font-weight:500;color:var(--text-primary);margin-bottom:8px"><i class="fas fa-info-circle"></i> 数据说明</div>
             <ul>
                 <li><i class="fas fa-database"></i> 数据来源：细分市场工作表 - 补气补血TOP10</li>
-                <li><i class="fas fa-chart-pie"></i> 市场份额数据：区域竞争格局子表 - 销售额份额（MS%）</li>
+                <li><i class="fas fa-chart-pie"></i> 市场份额数据：区域竞争格局子表</li>
                 <li><i class="fas fa-calendar"></i> 时间范围：22Q1 至 25Q4（共16个季度）</li>
-                <li><i class="fas fa-pills"></i> 产品数量：11个补气补血TOP产品（含新增东阿阿胶）</li>
-                <li><i class="fas fa-calculator"></i> 计算方式：24Q3=2407-08+2409, 25Q3=2507-08+2509, 25Q4=2510+2511+2512</li>
+                <li><i class="fas fa-map-marked-alt"></i> 区域覆盖：13个省份 + 4个直辖市 + 25个重点城市</li>
                 <li><i class="fas fa-money-bill-wave"></i> 单位：销售额（百万元），市场份额（%）</li>
                 <li><i class="fas fa-percentage"></i> 同比：基于去年同期计算</li>
             </ul>
         </div>
-        
         <div class="chart-card">
-            <div class="chart-header">
-                <div class="chart-title">补气补血TOP10产品季度表现分析</div>
-            </div>
-            
+            <div class="chart-header"><div class="chart-title"><i class="fas fa-chart-line"></i> 区域竞争格局分析</div></div>
             <div class="chart-content">
-                <!-- 三列筛选器：放在产品筛选器下方 -->
-                <div style="background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid var(--border-color);">
-                    <div style="font-size: 16px; font-weight: 500; color: var(--text-primary); margin-bottom: 15px;">
-                        <i class="fas fa-filter" style="color: var(--primary-color); margin-right: 8px;"></i>
-                        数据筛选器
+                <div class="filter-section" id="filterArea">
+                    <div class="filter-row" id="provinceRow">
+                        <div class="filter-label"><i class="fas fa-map" style="color:var(--primary-color)"></i> 省份<span class="selection-hint">多选，与城市互斥</span></div>
+                        <div class="filter-buttons" id="provinceButtons"></div>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 15px;">
-                        <!-- 省份筛选 -->
-                        <div>
-                            <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">
-                                <i class="fas fa-map" style="margin-right: 6px;"></i>
-                                省份
-                            </label>
-                            <select id="provinceFilter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-size: 14px; cursor: pointer;">
-                                <option value="全国">全国</option>
-                                <option value="江苏">江苏</option>
-                                <option value="浙江">浙江</option>
-                                <option value="安徽">安徽</option>
-                                <option value="山东">山东</option>
-                                <option value="广东">广东</option>
-                                <option value="四川">四川</option>
-                                <option value="湖北">湖北</option>
-                                <option value="湖南">湖南</option>
-                                <option value="河南">河南</option>
-                                <option value="河北">河北</option>
-                                <option value="江西">江西</option>
-                                <option value="陕西">陕西</option>
-                                <option value="云南">云南</option>
-                                <!-- 直辖市已移到城市维度 -->
-                            </select>
-                        </div>
-                        
-                        <!-- 城市筛选 -->
-                        <div>
-                            <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">
-                                <i class="fas fa-city" style="margin-right: 6px;"></i>
-                                城市
-                            </label>
-                            <select id="cityFilter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-size: 14px; cursor: pointer;">
-                                <option value="全部">全部城市</option>
-                                <!-- 城市选项将通过JavaScript动态加载 -->
-                            </select>
-                        </div>
-                        
-                        <!-- 产品筛选 -->
-                        <div>
-                            <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">
-                                <i class="fas fa-pills" style="margin-right: 6px;"></i>
-                                产品
-                            </label>
-                            <select id="productFilter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-size: 14px; cursor: pointer;">
-                                <option value="全部">全部产品</option>
-                                <option value="复方阿胶浆">复方阿胶浆</option>
-                                <option value="扬子江黄芪精">扬子江黄芪精</option>
-                                <option value="益安宁丸">益安宁丸</option>
-                                <option value="云丰气血康">云丰气血康</option>
-                                <option value="山东福牌阿胶">山东福牌阿胶</option>
-                                <option value="阿胶黄芪口服液">阿胶黄芪口服液</option>
-                                <option value="宏济堂阿胶">宏济堂阿胶</option>
-                                <option value="黄芪颗粒">黄芪颗粒</option>
-                                <option value="康缘黄芪精">康缘黄芪精</option>
-                                <option value="东阿阿胶">东阿阿胶</option>
-                            </select>
-                        </div>
+                    <div class="filter-row" id="cityRow">
+                        <div class="filter-label"><i class="fas fa-city" style="color:var(--primary-color)"></i> 城市<span class="selection-hint">多选，与省份互斥</span></div>
+                        <div class="filter-buttons" id="cityButtons"></div>
                     </div>
-                    
-                    <!-- 筛选操作按钮 -->
-                    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 10px;">
-                        <button id="applyFilterBtn" style="padding: 10px 24px; background: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-check"></i>
-                            应用筛选
-                        </button>
-                        <button id="resetFilterBtn" style="padding: 10px 20px; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-redo"></i>
-                            重置
-                        </button>
+                    <div class="filter-row" id="productRow">
+                        <div class="filter-label"><i class="fas fa-pills" style="color:var(--primary-color)"></i> 产品<span class="selection-hint">多选，独立过滤</span></div>
+                        <div class="filter-buttons" id="productButtons"></div>
                     </div>
-                    
-                    <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
-                        <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
-                        此筛选器控制下方"季度销售额"和"销售额同比变化"图表，支持多维度筛选
-                    </div>
+                    <div class="filter-status"><i class="fas fa-info-circle" style="margin-right:4px"></i> 当前筛选：<strong id="currentRegionDisplay">全国</strong></div>
                 </div>
-                
-                <div class="charts-grid">
-                    <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
-                            <i class="fas fa-coins"></i> 季度销售额（百万元）
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="salesChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
-                            <i class="fas fa-chart-line"></i> 销售额同比变化（%）
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="yoyChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 新增：市场份额堆叠条形图（使用真实销售额份额数据） -->
-                <div style="margin-top: 40px; margin-bottom: 40px;">
-                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
-                        <i class="fas fa-chart-pie" style="color: var(--primary-color);"></i>
-                        TOP10产品销售额份额季度变化（堆叠条形图）
-                    </div>
-                    
 
-                    
-                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">
-                        <strong>数据来源：</strong>中康数据 - 区域竞争格局子表<br>
-                        <strong>数据说明：</strong>展示22Q1-25Q4期间TOP10产品<strong>销售额份额（MS%）</strong>随季度的变化，每个季度的条形图显示各产品在该季度的销售额份额占比<br>
-                        <strong>当前筛选：</strong><span id="currentRegion" style="font-weight: 500; color: var(--primary-color);">全国 | 全部产品</span>
-                    </div>
-                    <div class="chart-container" style="height: 450px;">
-                        <canvas id="marketShareChart"></canvas>
-                    </div>
+                <div class="charts-grid">
+                    <div><div class="chart-subtitle"><i class="fas fa-coins"></i> 季度销售额（百万元）</div><div class="chart-container"><canvas id="salesChart"></canvas></div></div>
+                    <div><div class="chart-subtitle"><i class="fas fa-chart-line"></i> 销售额同比变化（%）</div><div class="chart-container"><canvas id="yoyChart"></canvas></div></div>
                 </div>
-                
+
+                <div class="market-share-section">
+                    <h3><i class="fas fa-chart-pie" style="color:var(--primary-color)"></i> TOP10产品销售额份额季度变化（堆叠条形图）</h3>
+                    <div class="desc"><strong>数据说明：</strong>展示22Q1-25Q4期间TOP10产品<strong>销售额份额（MS%）</strong>随季度的变化<br><strong>当前筛选：</strong><span id="currentRegion" style="font-weight:500;color:var(--primary-color)">全国</span></div>
+                    <div class="chart-container" style="height:420px"><canvas id="marketShareChart"></canvas></div>
+                </div>
+
                 <div>
-                    <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
-                        <i class="fas fa-table"></i> 数据明细表
-                    </div>
-                    <div class="data-table-container">
-                        <table class="data-table" id="dataTable">
-                            <thead>
-                                <tr>
-                                    <th>产品</th>
-                                    <!-- 季度列将通过JavaScript动态添加 -->
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+                    <div class="chart-subtitle" style="margin-bottom:12px"><i class="fas fa-table"></i> 数据明细表</div>
+                    <div class="data-table-container"><table class="data-table" id="dataTable"><thead><tr><th>产品</th></tr></thead><tbody></tbody></table></div>
                 </div>
             </div>
         </div>
-        
-        <div class="footer-note">
-            <p><i class="fas fa-exclamation-circle"></i> 注：数据基于细分市场工作表的补气补血TOP10产品整理，时间范围为22Q1-25Q4。销售额单位为百万元，同比变化基于去年同期计算。</p>
-        </div>
+        <div class="footer-note"><p><i class="fas fa-exclamation-circle"></i> 注：数据基于细分市场工作表的补气补血TOP10产品整理。销售额单位为百万元，同比变化基于去年同期计算。</p></div>
     </div>
 
     <script>
-        // 产品数据 - 嵌入实际数据
-        const productData = {
-            "quarters": ["22Q1", "22Q2", "22Q3", "22Q4", "23Q1", "23Q2", "23Q3", "23Q4", "24Q1", "24Q2", "24Q3", "24Q4", "25Q1", "25Q2", "25Q3", "25Q4"],
-            "products": [
-                {
-                    "id": "复方阿胶浆",
-                    "name": "复方阿胶浆",
-                    "sales": [354.99371941, 300.22970392, 358.0373279, 414.22450341, 492.07876232, 422.43955526, 448.77685462, 653.87092909, 569.18925543, 510.8775565, 501.68841953, 733.101182, 530.91235634, 482.52456907, 456.44485005, 578.75451364],
-                    "yoy_changes": [0, 0, 0, 0, 38.6, 40.7, 25.3, 57.9, 15.7, 20.9, 11.8, 12.1, -6.7, -5.5, -9.0, -21.1]
-                },
-                {
-                    "id": "扬子江黄芪精",
-                    "name": "扬子江黄芪精",
-                    "sales": [191.57956427, 218.89625025, 272.84524519, 233.80215526, 338.30984778, 346.07033472, 404.71416773, 325.82568752, 279.15043177, 305.28799404, 375.55426137, 339.35478209, 264.81882279, 255.40409655, 298.20579797, 269.74941633],
-                    "yoy_changes": [0, 0, 0, 0, 76.6, 58.1, 48.3, 39.4, -17.5, -11.8, -7.2, 4.2, -5.1, -16.3, -20.6, -20.5]
-                },
-                {
-                    "id": "益安宁丸",
-                    "name": "益安宁丸",
-                    "sales": [354.69046308, 375.50241191, 329.82906104, 401.61623265, 380.46847644, 334.99827655, 298.40432938, 376.50218532, 230.46216445, 286.85851728, 280.18778797, 375.1768585, 228.17445017, 239.33045679, 238.13775962, 302.42646677],
-                    "yoy_changes": [0, 0, 0, 0, 7.3, -10.8, -9.5, -6.3, -39.4, -14.4, -6.1, -0.4, -1.0, -16.6, -15.0, -19.4]
-                },
-                {
-                    "id": "云丰气血康",
-                    "name": "云丰气血康",
-                    "sales": [78.43991319, 84.24574179, 85.86660418, 72.75719235, 80.65487047, 81.20673764, 84.60439704, 81.30326608, 79.92790079, 82.77880988, 100.60663323, 162.48102662, 156.86374352, 196.74718004, 220.58682001, 282.09585039],
-                    "yoy_changes": [0, 0, 0, 0, 2.8, -3.6, -1.5, 11.7, -0.9, 1.9, 18.9, 99.8, 96.3, 137.7, 119.3, 73.6]
-                },
-                {
-                    "id": "山东福牌阿胶",
-                    "name": "山东福牌阿胶",
-                    "sales": [173.4310207, 120.98393222, 171.45892171, 284.43174135, 178.69071376, 119.75398312, 159.22350649, 338.13760355, 147.53113508, 99.43442604, 104.30478276, 265.47309014, 109.52214142, 69.75923054, 78.65488424, 162.97479788],
-                    "yoy_changes": [0, 0, 0, 0, 3.0, -1.0, -7.1, 18.9, -17.4, -17.0, -34.5, -21.5, -25.8, -29.8, -24.6, -38.6]
-                },
-                {
-                    "id": "阿胶黄芪口服液",
-                    "name": "阿胶黄芪口服液",
-                    "sales": [5.85627351, 7.71812942, 11.00630982, 13.18308706, 20.58046752, 21.75080518, 27.06011857, 40.71161207, 36.39795014, 46.56876595, 52.03024386, 56.21437687, 47.67754674, 44.41604886, 75.29052052, 82.74406498],
-                    "yoy_changes": [0, 0, 0, 0, 251.4, 181.8, 145.9, 208.8, 76.9, 114.1, 92.3, 38.1, 31.0, -4.6, 44.7, 47.2]
-                },
-                {
-                    "id": "宏济堂阿胶",
-                    "name": "宏济堂阿胶",
-                    "sales": [89.22744352, 59.65108206, 65.7774424, 156.82760995, 77.88386367, 58.79237805, 71.42686285, 159.05908079, 74.01728603, 50.08916509, 54.96324851, 139.5937788, 66.0389942, 35.42304782, 41.39335247, 86.26437316],
-                    "yoy_changes": [0, 0, 0, 0, -12.7, -1.4, 8.6, 1.4, -5.0, -14.8, -23.0, -12.2, -10.8, -29.3, -24.7, -38.2]
-                },
-                {
-                    "id": "黄芪颗粒",
-                    "name": "黄芪颗粒",
-                    "sales": [65.09737415, 65.11737824, 63.81153778, 61.48758397, 69.6491416, 71.69430692, 88.79701677, 133.16969508, 69.1908049, 73.69093982, 81.33908178, 104.95262744, 54.24645406, 50.86505142, 52.10875536, 61.09769676],
-                    "yoy_changes": [0, 0, 0, 0, 7.0, 10.1, 39.2, 116.6, -0.7, 2.8, -8.4, -21.2, -21.6, -31.0, -35.9, -41.8]
-                },
-                {
-                    "id": "康缘黄芪精",
-                    "name": "康缘黄芪精",
-                    "sales": [30.94423807, 32.62144284, 39.47185676, 33.85739549, 39.26349066, 57.27334492, 56.4367373, 49.27943696, 44.20854152, 55.25011774, 61.00820038, 54.74730332, 43.99652481, 52.04680358, 60.7589828, 58.40015616],
-                    "yoy_changes": [0, 0, 0, 0, 26.9, 75.6, 43.0, 45.5, 12.6, -3.5, 8.1, 11.1, -0.5, -5.8, -0.4, 6.7]
-                },
-                {
-                    "id": "全国",
-                    "name": "全国",
-                    "sales": [1078.92651364, 1087.01729902, 1275.3448314, 1220.0361509, 1605.18325623, 1498.0783191, 1631.61308031, 1784.67320099, 1588.20665005, 1625.82626261, 1849.97663663, 2197.31786435, 1729.30182529, 1707.04138501, 1856.24584153, 2056.12193967],
-                    "yoy_changes": [0, 0, 0, 0, 48.8, 37.8, 27.9, 46.3, -1.1, 8.5, 13.4, 23.1, 8.9, 5.0, 0.3, -6.4]
-                },
-                {
-                    "id": "东阿阿胶",
-                    "name": "东阿阿胶",
-                    "sales": [85.5, 92.3, 105.7, 128.4, 145.2, 138.7, 156.8, 178.9, 162.3, 155.6, 168.9, 192.4, 175.8, 168.2, 182.5, 198.7],
-                    "yoy_changes": [0, 0, 0, 0, 69.9, 50.3, 48.3, 39.3, 11.8, 12.2, 7.7, 7.5, 8.3, 8.1, 8.0, 3.3]
-                }
-            ],
-            "data_source": "细分市场工作表 - 补气补血TOP10",
-            "time_range": "22Q1-25Q4（共16个季度）",
-            "calculation_note": "24Q3=2407-08+2409, 25Q3=2507-08+2509, 25Q4=2510+2511+2512",
-            "total_quarters": 16,
-            "market_shares": {
-                "quarters": ["22Q1", "22Q2", "22Q3", "22Q4", "23Q1", "23Q2", "23Q3", "23Q4", "24Q1", "24Q2", "24Q3", "24Q4", "25Q1", "25Q2", "25Q3", "25Q4"],
-                "products": [
-                    {
-                        "id": "东阿阿胶",
-                        "name": "东阿阿胶",
-                        "shares": [24.64, 19.39, 22.97, 33.57, 26.16, 21.56, 21.30, 30.14, 28.47, 21.02, 18.60, 24.79, 22.94, 17.57, 15.89, 21.03]
-                    },
-                    {
-                        "id": "复方阿胶浆",
-                        "name": "复方阿胶浆",
-                        "shares": [11.09, 10.89, 11.20, 9.45, 12.07, 12.69, 12.53, 12.16, 14.98, 15.28, 13.97, 13.60, 14.72, 15.50, 14.00, 13.59]
-                    },
-                    {
-                        "id": "扬子江黄芪精",
-                        "name": "扬子江黄芪精",
-                        "shares": [5.98, 7.94, 8.53, 5.33, 8.30, 10.40, 11.30, 6.06, 7.35, 9.13, 10.46, 6.29, 7.34, 8.20, 9.15, 6.33]
-                    },
-                    {
-                        "id": "益安宁丸",
-                        "name": "益安宁丸",
-                        "shares": [11.08, 13.62, 10.32, 9.16, 9.33, 10.00, 8.33, 7.00, 6.06, 8.57, 7.80, 6.96, 6.32, 7.69, 7.31, 7.10]
-                    },
-                    {
-                        "id": "云丰气血康",
-                        "name": "云丰气血康",
-                        "shares": [2.45, 3.05, 2.69, 1.66, 1.98, 2.44, 2.36, 1.51, 2.10, 2.48, 2.80, 3.01, 4.35, 6.32, 6.77, 6.62]
-                    },
-                    {
-                        "id": "山东福牌阿胶",
-                        "name": "山东福牌阿胶",
-                        "shares": [5.42, 4.39, 5.36, 6.49, 4.38, 3.60, 4.45, 6.29, 3.88, 2.97, 2.90, 4.92, 3.03, 2.24, 2.41, 3.83]
-                    },
-                    {
-                        "id": "阿胶黄芪口服液",
-                        "name": "阿胶黄芪口服液",
-                        "shares": [0.18, 0.28, 0.34, 0.30, 0.50, 0.65, 0.76, 0.76, 0.96, 1.39, 1.45, 1.04, 1.32, 1.43, 2.31, 1.94]
-                    },
-                    {
-                        "id": "宏济堂阿胶",
-                        "name": "宏济堂阿胶",
-                        "shares": [2.79, 2.16, 2.06, 3.58, 1.91, 1.77, 1.99, 2.96, 1.95, 1.50, 1.53, 2.59, 1.83, 1.14, 1.27, 2.03]
-                    },
-                    {
-                        "id": "黄芪颗粒",
-                        "name": "黄芪颗粒",
-                        "shares": [2.03, 2.36, 2.00, 1.40, 1.71, 2.15, 2.48, 2.48, 1.82, 2.20, 2.26, 1.95, 1.50, 1.63, 1.60, 1.43]
-                    },
-                    {
-                        "id": "康缘黄芪精",
-                        "name": "康缘黄芪精",
-                        "shares": [0.97, 1.18, 1.23, 0.77, 0.96, 1.72, 1.57, 0.92, 1.16, 1.65, 1.70, 1.02, 1.22, 1.67, 1.86, 1.37]
-                    }
-                ]
-            }
-        };
+    // ============ NATIONAL PRODUCT DATA ============
+    const productData = {"quarters":["22Q1","22Q2","22Q3","22Q4","23Q1","23Q2","23Q3","23Q4","24Q1","24Q2","24Q3","24Q4","25Q1","25Q2","25Q3","25Q4"],"products":[{"id":"复方阿胶浆","name":"复方阿胶浆","sales":[354.99,300.23,358.04,414.22,492.08,422.44,448.78,653.87,569.19,510.88,501.69,733.10,530.91,482.52,456.44,578.75],"yoy_changes":[0,0,0,0,38.6,40.7,25.3,57.9,15.7,20.9,11.8,12.1,-6.7,-5.5,-9.0,-21.1]},{"id":"扬子江黄芪精","name":"扬子江黄芪精","sales":[191.58,218.90,272.85,233.80,338.31,346.07,404.71,325.83,279.15,305.29,375.55,339.35,264.82,255.40,298.21,269.75],"yoy_changes":[0,0,0,0,76.6,58.1,48.3,39.4,-17.5,-11.8,-7.2,4.2,-5.1,-16.3,-20.6,-20.5]},{"id":"益安宁丸","name":"益安宁丸","sales":[354.69,375.50,329.83,401.62,380.47,335.00,298.40,376.50,230.46,286.86,280.19,375.18,228.17,239.33,238.14,302.43],"yoy_changes":[0,0,0,0,7.3,-10.8,-9.5,-6.3,-39.4,-14.4,-6.1,-0.4,-1.0,-16.6,-15.0,-19.4]},{"id":"云丰气血康","name":"云丰气血康","sales":[78.44,84.25,85.87,72.76,80.65,81.21,84.60,81.30,79.93,82.78,100.61,162.48,156.86,196.75,220.59,282.10],"yoy_changes":[0,0,0,0,2.8,-3.6,-1.5,11.7,-0.9,1.9,18.9,99.8,96.3,137.7,119.3,73.6]},{"id":"山东福牌阿胶","name":"山东福牌阿胶","sales":[173.43,120.98,171.46,284.43,178.69,119.75,159.22,338.14,147.53,99.43,104.30,265.47,109.52,69.76,78.65,162.97],"yoy_changes":[0,0,0,0,3.0,-1.0,-7.1,18.9,-17.4,-17.0,-34.5,-21.5,-25.8,-29.8,-24.6,-38.6]},{"id":"阿胶黄芪口服液","name":"阿胶黄芪口服液","sales":[5.86,7.72,11.01,13.18,20.58,21.75,27.06,40.71,36.40,46.57,52.03,56.21,47.68,44.42,75.29,82.74],"yoy_changes":[0,0,0,0,251.4,181.8,145.9,208.8,76.9,114.1,92.3,38.1,31.0,-4.6,44.7,47.2]},{"id":"宏济堂阿胶","name":"宏济堂阿胶","sales":[89.23,59.65,65.78,156.83,77.88,58.79,71.43,159.06,74.02,50.09,54.96,139.59,66.04,35.42,41.39,86.26],"yoy_changes":[0,0,0,0,-12.7,-1.4,8.6,1.4,-5.0,-14.8,-23.0,-12.2,-10.8,-29.3,-24.7,-38.2]},{"id":"黄芪颗粒","name":"黄芪颗粒","sales":[65.10,65.12,63.81,61.49,69.65,71.69,88.80,133.17,69.19,73.69,81.34,104.95,54.25,50.87,52.11,61.10],"yoy_changes":[0,0,0,0,7.0,10.1,39.2,116.6,-0.7,2.8,-8.4,-21.2,-21.6,-31.0,-35.9,-41.8]},{"id":"康缘黄芪精","name":"康缘黄芪精","sales":[30.94,32.62,39.47,33.86,39.26,57.27,56.44,49.28,44.21,55.25,61.01,54.75,44.00,52.05,60.76,58.40],"yoy_changes":[0,0,0,0,26.9,75.6,43.0,45.5,12.6,-3.5,8.1,11.1,-0.5,-5.8,-0.4,6.7]},{"id":"东阿阿胶","name":"东阿阿胶","sales":[85.50,92.30,105.70,128.40,145.20,138.70,156.80,178.90,162.30,155.60,168.90,192.40,175.80,168.20,182.50,198.70],"yoy_changes":[0,0,0,0,69.9,50.3,48.3,39.3,11.8,12.2,7.7,7.5,8.3,8.1,8.0,3.3]}]};
 
-        // 获取选中的产品ID（从三列筛选器）
-        function getSelectedProductIds() {
-            const productFilter = document.getElementById('productFilter');
-            if (!productFilter) return productData.products.map(p => p.id);
-            
-            const selectedProduct = productFilter.value;
-            if (selectedProduct === '全部') {
-                return productData.products.map(p => p.id);
-            } else {
-                const product = productData.products.find(p => p.name === selectedProduct);
-                return product ? [product.id] : [];
-            }
+    // ============ PRODUCT NAME ABBREVIATION ============
+    const PRODUCT_NAME_MAP = {
+        '东阿阿胶(阿胶)':'东阿阿胶','东阿阿胶(复方阿胶浆)':'复方阿胶浆',
+        '黄芪精(扬子江药业集团江苏龙凤堂中药有限公司)':'扬子江黄芪精',
+        '阿胶(山东福牌阿胶股份有限公司)':'山东福牌阿胶',
+        '云丰(气血康口服液)':'云丰气血康','益安宁丸(同溢堂药业有限公司)':'益安宁丸',
+        '宏济堂(阿胶)':'宏济堂阿胶','黄芪颗粒(四川百利药业有限责任公司)':'黄芪颗粒',
+        '阿胶黄芪口服液(河北君临药业有限公司)':'阿胶黄芪口服液',
+        '气血康口服液(先声药业有限公司)':'先声气血康',
+        '阿胶(山东东阿国胶堂阿胶药业有限公司)':'东阿国胶堂阿胶',
+        '黄芪精(江苏康缘阳光药业有限公司)':'康缘黄芪精',
+        '黄芪精(江苏聚荣制药集团有限公司)':'聚荣黄芪精',
+        '黄芪精(台州南峰药业有限公司)':'南峰黄芪精',
+        '生脉饮(扬子江药业集团江苏龙凤堂中药有限公司)':'扬子江生脉饮',
+        '桃花姬(阿胶核桃芝麻糕)':'桃花姬','青春宝(抗衰老片)':'青春宝',
+        '九芝堂(驴胶补血颗粒)':'九芝堂驴胶补血颗粒','九芝堂(阿胶)':'九芝堂阿胶',
+        '西帕(石榴补血糖浆)':'西帕石榴补血糖浆',
+        '复方红衣补血口服液(翔宇药业股份有限公司)':'翔宇复方红衣补血口服液',
+        '益气养血口服液(通药制药集团股份有限公司)':'通药益气养血口服液',
+        '益气养血口服液(通化万通药业股份有限公司)':'万通益气养血口服液',
+        '益气养血口服液(通化汇金堂药业股份有限公司)':'汇金堂益气养血口服液',
+        '益气养血口服液(吉林玉仁制药股份有限公司)':'玉仁益气养血口服液',
+        '益气维血颗粒(广东红珊瑚药业有限公司)':'红珊瑚益气维血颗粒',
+        '益气维血胶囊(广东红珊瑚药业有限公司)':'红珊瑚益气维血胶囊',
+        '阿胶(北京同仁堂(唐山)营养保健品有限公司)':'同仁堂阿胶',
+        '阿胶(伊犁全鹿制药有限公司)':'伊犁全鹿阿胶',
+        '阿胶(太极集团甘肃天水羲皇阿胶有限公司)':'天水羲皇阿胶',
+        '阿胶(山东古阿井阿胶有限公司)':'古阿井阿胶',
+        '阿胶(湖南东健药业有限公司)':'东健阿胶',
+        '参茸阿胶(山东福牌阿胶股份有限公司)':'福牌参茸阿胶',
+        '阿胶益寿口服液(东阿阿胶股份有限公司)':'东阿阿胶益寿口服液',
+        '阿胶补血口服液(山东福牌制药有限公司)':'福牌阿胶补血口服液',
+        '阿胶补血口服液(江西省芙蓉堂药业股份有限公司)':'芙蓉堂阿胶补血口服液',
+        '同仁堂(生脉饮(人参方))':'同仁堂生脉饮(人参方)',
+        '同仁堂(生脉饮(党参方))':'同仁堂生脉饮(党参方)',
+        '健脾生血颗粒(健民集团叶开泰国药(随州)有限公司)':'健民健脾生血颗粒',
+        '和美(当归补血口服液)':'和美当归补血口服液',
+        '长春宝口服液(重庆芸峰药业有限公司)':'芸峰长春宝口服液',
+        '长春宝口服液(苏州华葆药业股份有限公司)':'华葆长春宝口服液',
+        '心脑舒口服液(荣昌制药(淄博)有限公司)':'荣昌心脑舒口服液',
+        '黄芪生脉饮(江西南昌济生制药有限责任公司)':'南昌济生黄芪生脉饮',
+        '黄芪生脉饮(浙江新光药业股份有限公司)':'新光黄芪生脉饮',
+        '生脉饮(吉林巨仁堂药业股份有限公司)':'巨仁堂生脉饮',
+        '生脉饮(吉林省康福药业有限公司)':'康福生脉饮',
+        '生脉饮(四平正和制药有限公司)':'正和生脉饮',
+        '生脉饮(洛阳顺势药业有限公司)':'顺势生脉饮',
+        '生脉饮(黄山精制药业有限公司)':'黄山生脉饮',
+        '生脉饮口服液(长春大政药业科技有限公司)':'大政生脉饮口服液',
+        '生脉饮口服液(黑龙江瑞格制药有限公司)':'瑞格生脉饮口服液',
+        '生脉注射液(华润三九(雅安)药业有限公司)':'华润三九生脉注射液',
+        '生脉片(四川森科制药有限公司)':'森科生脉片',
+        '益血生胶囊(吉林三九金复康药业有限公司)':'金复康益血生胶囊',
+        '益血生片(吉林吉尔吉药业有限公司)':'吉尔吉益血生片',
+        '人参养荣丸(石家庄御和堂药业股份有限公司)':'御和堂人参养荣丸',
+        '红芪口服液(甘肃之骄制药有限公司)':'之骄红芪口服液',
+        '肝精补血素口服液(河南省奥林特药业有限公司)':'奥林特肝精补血素口服液',
+        '三七参蜂口服液(云南白药集团股份有限公司)':'云南白药三七参蜂口服液',
+        '黄芪精颗粒(颈复康药业集团赤峰丹龙药业有限公司)':'丹龙黄芪精颗粒',
+        '十全大补酒(南昌恒湖药酒有限责任公司)':'南昌恒湖十全大补酒',
+        '玫瑰花口服液(喀什昆仑维吾尔药业有限公司)':'昆仑玫瑰花口服液',
+        '金日(美国洋参胶囊)':'金日美国洋参胶囊',
+        '温补气血口服液(广西百琪药业有限公司)':'百琪温补气血口服液'
+    };
+
+    function abbreviateProductName(fullName) {
+        if (PRODUCT_NAME_MAP[fullName]) return PRODUCT_NAME_MAP[fullName];
+        const m = fullName.match(/^(.+?)\\((.+?)\\)$/);
+        if (m) {
+            const companies = ['扬子江','东阿阿胶','福牌','同仁堂','九芝堂','宏济堂','云丰','康缘','聚荣','南峰','万通','汇金堂','玉仁','红珊瑚','健民','和美','芸峰','华葆','荣昌','南昌济生','新光','巨仁堂','康福','正和','顺势','黄山','大政','瑞格','之骄','奥林特','百琪','昆仑','先声','古阿井','东健','伊犁全鹿','天水羲皇','云南白药','金日'];
+            let company = m[2];
+            for (const c of companies) { if (company.includes(c)) { company = c; break; } }
+            if (company.length > 6) company = company.substring(0, 4);
+            return company + m[1];
         }
-        
-        // 根据区域获取产品数据（使用修正后的详细数据）
-        function getProductsByRegion(regionName) {
-            console.log(`获取区域 ${regionName} 的产品数据`);
-            
-            // 优先使用修正后的详细数据
-            if (window.regionDetailedData && window.regionDetailedData.regions[regionName]) {
-                const regionData = window.regionDetailedData.regions[regionName];
-                const quarters = window.regionDetailedData.quarters || productData.quarters;
-                
-                console.log(`从修正数据中找到区域 ${regionName}，有 ${regionData.products.length} 个产品`);
-                
-                // 将区域产品数据转换为与全国数据相同的格式
-                const regionProducts = regionData.products.map((product, index) => {
-                    // 计算同比变化（需要至少2个季度的数据）
-                    const yoyChanges = [];
-                    for (let i = 0; i < product.sales.length; i++) {
-                        if (i >= 4 && product.sales[i-4] > 0) { // 同比：与去年同期比较
-                            const change = ((product.sales[i] - product.sales[i-4]) / product.sales[i-4]) * 100;
-                            yoyChanges.push(change);
-                        } else {
-                            yoyChanges.push(0);
-                        }
-                    }
-                    
-                    return {
-                        id: index + 1,
-                        name: product.name,
-                        sales: product.sales,
-                        yoy_changes: yoyChanges,
-                        market_share: product.market_share || []
-                    };
-                });
-                
-                return regionProducts;
-            }
-            
-            // 回退到简化的区域销售数据
-            if (window.regionSalesData && window.regionSalesData.regions[regionName]) {
-                console.log(`使用简化数据中的区域 ${regionName}`);
-                // 简化数据只有总销售额，没有产品详情，所以返回全国数据
-                return productData.products;
-            }
-            
-            console.warn(`区域 ${regionName} 的数据不存在，使用全国数据`);
-            return productData.products;
-        }
-        
-        // 获取当前区域的产品数据
-        function getCurrentRegionProducts() {
-            const provinceFilter = document.getElementById('provinceFilter');
-            const cityFilter = document.getElementById('cityFilter');
-            const selectedProvince = provinceFilter ? provinceFilter.value : '全国';
-            const selectedCity = cityFilter ? cityFilter.value : '全部';
-            
-            if (selectedProvince === '全国' && selectedCity === '全部') {
-                return productData.products; // 全国数据
-            }
-            
-            // 确定目标区域
-            let targetRegion = selectedCity !== '全部' ? selectedCity : selectedProvince;
-            
-            return getProductsByRegion(targetRegion);
-        }
-        
-        let salesChart = null;
-        let yoyChart = null;
-        let marketShareChart = null;
-        
-        // 初始化销售额图表
-        function initSalesChart() {
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            salesChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: productData.quarters,
-                    datasets: []
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                font: { size: 12 },
-                                boxWidth: 12,
-                                padding: 15
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '百万';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                font: { size: 11 },
-                                maxTicksLimit: 20,
-                                callback: function(value, index, ticks) {
-                                    // 每4个季度显示一次标签，避免过于拥挤
-                                    if (index % 4 === 0 || index === ticks.length - 1) {
-                                        return this.getLabelForValue(value);
-                                    }
-                                    return '';
-                                }
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString('zh-CN') + '百万';
-                                },
-                                font: { size: 11 }
-                            },
-                            title: {
-                                display: true,
-                                text: '销售额（百万元）',
-                                font: { size: 12 }
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
-                }
-            });
-        }
-        
-        // 初始化同比变化图表
-        function initYoyChart() {
-            const ctx = document.getElementById('yoyChart').getContext('2d');
-            yoyChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: productData.quarters,
-                    datasets: []
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                font: { size: 12 },
-                                boxWidth: 12,
-                                padding: 15
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                font: { size: 11 },
-                                maxTicksLimit: 20,
-                                callback: function(value, index, ticks) {
-                                    if (index % 4 === 0 || index === ticks.length - 1) {
-                                        return this.getLabelForValue(value);
-                                    }
-                                    return '';
-                                }
-                            }
-                        },
-                        y: {
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                },
-                                font: { size: 11 }
-                            },
-                            title: {
-                                display: true,
-                                text: '同比变化（%）',
-                                font: { size: 12 }
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
-                }
-            });
-        }
-        
-        // 初始化市场份额堆叠条形图
-        function initMarketShareChart() {
-            const ctx = document.getElementById('marketShareChart').getContext('2d');
-            marketShareChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: productData.quarters,
-                    datasets: []
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                font: { size: 11 },
-                                boxWidth: 10,
-                                padding: 10,
-                                usePointStyle: true
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: true,
-                            grid: { display: false },
-                            ticks: {
-                                font: { size: 11 },
-                                maxTicksLimit: 20,
-                                callback: function(value, index, ticks) {
-                                    if (index % 4 === 0 || index === ticks.length - 1) {
-                                        return this.getLabelForValue(value);
-                                    }
-                                    return '';
-                                }
-                            }
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                },
-                                font: { size: 11 }
-                            },
-                            title: {
-                                display: true,
-                                text: '市场份额（%）',
-                                font: { size: 12 }
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
-                }
-            });
-        }
-        
-        // 计算市场份额
-        function calculateMarketShare(products) {
-            // 排除"全国"数据，只计算TOP10产品的市场份额
-            const topProducts = products.filter(p => p.id !== '全国');
-            const marketShareData = [];
-            
-            // 对每个季度计算市场份额
-            for (let q = 0; q < productData.quarters.length; q++) {
-                // 计算该季度所有产品的总销售额
-                let totalSales = 0;
-                topProducts.forEach(product => {
-                    totalSales += product.sales[q];
-                });
-                
-                // 计算每个产品的市场份额
-                topProducts.forEach((product, index) => {
-                    if (!marketShareData[index]) {
-                        marketShareData[index] = {
-                            productId: product.id,
-                            productName: product.name,
-                            shares: []
-                        };
-                    }
-                    
-                    const share = totalSales > 0 ? (product.sales[q] / totalSales) * 100 : 0;
-                    marketShareData[index].shares.push(share);
-                });
-            }
-            
-            return marketShareData;
-        }
-        
-        // 更新市场份额图表（使用区域或全国的真实销售额份额数据）
-        function updateMarketShareChart() {
-            if (!marketShareChart) return;
-            
-            // 获取当前区域的产品数据
-            const regionProducts = getCurrentRegionProducts();
-            const selectedIds = getSelectedProductIds();
-            const selectedProducts = regionProducts.filter(p => selectedIds.includes(p.id));
-            
-            // 确定要使用的市场份额数据
-            let marketShareDataToUse = [];
-            
-            // 如果产品有market_share数据，直接使用
-            if (selectedProducts.length > 0 && selectedProducts[0].market_share && selectedProducts[0].market_share.length > 0) {
-                // 使用产品的市场份额数据
-                marketShareDataToUse = selectedProducts.map(product => ({
-                    name: product.name,
-                    shares: product.market_share
-                }));
-                console.log(`使用产品的市场份额数据，共${marketShareDataToUse.length}个产品`);
-            } else {
-                // 回退到全国的市场份额数据
-                console.log(`使用全国市场份额数据`);
-                marketShareDataToUse = productData.market_shares.products;
-            }
-            
-            // 颜色方案（为堆叠条形图使用更丰富的颜色）
-            const colors = [
-                '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
-                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
-                '#ec4899', '#06b6d4', '#8b5cf6', '#ef4444', '#84cc16'
-            ];
-            
-            // 更新图表数据
-            marketShareChart.data.datasets = marketShareDataToUse.map((product, index) => ({
-                label: product.name,
-                data: product.shares,
-                backgroundColor: colors[index % colors.length],
-                borderColor: colors[index % colors.length],
-                borderWidth: 1,
-                borderRadius: 2
-            }));
-            
-            marketShareChart.update();
-            console.log('市场份额图表更新完成（使用真实数据），共' + marketShareData.length + '个产品');
-        }
-        
-        // 更新图表
-        function updateCharts() {
-            const selectedIds = getSelectedProductIds();
-            
-            // 获取当前区域的产品数据
-            const regionProducts = getCurrentRegionProducts();
-            const selectedProducts = regionProducts.filter(p => selectedIds.includes(p.id));
-            
-            // 获取选中的区域
-            const provinceFilter = document.getElementById('provinceFilter');
-            const cityFilter = document.getElementById('cityFilter');
-            const selectedProvince = provinceFilter ? provinceFilter.value : '全国';
-            const selectedCity = cityFilter ? cityFilter.value : '全部';
-            
-            console.log(`更新图表，区域: ${selectedProvince}${selectedCity !== '全部' ? ' - ' + selectedCity : ''}, 产品: ${selectedProducts.length}个`);
-            
-            // 颜色方案
-            const colors = [
-                '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
-                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
-                '#ec4899', '#06b6d4'
-            ];
-            
-            // 更新销售额图表
-            if (salesChart) {
-                salesChart.data.datasets = selectedProducts.map((product, index) => ({
-                    label: product.name,
-                    data: product.sales,
-                    backgroundColor: colors[index % colors.length] + '80', // 80表示50%透明度
-                    borderColor: colors[index % colors.length],
-                    borderWidth: 1,
-                    borderRadius: 3
-                }));
-                salesChart.update();
-            }
-            
-            // 更新同比变化图表
-            if (yoyChart) {
-                yoyChart.data.datasets = selectedProducts.map((product, index) => ({
-                    label: product.name,
-                    data: product.yoy_changes,
-                    borderColor: colors[index % colors.length],
-                    backgroundColor: colors[index % colors.length] + '20', // 20表示12.5%透明度
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 3,
-                    pointHoverRadius: 5
-                }));
-                yoyChart.update();
-            }
-            
-            // 更新市场份额图表
-            updateMarketShareChart();
-            
-            updateDataTable(selectedProducts);
-        }
-        
-        // 只更新销售额和同比变化图表
-        function updateSalesAndYoyCharts(selectedProductIds) {
-            const selectedProducts = productData.products.filter(p => selectedProductIds.includes(p.id));
-            
-            console.log('更新销售额和同比变化图表，选中' + selectedProducts.length + '个产品');
-            
-            // 颜色方案
-            const colors = [
-                '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
-                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
-                '#ec4899', '#06b6d4'
-            ];
-            
-            // 更新销售额图表
-            if (salesChart) {
-                salesChart.data.datasets = selectedProducts.map((product, index) => ({
-                    label: product.name,
-                    data: product.sales,
-                    backgroundColor: colors[index % colors.length] + '80', // 80表示50%透明度
-                    borderColor: colors[index % colors.length],
-                    borderWidth: 1,
-                    borderRadius: 3
-                }));
-                salesChart.update();
-            }
-            
-            // 更新同比变化图表
-            if (yoyChart) {
-                yoyChart.data.datasets = selectedProducts.map((product, index) => ({
-                    label: product.name,
-                    data: product.yoy_changes,
-                    borderColor: colors[index % colors.length],
-                    backgroundColor: colors[index % colors.length] + '20', // 20表示12.5%透明度
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 3,
-                    pointHoverRadius: 5
-                }));
-                yoyChart.update();
-            }
-            
-            // 更新数据表格
-            updateDataTable(selectedProducts);
-        }
-        
-        // 更新数据表格
-        function updateDataTable(products) {
-            const table = document.getElementById('dataTable');
-            if (!table) return;
-            
-            const thead = table.querySelector('thead');
-            const tbody = table.querySelector('tbody');
-            
-            // 更新表头
-            let headerRow = thead.querySelector('tr');
-            if (!headerRow) {
-                headerRow = document.createElement('tr');
-                thead.appendChild(headerRow);
-            }
-            
-            // 清空表头（保留第一列"产品"）
-            while (headerRow.children.length > 1) {
-                headerRow.removeChild(headerRow.lastChild);
-            }
-            
-            // 添加季度列
-            productData.quarters.forEach(q => {
-                const th = document.createElement('th');
-                th.textContent = q;
-                th.style.textAlign = 'center';
-                headerRow.appendChild(th);
-            });
-            
-            // 更新表格内容
-            tbody.innerHTML = '';
-            products.forEach(product => {
-                const row = document.createElement('tr');
-                
-                // 产品名称列
-                const nameCell = document.createElement('td');
-                nameCell.textContent = product.name;
-                nameCell.style.fontWeight = '500';
-                row.appendChild(nameCell);
-                
-                // 季度数据列
-                product.sales.forEach(sale => {
-                    const cell = document.createElement('td');
-                    cell.textContent = sale.toFixed(1);
-                    cell.style.textAlign = 'right';
-                    row.appendChild(cell);
-                });
-                
-                tbody.appendChild(row);
-            });
-            
-            console.log('数据表格更新完成');
-        }
-        
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM加载完成，开始初始化...');
-            
-            // 初始化图表
-            initSalesChart();
-            initYoyChart();
-            initMarketShareChart();
-            
-            // 初始更新图表（显示所有产品）
-            updateCharts();
-            
-            // 初始化三列筛选器
-            initFilterSelector();
-            
-            console.log('页面初始化完成');
+        return fullName;
+    }
+
+    // ============ REGIONS ============
+    const ALL_PROVINCES = ['江苏','浙江','安徽','山东','广东','四川','湖北','湖南','河南','河北','江西','陕西','云南'];
+    const ALL_CITIES = ['北京','上海','天津','重庆','广州','成都','深圳','苏州','武汉','杭州','西安','南京','无锡','温州','长沙','青岛','济南','烟台','合肥','昆明','南昌','石家庄','郑州','常州','临沂','大连','兰州','福州','宁波'];
+
+    // ============ STATE ============
+    let selectedProvinceSet = new Set();
+    let selectedCitySet = new Set();
+    let selectedProductSet = new Set();
+    let allProductNames = [];
+    let activeSection = null; // 'province' | 'city' | null
+
+    // ============ CHARTS ============
+    let salesChart = null, yoyChart = null, marketShareChart = null;
+    const CHART_COLORS = ['#4361ee','#f72585','#4cc9f0','#7209b7','#f8961e','#06d6a0','#ef476f','#118ab2','#ffd166','#073b4c'];
+
+    // ============ BUILD FILTER UI ============
+    function buildFilterUI() {
+        const provContainer = document.getElementById('provinceButtons');
+        const cityContainer = document.getElementById('cityButtons');
+
+        // Provinces
+        provContainer.innerHTML = '';
+        const allBtn = document.createElement('button');
+        allBtn.className = 'filter-btn all-btn selected';
+        allBtn.textContent = '全国'; allBtn.dataset.region = '全国';
+        allBtn.addEventListener('click', () => onProvinceClick('全国'));
+        provContainer.appendChild(allBtn);
+        ALL_PROVINCES.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn'; btn.textContent = p; btn.dataset.region = p;
+            btn.addEventListener('click', () => onProvinceClick(p));
+            provContainer.appendChild(btn);
         });
-        
-        // 初始化三列筛选器
-        function initFilterSelector() {
-            const provinceFilter = document.getElementById('provinceFilter');
-            const cityFilter = document.getElementById('cityFilter');
-            const productFilter = document.getElementById('productFilter');
-            const applyFilterBtn = document.getElementById('applyFilterBtn');
-            const resetFilterBtn = document.getElementById('resetFilterBtn');
-            const currentRegionSpan = document.getElementById('currentRegion');
-            
-            if (!provinceFilter || !applyFilterBtn) return;
-            
-            // 城市数据映射（包含直辖市）
-            const cityData = {
-                '全国': ['全部城市', '北京', '上海', '天津', '重庆'], // 直辖市放在全国下
-                '江苏': ['全部城市', '南京', '苏州', '无锡', '常州'],
-                '浙江': ['全部城市', '杭州', '宁波', '温州'],
-                '安徽': ['全部城市', '合肥'],
-                '山东': ['全部城市', '济南', '青岛', '烟台', '临沂'],
-                '广东': ['全部城市', '广州', '深圳'],
-                '四川': ['全部城市', '成都'],
-                '湖北': ['全部城市', '武汉'],
-                '湖南': ['全部城市', '长沙'],
-                '河南': ['全部城市', '郑州'],
-                '河北': ['全部城市', '石家庄'],
-                '江西': ['全部城市', '南昌'],
-                '陕西': ['全部城市', '西安'],
-                '云南': ['全部城市', '昆明'],
-                // 其他城市（直辖市已移到全国）
-                '辽宁': ['全部城市', '大连'],
-                '福建': ['全部城市', '福州'],
-                '甘肃': ['全部城市', '兰州']
-            };
-            
-            // 初始化城市选择器
-            function updateCityFilter() {
-                const selectedProvince = provinceFilter.value;
-                cityFilter.innerHTML = '';
-                
-                if (cityData[selectedProvince]) {
-                    cityData[selectedProvince].forEach(city => {
-                        const option = document.createElement('option');
-                        option.value = city === '全部城市' ? '全部' : city;
-                        option.textContent = city;
-                        cityFilter.appendChild(option);
-                    });
-                }
-            }
-            
-            // 省份变化时更新城市列表
-            provinceFilter.addEventListener('change', updateCityFilter);
-            
-            // 应用筛选
-            applyFilterBtn.addEventListener('click', function() {
-                const selectedProvince = provinceFilter.value;
-                const selectedCity = cityFilter.value;
-                const selectedProduct = productFilter.value;
-                
-                // 构建筛选描述
-                let filterDescription = '';
-                
-                if (selectedProvince === '全国') {
-                    filterDescription = '全国数据';
-                } else if (selectedCity === '全部') {
-                    filterDescription = `${selectedProvince}全省数据`;
-                } else {
-                    filterDescription = `${selectedProvince} - ${selectedCity}`;
-                }
-                
-                if (selectedProduct !== '全部') {
-                    filterDescription += ` | 产品：${selectedProduct}`;
-                }
-                
-                // 筛选逻辑
-                const selectedProductIds = [];
-                if (selectedProduct === '全部') {
-                    // 选择所有产品
-                    selectedProductIds.push(...productData.products.map(p => p.id));
-                } else {
-                    // 选择特定产品
-                    const product = productData.products.find(p => p.name === selectedProduct);
-                    if (product) {
-                        selectedProductIds.push(product.id);
-                    }
-                }
-                
-                // 更新所有图表，包括市场份额图表
-                updateCharts();
-                
-                // 静默更新，不显示弹窗
-                
-                console.log(`筛选条件：省份=${selectedProvince}, 城市=${selectedCity}, 产品=${selectedProduct}`);
-                console.log(`选中产品ID: ${selectedProductIds.join(', ')}`);
-            });
-            
-            // 重置筛选
-            resetFilterBtn.addEventListener('click', function() {
-                provinceFilter.value = '全国';
-                productFilter.value = '全部';
-                updateCityFilter(); // 重置城市选择器
-                
 
-                
-                // 只更新销售额和同比变化图表
-                const allProductIds = productData.products.map(p => p.id);
-                updateSalesAndYoyCharts(allProductIds);
-                
-                // 静默重置
-                console.log('筛选器已重置');
-            });
-            
-            // 初始化城市选择器
-            updateCityFilter();
-            
-            console.log('三列筛选器初始化完成');
+        // Cities
+        cityContainer.innerHTML = '';
+        const allCityBtn = document.createElement('button');
+        allCityBtn.className = 'filter-btn all-btn'; allCityBtn.textContent = '全部城市';
+        allCityBtn.dataset.region = '全部城市';
+        allCityBtn.addEventListener('click', () => onCityClick('全部城市'));
+        cityContainer.appendChild(allCityBtn);
+        ALL_CITIES.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn'; btn.textContent = c; btn.dataset.region = c;
+            btn.addEventListener('click', () => onCityClick(c));
+            cityContainer.appendChild(btn);
+        });
+
+        // Products built after first data load
+        rebuildProductFilter();
+    }
+
+    function rebuildProductFilter() {
+        const prodContainer = document.getElementById('productButtons');
+        if (!prodContainer) return;
+        prodContainer.innerHTML = '';
+
+        const allProducts = getMergedProductsRaw();
+        allProductNames = allProducts.map(p => p.name);
+
+        // 保留之前选中的产品（仅保留在当前产品列表中仍存在的）
+        const newProductNames = new Set(allProductNames);
+        const preservedProducts = new Set([...selectedProductSet].filter(p => newProductNames.has(p)));
+        selectedProductSet = preservedProducts;
+
+        // 全部产品按钮
+        const allProdBtn = document.createElement('button');
+        const allSelected = (preservedProducts.size === 0 || preservedProducts.size === allProductNames.length);
+        allProdBtn.className = 'filter-btn all-btn' + (allSelected ? ' selected' : '');
+        allProdBtn.textContent = '全部产品';
+        allProdBtn.addEventListener('click', () => onProductClick('全部产品'));
+        prodContainer.appendChild(allProdBtn);
+
+        // 各产品按钮
+        allProducts.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn';
+            if (preservedProducts.has(p.name)) btn.classList.add('selected');
+            btn.textContent = abbreviateProductName(p.name);
+            btn.dataset.product = p.name;
+            btn.addEventListener('click', () => onProductClick(p.name));
+            prodContainer.appendChild(btn);
+        });
+    }
+
+    // ============ CLICK HANDLERS ============
+    function onProvinceClick(region) {
+        if (activeSection === 'city') return;
+        if (region === '全国') {
+            selectedProvinceSet.clear(); activeSection = null;
+            updateAllButtonStyles(); updateChartData(true); return;
         }
+        activeSection = 'province';
+        if (selectedProvinceSet.has(region)) { selectedProvinceSet.delete(region); if (selectedProvinceSet.size === 0) activeSection = null; }
+        else { selectedProvinceSet.add(region); }
+        updateAllButtonStyles(); updateChartData(true);
+    }
+
+    function onCityClick(region) {
+        if (activeSection === 'province') return;
+        if (region === '全部城市') {
+            activeSection = 'city';
+            if (selectedCitySet.size === ALL_CITIES.length) { selectedCitySet.clear(); activeSection = null; }
+            else { selectedCitySet = new Set(ALL_CITIES); }
+            updateAllButtonStyles(); updateChartData(true); return;
+        }
+        activeSection = 'city';
+        if (selectedCitySet.has(region)) { selectedCitySet.delete(region); if (selectedCitySet.size === 0) activeSection = null; }
+        else { selectedCitySet.add(region); }
+        updateAllButtonStyles(); updateChartData(true);
+    }
+
+    function onProductClick(productName) {
+        if (productName === '全部产品') {
+            if (selectedProductSet.size === allProductNames.length) selectedProductSet.clear();
+            else selectedProductSet = new Set(allProductNames);
+        } else {
+            if (selectedProductSet.has(productName)) selectedProductSet.delete(productName);
+            else selectedProductSet.add(productName);
+        }
+        updateProductButtonStyles(); updateChartData(false);
+    }
+
+    // ============ BUTTON STYLES ============
+    function updateAllButtonStyles() {
+        const provBtns = document.querySelectorAll('#provinceButtons .filter-btn');
+        provBtns.forEach(btn => {
+            const r = btn.dataset.region;
+            btn.classList.remove('selected', 'disabled');
+            if (activeSection === 'city') { btn.classList.add('disabled'); }
+            else if (r === '全国') { if (selectedProvinceSet.size === 0 && activeSection !== 'province') btn.classList.add('selected'); }
+            else { if (selectedProvinceSet.has(r)) btn.classList.add('selected'); }
+        });
+        const cityBtns = document.querySelectorAll('#cityButtons .filter-btn');
+        cityBtns.forEach(btn => {
+            const r = btn.dataset.region;
+            btn.classList.remove('selected', 'disabled');
+            if (activeSection === 'province') { btn.classList.add('disabled'); }
+            else if (r === '全部城市') { if (selectedCitySet.size === ALL_CITIES.length) btn.classList.add('selected'); }
+            else { if (selectedCitySet.has(r)) btn.classList.add('selected'); }
+        });
+    }
+
+    function updateProductButtonStyles() {
+        const prodContainer = document.getElementById('productButtons');
+        if (!prodContainer) return;
+        prodContainer.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('selected');
+            if (btn.textContent === '全部产品') {
+                if (selectedProductSet.size === 0 || selectedProductSet.size === allProductNames.length) btn.classList.add('selected');
+            } else if (selectedProductSet.has(btn.dataset.product)) {
+                btn.classList.add('selected');
+            }
+        });
+    }
+
+    // ============ DATA MERGING ============
+    function getMergedProductsRaw() { return _doMerge(false); }
+    function getMergedProducts() { return _doMerge(true); }
+
+    function _doMerge(applyProductFilter) {
+        let regions = [];
+        if (selectedProvinceSet.size > 0) regions = [...selectedProvinceSet];
+        else if (selectedCitySet.size > 0) regions = [...selectedCitySet];
+
+        if (regions.length === 0) {
+            return productData.products.map(p => ({
+                id: p.id, name: p.name, sales: p.sales.slice(), yoy_changes: p.yoy_changes.slice(), market_share_vals: null
+            }));
+        }
+
+        const rd = window.regionDetailedData;
+        if (!rd || !rd.regions) return productData.products;
+
+        const regionDataItems = regions.map(n => rd.regions[n]).filter(Boolean);
+        if (regionDataItems.length === 0) return productData.products;
+
+        const mergedTotalSales = new Array(16).fill(0);
+        const productSalesMap = {};
+
+        regionDataItems.forEach(rdata => {
+            const ts = rdata.total_sales || [];
+            for (let q = 0; q < 16; q++) mergedTotalSales[q] += (ts[q] || 0);
+            (rdata.products || []).forEach(prod => {
+                const name = prod.name, shares = prod.market_share || [];
+                if (!productSalesMap[name]) productSalesMap[name] = new Array(16).fill(0);
+                for (let q = 0; q < 16; q++) productSalesMap[name][q] += (ts[q] || 0) * (shares[q] || 0) / 100;
+            });
+        });
+
+        const mergedProducts = Object.entries(productSalesMap).map(([name, sales]) => {
+            const totalSum = sales.reduce((a, b) => a + b, 0);
+            const yoy = [];
+            for (let i = 0; i < 16; i++) {
+                if (i >= 4 && sales[i - 4] > 0) yoy.push(((sales[i] - sales[i - 4]) / sales[i - 4]) * 100);
+                else yoy.push(0);
+            }
+            const msVals = [];
+            for (let q = 0; q < 16; q++) msVals.push(mergedTotalSales[q] > 0 ? (sales[q] / mergedTotalSales[q]) * 100 : 0);
+
+            let stdId = null;
+            for (const p of productData.products) { if (name.includes(p.name) || p.name.includes(name)) { stdId = p.id; break; } }
+            return { id: stdId || name, name, sales, total: totalSum, yoy_changes: yoy, market_share_vals: msVals };
+        });
+
+        mergedProducts.sort((a, b) => b.total - a.total);
+        let result = mergedProducts.filter(p => p.total > 0).slice(0, 10);
+
+        if (applyProductFilter && selectedProductSet.size > 0 && selectedProductSet.size < allProductNames.length) {
+            result = result.filter(p => selectedProductSet.has(p.name));
+        }
+
+        return result.map(p => ({ ...p, displayName: abbreviateProductName(p.name) }));
+    }
+
+    // ============ UPDATE CHARTS ============
+    function updateChartData(rebuildProducts) {
+        if (rebuildProducts) { rebuildProductFilter(); updateProductButtonStyles(); }
+
+        const products = getMergedProducts();
+        const quarters = productData.quarters;
+
+        const label = selectedProvinceSet.size > 0 ? [...selectedProvinceSet].join(' + ')
+            : selectedCitySet.size > 0 ? [...selectedCitySet].join(' + ') : '全国';
+
+        document.getElementById('currentRegionDisplay').textContent = label;
+        document.getElementById('currentRegion').textContent = label;
+
+        // Sales chart
+        salesChart.data.datasets = products.map((p, i) => ({
+            label: p.displayName, data: p.sales,
+            backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+            borderColor: CHART_COLORS[i % CHART_COLORS.length], borderWidth: 1, borderRadius: 3
+        }));
+        salesChart.update();
+
+        // YoY chart
+        yoyChart.data.datasets = products.map((p, i) => ({
+            label: p.displayName, data: p.yoy_changes,
+            borderColor: CHART_COLORS[i % CHART_COLORS.length],
+            backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+            borderWidth: 2, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
+        }));
+        yoyChart.update();
+
+        // Market share chart
+        marketShareChart.data.datasets = products.map((p, i) => ({
+            label: p.displayName, data: p.market_share_vals,
+            backgroundColor: CHART_COLORS[i % CHART_COLORS.length], borderColor: '#fff', borderWidth: 1
+        }));
+        marketShareChart.update();
+
+        // Data table
+        const thead = document.querySelector('#dataTable thead tr');
+        const tbody = document.querySelector('#dataTable tbody');
+        thead.innerHTML = '<th>产品</th>' + quarters.map(q => `<th>${q}</th>`).join('');
+        tbody.innerHTML = '';
+        products.forEach(p => {
+            let row = `<td>${p.displayName}</td>`;
+            p.sales.forEach(s => { row += `<td>${s.toFixed(2)}</td>`; });
+            tbody.innerHTML += `<tr>${row}</tr>`;
+        });
+    }
+
+    // ============ INIT CHARTS ============
+    function initSalesChart() {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        salesChart = new Chart(ctx, {
+            type: 'bar', data: { labels: productData.quarters, datasets: [] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                onClick: () => {},
+                plugins: {
+                    legend: { position: 'top', onClick: () => {}, labels: { font:{size:11}, boxWidth:10, padding:12, usePointStyle:true } },
+                    tooltip: { mode:'index', intersect:false, callbacks:{ label: c => c.dataset.label+': '+c.parsed.y.toFixed(1)+'百万' } }
+                },
+                scales: {
+                    x: { grid:{display:false}, ticks:{font:{size:10},maxTicksLimit:16,autoSkip:false} },
+                    y: { beginAtZero:true, ticks:{callback:v=>v.toFixed(0)+'百万',font:{size:10}}, title:{display:true,text:'销售额（百万元）'} }
+                },
+                interaction: { intersect:false, mode:'index' }
+            }
+        });
+    }
+
+    function initYoyChart() {
+        const ctx = document.getElementById('yoyChart').getContext('2d');
+        yoyChart = new Chart(ctx, {
+            type: 'line', data: { labels: productData.quarters, datasets: [] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                onClick: () => {},
+                plugins: {
+                    legend: { position: 'top', onClick: () => {}, labels: { font:{size:11}, boxWidth:10, padding:12, usePointStyle:true } },
+                    tooltip: { mode:'index', intersect:false, callbacks:{ label: c => c.dataset.label+': '+c.parsed.y.toFixed(1)+'%' } }
+                },
+                scales: {
+                    x: { grid:{display:false}, ticks:{font:{size:10},maxTicksLimit:16,autoSkip:false} },
+                    y: { ticks:{callback:v=>v.toFixed(0)+'%',font:{size:10}}, title:{display:true,text:'同比变化（%）'} }
+                },
+                interaction: { intersect:false, mode:'index' }
+            }
+        });
+    }
+
+    function initMarketShareChart() {
+        const ctx = document.getElementById('marketShareChart').getContext('2d');
+        marketShareChart = new Chart(ctx, {
+            type: 'bar', data: { labels: productData.quarters, datasets: [] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                onClick: () => {},
+                plugins: {
+                    legend: { position: 'top', onClick: () => {}, labels: { font:{size:10}, boxWidth:8, padding:10, usePointStyle:true } },
+                    tooltip: { mode:'index', intersect:false, callbacks:{ label: c => c.dataset.label+': '+c.parsed.y.toFixed(1)+'%' } }
+                },
+                scales: {
+                    x: { stacked:true, grid:{display:false}, ticks:{font:{size:10},maxTicksLimit:16,autoSkip:false} },
+                    y: { stacked:true, ticks:{callback:v=>v+'%',font:{size:10}}, max:100, title:{display:true,text:'销售额份额（%）'} }
+                },
+                interaction: { intersect:false, mode:'index' }
+            }
+        });
+    }
+
+    // ============ INIT ============
+    function init() {
+        buildFilterUI();
+        initSalesChart();
+        initYoyChart();
+        initMarketShareChart();
+        updateChartData(false);
+    }
+    document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
