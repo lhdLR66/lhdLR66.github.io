@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- 区域销售数据 -->
     <script src="region_sales_data.js"></script>
     <!-- 区域详细数据（销售额和市场份额）- 修正版 -->
@@ -303,8 +304,12 @@
                 
                 <div class="charts-grid">
                     <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
-                            <i class="fas fa-coins"></i> 季度销售额（百万元）
+                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-coins"></i> 季度销售额（百万元）</span>
+                            <span style="font-size: 12px; display: flex; gap: 8px;">
+                                <a href="#" onclick="exportChartData('sales', 'csv'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-csv"></i> CSV</a>
+                                <a href="#" onclick="exportChartData('sales', 'xlsx'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-excel"></i> XLSX</a>
+                            </span>
                         </div>
                         <div class="chart-container">
                             <canvas id="salesChart"></canvas>
@@ -312,8 +317,12 @@
                     </div>
                     
                     <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
-                            <i class="fas fa-chart-line"></i> 销售额同比变化（%）
+                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-chart-line"></i> 销售额同比变化（%）</span>
+                            <span style="font-size: 12px; display: flex; gap: 8px;">
+                                <a href="#" onclick="exportChartData('yoy', 'csv'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-csv"></i> CSV</a>
+                                <a href="#" onclick="exportChartData('yoy', 'xlsx'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-excel"></i> XLSX</a>
+                            </span>
                         </div>
                         <div class="chart-container">
                             <canvas id="yoyChart"></canvas>
@@ -323,9 +332,12 @@
                 
                 <!-- 新增：市场份额堆叠条形图（使用真实销售额份额数据） -->
                 <div style="margin-top: 40px; margin-bottom: 40px;">
-                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
-                        <i class="fas fa-chart-pie" style="color: var(--primary-color);"></i>
-                        TOP10产品销售额份额季度变化（堆叠条形图）
+                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; gap: 15px; justify-content: space-between;">
+                        <span><i class="fas fa-chart-pie" style="color: var(--primary-color);"></i> TOP10产品销售额份额季度变化（堆叠条形图）</span>
+                        <span style="font-size: 12px; display: flex; gap: 8px;">
+                            <a href="#" onclick="exportChartData('share', 'csv'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-csv"></i> CSV</a>
+                            <a href="#" onclick="exportChartData('share', 'xlsx'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-excel"></i> XLSX</a>
+                        </span>
                     </div>
                     
 
@@ -1200,6 +1212,70 @@
         }
 
         // ============ INIT ============
+        // 导出工具函数
+        function getQuarterLabels() {
+            var qs = ['22Q1','22Q2','22Q3','22Q4','23Q1','23Q2','23Q3','23Q4','24Q1','24Q2','24Q3','24Q4','25Q1','25Q2','25Q3','25Q4'];
+            return qs;
+        }
+        
+        function exportChartData(type, format) {
+            var qs = getQuarterLabels();
+            var data = [];
+            var prod;
+            
+            if (type === 'sales') {
+                data.push(['产品'].concat(qs));
+                for (var i = 0; i < productData.products.length; i++) {
+                    prod = productData.products[i];
+                    data.push([prod.name].concat(prod.sales.map(function(v) { return parseFloat(v.toFixed(2)); })));
+                }
+            } else if (type === 'yoy') {
+                data.push(['产品'].concat(qs));
+                for (var i = 0; i < productData.products.length; i++) {
+                    prod = productData.products[i];
+                    var row = [prod.name];
+                    for (var j = 0; j < qs.length; j++) {
+                        if (j < 4) row.push(0);
+                        else row.push(parseFloat(prod.yoy_changes[j].toFixed(2)));
+                    }
+                    data.push(row);
+                }
+            } else if (type === 'share') {
+                data.push(['产品'].concat(qs));
+                for (var i = 0; i < productData.market_shares.length; i++) {
+                    var share = productData.market_shares[i];
+                    data.push([share.name].concat(share.shares.map(function(v) { return parseFloat(v.toFixed(2)); })));
+                }
+            }
+            
+            var filename = '';
+            if (type === 'sales') filename = '季度销售额';
+            else if (type === 'yoy') filename = '同比变化';
+            else if (type === 'share') filename = '市场份额';
+            filename += '_' + new Date().toISOString().slice(0,10);
+            
+            if (format === 'csv') {
+                var csv = '';
+                for (var i = 0; i < data.length; i++) {
+                    csv += data[i].map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',') + '\n';
+                }
+                var bom = '\uFEFF';
+                var blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+                var link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename + '.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            } else if (format === 'xlsx' && typeof XLSX !== 'undefined') {
+                var ws = XLSX.utils.aoa_to_sheet(data);
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+                XLSX.writeFile(wb, filename + '.xlsx');
+            }
+        }
+
         function init() {
             initSalesChart();
             initYoyChart();
