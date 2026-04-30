@@ -636,6 +636,24 @@
         let yoyChart = null;
         let marketShareChart = null;
         
+        // 动态排序：鼠标悬浮某季度时，柱子按该季度销售额降序重排
+        let _salesDatasetsSnapshot = null;
+        let _hoveredQuarter = -1;
+
+        function resortSalesDatasets() {
+            if (!_salesDatasetsSnapshot || !salesChart) return;
+            if (_hoveredQuarter >= 0) {
+                salesChart.data.datasets.sort((a, b) => b.data[_hoveredQuarter] - a.data[_hoveredQuarter]);
+            } else {
+                salesChart.data.datasets.sort((a, b) => {
+                    const ia = _salesDatasetsSnapshot.findIndex(d => d.label === a.label);
+                    const ib = _salesDatasetsSnapshot.findIndex(d => d.label === b.label);
+                    return ia - ib;
+                });
+            }
+            salesChart.update('none');
+        }
+        
         // 初始化销售额图表
         function initSalesChart() {
             const ctx = document.getElementById('salesChart').getContext('2d');
@@ -648,6 +666,18 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onHover: function(event, elements) {
+                        if (elements && elements.length > 0) {
+                            const idx = elements[0].index;
+                            if (idx !== _hoveredQuarter) {
+                                _hoveredQuarter = idx;
+                                resortSalesDatasets();
+                            }
+                        } else if (_hoveredQuarter >= 0) {
+                            _hoveredQuarter = -1;
+                            resortSalesDatasets();
+                        }
+                    },
                     plugins: {
                         legend: {
                             position: 'top',
@@ -660,6 +690,7 @@
                         tooltip: {
                             mode: 'index',
                             intersect: false,
+                            itemSort: function(a, b) { return b.raw - a.raw; },
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '百万';
@@ -948,6 +979,12 @@
             
             // 更新销售额图表
             if (salesChart) {
+                // 按总销售额降序排列
+                selectedProducts.sort((a, b) => {
+                    const sumA = a.sales.reduce((s, v) => s + v, 0);
+                    const sumB = b.sales.reduce((s, v) => s + v, 0);
+                    return sumB - sumA;
+                });
                 salesChart.data.datasets = selectedProducts.map((product, index) => ({
                     label: product.name,
                     data: product.sales,
@@ -956,6 +993,8 @@
                     borderWidth: 1,
                     borderRadius: 3
                 }));
+                _salesDatasetsSnapshot = salesChart.data.datasets.map(d => ({ label: d.label, data: [...d.data] }));
+                _hoveredQuarter = -1;
                 salesChart.update();
             }
             
@@ -996,6 +1035,12 @@
             
             // 更新销售额图表
             if (salesChart) {
+                // 按总销售额降序排列
+                selectedProducts.sort((a, b) => {
+                    const sumA = a.sales.reduce((s, v) => s + v, 0);
+                    const sumB = b.sales.reduce((s, v) => s + v, 0);
+                    return sumB - sumA;
+                });
                 salesChart.data.datasets = selectedProducts.map((product, index) => ({
                     label: product.name,
                     data: product.sales,
@@ -1004,6 +1049,8 @@
                     borderWidth: 1,
                     borderRadius: 3
                 }));
+                _salesDatasetsSnapshot = salesChart.data.datasets.map(d => ({ label: d.label, data: [...d.data] }));
+                _hoveredQuarter = -1;
                 salesChart.update();
             }
             
