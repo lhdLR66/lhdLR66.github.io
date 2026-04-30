@@ -660,7 +660,11 @@
                         tooltip: {
                             mode: 'index',
                             intersect: false,
-                            itemSort: function(a, b) { return b.raw - a.raw; },
+                            itemSort: function(a, b) {
+                                const va = a.parsed && a.parsed.y !== undefined ? a.parsed.y : a.raw;
+                                const vb = b.parsed && b.parsed.y !== undefined ? b.parsed.y : b.raw;
+                                return (vb || 0) - (va || 0);
+                            },
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '百万';
@@ -730,6 +734,11 @@
                         tooltip: {
                             mode: 'index',
                             intersect: false,
+                            itemSort: function(a, b) {
+                                const va = a.parsed && a.parsed.y !== undefined ? a.parsed.y : a.raw;
+                                const vb = b.parsed && b.parsed.y !== undefined ? b.parsed.y : b.raw;
+                                return (vb || 0) - (va || 0);
+                            },
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
@@ -798,6 +807,11 @@
                         tooltip: {
                             mode: 'index',
                             intersect: false,
+                            itemSort: function(a, b) {
+                                const va = a.parsed && a.parsed.y !== undefined ? a.parsed.y : a.raw;
+                                const vb = b.parsed && b.parsed.y !== undefined ? b.parsed.y : b.raw;
+                                return (vb || 0) - (va || 0);
+                            },
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
