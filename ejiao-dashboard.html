@@ -109,7 +109,8 @@
         .trend-tag.inv-v { background: #e3f2fd; color: #0d47a1; }
         .trend-tag.rise { background: #fff3e0; color: #e65100; }
         .trend-tag.fall { background: #fce4ec; color: #880e4f; }
-        .trend-tag.mix { background: #f3e5f5; color: #6a1b9a; }
+        .trend-tag.mix-pn { background: #ffebee; color: #c62828; }
+        .trend-tag.mix-np { background: #e3f2fd; color: #1565c0; }
 
         .data-table {
             background: white;
@@ -325,12 +326,12 @@ const trendNames = {
     peak: { label: '1-2月增长，3月下滑', cls: 'inv-v', emoji: 'Λ' },
     allrise: { label: '三个月全部增长', cls: 'rise', emoji: '↗' },
     allfall: { label: '三个月全部下滑', cls: 'fall', emoji: '↘' },
-    '2pos1neg': { label: '两月增长，一月下滑', cls: 'mix', emoji: '↗↘' },
-    '1pos2neg': { label: '一月增长，两月下滑', cls: 'mix', emoji: '↘↗' }
+    '2pos1neg': { label: '1月下滑，2-3月增长', cls: 'mix-pn', emoji: '↗↘' },
+    '1pos2neg': { label: '1月、3月下滑，2月增长', cls: 'mix-np', emoji: '↘↗' }
 };
 const trendColors = {
     vshape: '#1b5e20', peak: '#0d47a1', allrise: '#e65100',
-    allfall: '#880e4f', '2pos1neg': '#6a1b9a', '1pos2neg': '#6a1b9a'
+    allfall: '#880e4f', '2pos1neg': '#c62828', '1pos2neg': '#1565c0'
 };
 
 function renderTrends(metric) {
@@ -349,7 +350,7 @@ function renderTrends(metric) {
                         ${info.emoji} ${info.label}
                         <span style="margin-left:auto;font-size:12px;font-weight:400;color:#888;">${groups[key].length}个城市</span>
                     </h4>
-                    <div>${groups[key].map(c => `<span class="trend-tag ${info.cls}">${c}</span>`).join('')}</div>
+                    <div>${groups[key].map(c => `<span class="trend-tag ${key === '2pos1neg' ? 'mix-pn' : key === '1pos2neg' ? 'mix-np' : info.cls}">${c}</span>`).join('')}</div>
                 </div>`;
             }).join('');
 }
