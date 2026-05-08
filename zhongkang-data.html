@@ -36,7 +36,6 @@
             color: var(--text-primary); 
             line-height: 1.6;
             min-height: 100vh;
-            display: flex;
         }
         .sidebar {
             width: 200px;
@@ -82,13 +81,11 @@
             padding-top: 10px;
         }
         .main-wrapper {
-            flex: 1;
             margin-left: 200px;
             padding: 20px;
             overflow-x: auto;
         }
         @media (max-width: 900px) {
-            body { flex-direction: column; }
             .sidebar { width: 100%; flex-direction: row; padding: 10px; align-items: center; gap: 5px; position: relative; height: auto; }
             .sidebar .logo { padding: 0 10px; border-bottom: none; margin: 0; font-size: 14px; border-right: 1px solid rgba(255,255,255,0.2); }
             .sidebar a { padding: 6px 10px; font-size: 13px; }
