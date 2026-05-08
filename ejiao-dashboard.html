@@ -115,8 +115,6 @@
         .trend-card {
             padding: 14px;
             border-radius: 8px;
-            border-left: 4px solid #ccc;
-            background: #fafafa;
         }
         .trend-card h4 {
             font-size: 13px;
@@ -361,12 +359,12 @@ function classifyTrend(d, metric) {
 }
 
 const trendNames = {
-    vshape: { label: '1-2月下滑，3月增长', cls: 'vshape', emoji: 'V' },
-    peak: { label: '1-2月增长，3月下滑', cls: 'inv-v', emoji: 'Λ' },
-    allrise: { label: '三个月全部增长', cls: 'rise', emoji: '↗' },
-    allfall: { label: '三个月全部下滑', cls: 'fall', emoji: '↘' },
-    '2pos1neg': { label: '1月下滑，2-3月增长', cls: 'mix-pn', emoji: '↗↘' },
-    '1pos2neg': { label: '1月、3月下滑，2月增长', cls: 'mix-np', emoji: '↘↗' }
+    vshape: { label: '1-2月下滑，3月增长', cls: 'vshape' },
+    peak: { label: '1-2月增长，3月下滑', cls: 'inv-v' },
+    allrise: { label: '三个月全部增长', cls: 'rise' },
+    allfall: { label: '三个月全部下滑', cls: 'fall' },
+    '2pos1neg': { label: '1月下滑，2-3月增长', cls: 'mix-pn' },
+    '1pos2neg': { label: '1月、3月下滑，2月增长', cls: 'mix-np' }
 };
 
 function renderTrends(metric) {
@@ -382,9 +380,9 @@ function renderTrends(metric) {
                 const info = trendNames[key];
                 const borderColor = key === 'allrise' ? '#e65100' : key === 'allfall' ? '#880e4f' : key === 'vshape' ? '#1b5e20' : key === 'peak' ? '#0d47a1' : key === '2pos1neg' ? '#c62828' : '#1565c0';
                 const tagCls = key === '2pos1neg' ? 'mix-pn' : key === '1pos2neg' ? 'mix-np' : info.cls;
-                return `<div class="trend-card" style="border-left-color:${borderColor}">
+                return `<div class="trend-card" style="background:${borderColor}11">
                     <h4 style="color:${borderColor}">
-                        ${info.emoji} ${info.label}
+                        ${info.label}
                         <span style="margin-left:auto;font-size:12px;font-weight:400;color:#888;">${groups[key].length}城</span>
                     </h4>
                     <div>${groups[key].map(c => `<span class="trend-tag ${tagCls}">${c}</span>`).join('')}</div>
