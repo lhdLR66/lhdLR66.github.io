@@ -35,8 +35,53 @@
             background: var(--bg-primary); 
             color: var(--text-primary); 
             line-height: 1.6;
-            padding: 20px;
             min-height: 100vh;
+            display: flex;
+        }
+        .sidebar {
+            width: 200px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+        .sidebar .logo {
+            padding: 0 20px 20px;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 10px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            color: white;
+            background: rgba(255,255,255,0.15);
+            font-weight: 600;
+        }
+        .sidebar a i {
+            width: 20px;
+            margin-right: 8px;
+        }
+        .main-wrapper {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; padding: 10px; align-items: center; gap: 5px; }
+            .sidebar .logo { padding: 0 10px; border-bottom: none; margin: 0; font-size: 14px; border-right: 1px solid rgba(255,255,255,0.2); }
+            .sidebar a { padding: 6px 10px; font-size: 13px; }
+            .main-wrapper { padding: 10px; }
         }
         
         .container {
@@ -286,8 +331,14 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <a href="https://lrwork.xyz" class="back-btn"><i class="fas fa-arrow-left"></i> 返回个人工作看板</a>
+
+<div class="sidebar">
+    <div class="logo"><i class="fas fa-chart-pie"></i> 数据看板</div>
+    <a href="ejiao-dashboard.html"><i class="fas fa-city"></i> 中心城市数据</a>
+    <a href="zhongkang-data.html" class="active"><i class="fas fa-chart-bar"></i> 中康数据</a>
+</div>
+
+<div class="main-wrapper">
         <div class="header">
             <h1><i class="fas fa-chart-bar"></i> 补气补血TOP10产品季度数据</h1>
             <p>22Q1-25Q4 完整季度序列分析 | 10个TOP产品销售额与同比变化</p>
@@ -400,6 +451,7 @@
             <p><i class="fas fa-exclamation-circle"></i> 注：数据基于细分市场工作表的补气补血TOP10产品整理，时间范围为22Q1-25Q4。销售额单位为百万元，同比变化基于去年同期计算。</p>
         </div>
     </div>
+</div><!-- end main-wrapper -->
 
     <script>
         // 产品数据 - 嵌入实际数据
