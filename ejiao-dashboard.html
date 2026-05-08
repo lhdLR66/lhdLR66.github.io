@@ -79,7 +79,6 @@
         .chart-wrap { position: relative; height: 320px; }
         .chart-wrap.tall { height: 400px; }
 
-        /* 趋势分析卡片 */
         .trend-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -106,10 +105,11 @@
             font-weight: 500;
             margin: 3px 4px;
         }
-        .trend-tag.rise { background: #fff2e7; color: #d35400; }
-        .trend-tag.fall { background: #ffebee; color: #c0392b; }
         .trend-tag.vshape { background: #e8f5e9; color: #1b5e20; }
         .trend-tag.inv-v { background: #e3f2fd; color: #0d47a1; }
+        .trend-tag.rise { background: #fff3e0; color: #e65100; }
+        .trend-tag.fall { background: #fce4ec; color: #880e4f; }
+        .trend-tag.mix { background: #f3e5f5; color: #6a1b9a; }
 
         .data-table {
             background: white;
@@ -175,11 +175,10 @@
         .badge-up.pos { background: #ffebee; color: #e74c3c; }
         .badge-up.neg { background: #e8f5e9; color: #27ae60; }
         .badge-up.flat { background: #f5f5f5; color: #888; }
-
         .trend-icon {
             display: inline-block;
             width: 20px; text-align: center;
-            font-size: 13px;
+            font-size: 16px;
         }
 
         @media (max-width: 900px) {
@@ -205,15 +204,14 @@
         </div>
     </div>
 
-    <!-- 趋势分析模块 -->
     <div class="chart-box" style="margin-bottom: 24px;">
-        <h3><i class="fas fa-chart-simple"></i> 26Q1纯销额趋势分析 — 各城市月度走势分类</h3>
+        <h3><i class="fas fa-chart-simple"></i> 26Q1同比趋势分析 — 各城市月度同比增长分类</h3>
         <div class="trend-grid" id="trendGrid"></div>
     </div>
 
     <div class="data-table">
         <div class="table-header">
-            <span><i class="fas fa-table"></i> 各城市详细数据（含同比）</span>
+            <span><i class="fas fa-table"></i> 各城市详细数据（含月度同比）</span>
             <div class="filter-group">
                 <select id="metricFilter">
                     <option value="chunxiao">纯销额</option>
@@ -221,10 +219,12 @@
                 </select>
                 <select id="trendFilter">
                     <option value="all">全部城市</option>
-                    <option value="rise">↗连续上涨</option>
-                    <option value="fall">↘连续下滑</option>
                     <option value="vshape">V形反弹</option>
-                    <option value="peak">倒V形冲高</option>
+                    <option value="peak">倒V冲高</option>
+                    <option value="allrise">全部正增长</option>
+                    <option value="allfall">全部负增长</option>
+                    <option value="2pos1neg">两正一负</option>
+                    <option value="1pos2neg">两负一正</option>
                 </select>
             </div>
         </div>
@@ -254,7 +254,7 @@ function badge(v) {
     return '<span class="badge-up flat">0.0%</span>';
 }
 
-// KPI cards
+// ---- KPI ----
 const totChunxiaoYoy = (TOTALS.chunxiao_26q1 - TOTALS.chunxiao_25q1) / TOTALS.chunxiao_25q1;
 const totPeisongYoy = (TOTALS.peisong_26q1 - TOTALS.peisong_25q1) / TOTALS.peisong_25q1;
 
@@ -269,50 +269,34 @@ const kpiData = [
       icon: '<i class="fas fa-box"></i>' }
 ];
 
-const kpiRow = document.getElementById('kpiRow');
-kpiData.forEach(k => {
+document.getElementById('kpiRow').innerHTML = kpiData.map(k => {
     const changeClass = k.change && k.change.includes('+') ? 'up' : (k.change && !k.change.includes('--') ? 'down' : '');
-    kpiRow.innerHTML += `
-    <div class="kpi-card ${k.cls}">
+    return `<div class="kpi-card ${k.cls}">
         <div class="icon">${k.icon}</div>
         <div class="label">${k.label}</div>
         <div class="value">${fmt(k.value)}</div>
         <div class="sub">${k.unit} ${k.change ? '<span class="' + changeClass + '">(' + k.change + ')</span>' : ''}</div>
     </div>`;
-});
+}).join('');
 
-// 月度柱状图
+// ---- 月度柱状图 ----
 const sortedBy26 = [...DATA].sort((a,b) => b.chunxiao['26Q1'] - a.chunxiao['26Q1']);
 new Chart(document.getElementById('chartSalesMonth'), {
     type: 'bar',
     data: {
         labels: sortedBy26.map(d => d.city),
         datasets: [
-            {
-                label: '26年1月',
-                data: sortedBy26.map(d => d.chunxiao['2601']),
-                backgroundColor: 'rgba(102, 126, 234, 0.6)',
-                borderRadius: 3
-            },
-            {
-                label: '26年2月',
-                data: sortedBy26.map(d => d.chunxiao['2602']),
-                backgroundColor: 'rgba(118, 75, 162, 0.6)',
-                borderRadius: 3
-            },
-            {
-                label: '26年3月',
-                data: sortedBy26.map(d => d.chunxiao['2603']),
-                backgroundColor: 'rgba(242, 153, 74, 0.6)',
-                borderRadius: 3
-            }
+            { label: '26年1月', data: sortedBy26.map(d => d.chunxiao['2601']),
+              backgroundColor: 'rgba(102, 126, 234, 0.6)', borderRadius: 3 },
+            { label: '26年2月', data: sortedBy26.map(d => d.chunxiao['2602']),
+              backgroundColor: 'rgba(118, 75, 162, 0.6)', borderRadius: 3 },
+            { label: '26年3月', data: sortedBy26.map(d => d.chunxiao['2603']),
+              backgroundColor: 'rgba(242, 153, 74, 0.6)', borderRadius: 3 }
         ]
     },
     options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: {
-            legend: { position: 'top' }
-        },
+        plugins: { legend: { position: 'top' } },
         scales: {
             y: { beginAtZero: true, title: { display: true, text: '百万元' } },
             x: { grid: { display: false } }
@@ -320,116 +304,103 @@ new Chart(document.getElementById('chartSalesMonth'), {
     }
 });
 
-// 趋势分析
-function classifyTrend(d, metric) {
+// ---- 同比趋势分析 ----
+function monthlyYoy(d, metric, month) {
     const m = d[metric];
-    const m1 = m['2601'], m2 = m['2602'], m3 = m['2603'];
-    // 连续上涨
-    if (m1 < m2 && m2 < m3) return 'rise';
-    // 连续下滑
-    if (m1 > m2 && m2 > m3) return 'fall';
-    // V形先降后升
-    if (m1 > m2 && m2 < m3) return 'vshape';
-    // 倒V先升后降
-    if (m1 < m2 && m2 > m3) return 'peak';
-    // 其他（如持平）
-    return 'other';
+    const cur = m['26' + month];
+    const prev = m['25' + month];
+    if (prev && prev !== 0) return (cur / prev - 1);
+    return null;
+}
+
+function classifyTrend(d, metric) {
+    const y1 = monthlyYoy(d, metric, '01');
+    const y2 = monthlyYoy(d, metric, '02');
+    const y3 = monthlyYoy(d, metric, '03');
+    if (y1 === null || y2 === null || y3 === null) return 'other';
+    const s1 = y1 > 0, s2 = y2 > 0, s3 = y3 > 0;
+    // V形反弹：1-2月同比↓→3月同比↑
+    if (!s1 && !s2 && s3) return 'vshape';
+    // 倒V冲高：1-2月同比↑→3月同比↓
+    if (s1 && s2 && !s3) return 'peak';
+    if (s1 && s2 && s3) return 'allrise';
+    if (!s1 && !s2 && !s3) return 'allfall';
+    const pos = (s1?1:0)+(s2?1:0)+(s3?1:0);
+    return pos === 2 ? '2pos1neg' : '1pos2neg';
 }
 
 const trendNames = {
-    rise: { label: '↗ 连续上涨（逐月递增）', cls: 'rise', emoji: '↗' },
-    fall: { label: '↘ 连续下滑（逐月递减）', cls: 'fall', emoji: '↘' },
-    vshape: { label: 'V形反弹（1-2月降→3月涨）', cls: 'vshape', emoji: 'V' },
-    peak: { label: '倒V冲高（1-2月涨→3月降）', cls: 'inv-v', emoji: 'Λ' },
-    other: { label: '其他走势', cls: 'rise', emoji: '—' }
+    vshape: { label: 'V形反弹（1-2同比↓→3月↑）', cls: 'vshape', emoji: 'V' },
+    peak: { label: '倒V冲高（1-2同比↑→3月↓）', cls: 'inv-v', emoji: 'Λ' },
+    allrise: { label: '全部同比正增长', cls: 'rise', emoji: '↗' },
+    allfall: { label: '全部同比负增长', cls: 'fall', emoji: '↘' },
+    '2pos1neg': { label: '两正一负', cls: 'mix', emoji: '↗↘' },
+    '1pos2neg': { label: '一正两负', cls: 'mix', emoji: '↘↗' }
+};
+const trendColors = {
+    vshape: '#1b5e20', peak: '#0d47a1', allrise: '#e65100',
+    allfall: '#880e4f', '2pos1neg': '#6a1b9a', '1pos2neg': '#6a1b9a'
 };
 
 function renderTrends(metric) {
-    const groups = { rise: [], fall: [], vshape: [], peak: [], other: [] };
+    const groups = { allrise: [], allfall: [], vshape: [], peak: [], '2pos1neg': [], '1pos2neg': [] };
     DATA.forEach(d => {
         const t = classifyTrend(d, metric);
-        groups[t].push(d.city);
+        if (groups[t]) groups[t].push(d.city);
     });
-
-    const grid = document.getElementById('trendGrid');
-    grid.innerHTML = '';
-    ['rise', 'fall', 'vshape', 'peak'].forEach(key => {
-        const g = groups[key];
-        if (g.length === 0) return;
-        const info = trendNames[key];
-        grid.innerHTML += `
-        <div class="trend-card">
-            <h4 style="color:${key==='rise'?'#d35400':key==='fall'?'#c0392b':key==='vshape'?'#1b5e20':'#0d47a1'}">
-                ${info.emoji} ${info.label}
-                <span style="margin-left:auto;font-size:12px;font-weight:400;color:#888;">${g.length}个城市</span>
-            </h4>
-            <div>${g.map(c => `<span class="trend-tag ${info.cls}">${c}</span>`).join('')}</div>
-        </div>`;
-    });
+    document.getElementById('trendGrid').innerHTML =
+        ['vshape','peak','allrise','allfall','2pos1neg','1pos2neg']
+            .filter(k => groups[k].length > 0)
+            .map(key => {
+                const info = trendNames[key];
+                return `<div class="trend-card">
+                    <h4 style="color:${trendColors[key]}">
+                        ${info.emoji} ${info.label}
+                        <span style="margin-left:auto;font-size:12px;font-weight:400;color:#888;">${groups[key].length}个城市</span>
+                    </h4>
+                    <div>${groups[key].map(c => `<span class="trend-tag ${info.cls}">${c}</span>`).join('')}</div>
+                </div>`;
+            }).join('');
 }
-renderTrends('chunxiao');
 
-// 表格
+// ---- 表格 ----
 function renderTable(metric, trendFilter) {
     const cols = ['城市', '2601', '2601同比', '2602', '2602同比', '2603', '2603同比', '26Q1', 'Q1同比', '趋势'];
-    const thead = document.getElementById('tableHead');
-    thead.innerHTML = cols.map(c => `<th>${c}</th>`).join('');
+    document.getElementById('tableHead').innerHTML = cols.map(c => `<th>${c}</th>`).join('');
 
     let filtered = [...DATA];
     if (trendFilter !== 'all') {
         filtered = filtered.filter(d => classifyTrend(d, metric) === trendFilter);
     }
-
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
-
-    // 计算各月同比
-    function monthlyYoy(d, metric, month) {
-        const m = d[metric];
-        const cur = m['26' + month];
-        const prev = m['25' + month];
-        if (prev && prev !== 0) return (cur / prev - 1);
-        return null;
-    }
-
     filtered.sort((a,b) => b[metric]['26Q1'] - a[metric]['26Q1']);
 
-    filtered.forEach(d => {
+    document.getElementById('tableBody').innerHTML = filtered.map(d => {
         const m = d[metric];
+        const y1 = monthlyYoy(d, metric, '01');
+        const y2 = monthlyYoy(d, metric, '02');
+        const y3 = monthlyYoy(d, metric, '03');
         const trendType = classifyTrend(d, metric);
-        const trendInfo = trendNames[trendType];
-        const monthlyBadge = (month) => {
-            const y = monthlyYoy(d, metric, month);
-            if (y === null) return '<span class="badge-up flat">—</span>';
-            return badge(y);
-        };
-
-        tbody.innerHTML += `<tr>
+        const info = trendNames[trendType] || { emoji: '—' };
+        return `<tr>
             <td>${d.city}</td>
-            <td><strong>${fmt(m['2601'])}</strong></td>
-            <td>${monthlyBadge('01')}</td>
-            <td><strong>${fmt(m['2602'])}</strong></td>
-            <td>${monthlyBadge('02')}</td>
-            <td><strong>${fmt(m['2603'])}</strong></td>
-            <td>${monthlyBadge('03')}</td>
-            <td><strong>${fmt(m['26Q1'])}</strong></td>
-            <td>${badge(m['yoy'])}</td>
-            <td style="font-size:16px;text-align:center;">${trendInfo.emoji}</td>
+            <td><strong>${fmt(m['2601'])}</strong></td><td>${badge(y1)}</td>
+            <td><strong>${fmt(m['2602'])}</strong></td><td>${badge(y2)}</td>
+            <td><strong>${fmt(m['2603'])}</strong></td><td>${badge(y3)}</td>
+            <td><strong>${fmt(m['26Q1'])}</strong></td><td>${badge(m['yoy'])}</td>
+            <td style="font-size:16px;text-align:center;">${info.emoji}</td>
         </tr>`;
-    });
+    }).join('');
 }
 
 document.getElementById('metricFilter').addEventListener('change', function() {
-    const trend = document.getElementById('trendFilter').value;
-    renderTable(this.value, trend);
+    renderTable(this.value, document.getElementById('trendFilter').value);
     renderTrends(this.value);
 });
-
 document.getElementById('trendFilter').addEventListener('change', function() {
-    const metric = document.getElementById('metricFilter').value;
-    renderTable(metric, this.value);
+    renderTable(document.getElementById('metricFilter').value, this.value);
 });
 
+renderTrends('chunxiao');
 renderTable('chunxiao', 'all');
 </script>
 </body>
