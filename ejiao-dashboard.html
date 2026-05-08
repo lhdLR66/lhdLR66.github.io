@@ -217,15 +217,6 @@
                     <option value="chunxiao">纯销额</option>
                     <option value="peisong">配送额</option>
                 </select>
-                <select id="trendFilter">
-                    <option value="all">全部城市</option>
-                    <option value="vshape">V形反弹</option>
-                    <option value="peak">倒V冲高</option>
-                    <option value="allrise">全部正增长</option>
-                    <option value="allfall">全部负增长</option>
-                    <option value="2pos1neg">两正一负</option>
-                    <option value="1pos2neg">两负一正</option>
-                </select>
             </div>
         </div>
         <div style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
@@ -330,12 +321,12 @@ function classifyTrend(d, metric) {
 }
 
 const trendNames = {
-    vshape: { label: 'V形反弹（1-2同比↓→3月↑）', cls: 'vshape', emoji: 'V' },
-    peak: { label: '倒V冲高（1-2同比↑→3月↓）', cls: 'inv-v', emoji: 'Λ' },
-    allrise: { label: '全部同比正增长', cls: 'rise', emoji: '↗' },
-    allfall: { label: '全部同比负增长', cls: 'fall', emoji: '↘' },
-    '2pos1neg': { label: '两正一负', cls: 'mix', emoji: '↗↘' },
-    '1pos2neg': { label: '一正两负', cls: 'mix', emoji: '↘↗' }
+    vshape: { label: '1-2月下滑，3月增长', cls: 'vshape', emoji: 'V' },
+    peak: { label: '1-2月增长，3月下滑', cls: 'inv-v', emoji: 'Λ' },
+    allrise: { label: '三个月全部增长', cls: 'rise', emoji: '↗' },
+    allfall: { label: '三个月全部下滑', cls: 'fall', emoji: '↘' },
+    '2pos1neg': { label: '两月增长，一月下滑', cls: 'mix', emoji: '↗↘' },
+    '1pos2neg': { label: '一月增长，两月下滑', cls: 'mix', emoji: '↘↗' }
 };
 const trendColors = {
     vshape: '#1b5e20', peak: '#0d47a1', allrise: '#e65100',
@@ -365,7 +356,7 @@ function renderTrends(metric) {
 
 // ---- 表格 ----
 function renderTable(metric, trendFilter) {
-    const cols = ['城市', '2601', '2601同比', '2602', '2602同比', '2603', '2603同比', '26Q1', 'Q1同比', '趋势'];
+    const cols = ['城市', '2601', '2601同比', '2602', '2602同比', '2603', '2603同比', '26Q1', 'Q1同比'];
     document.getElementById('tableHead').innerHTML = cols.map(c => `<th>${c}</th>`).join('');
 
     let filtered = [...DATA];
@@ -379,25 +370,19 @@ function renderTable(metric, trendFilter) {
         const y1 = monthlyYoy(d, metric, '01');
         const y2 = monthlyYoy(d, metric, '02');
         const y3 = monthlyYoy(d, metric, '03');
-        const trendType = classifyTrend(d, metric);
-        const info = trendNames[trendType] || { emoji: '—' };
         return `<tr>
             <td>${d.city}</td>
             <td><strong>${fmt(m['2601'])}</strong></td><td>${badge(y1)}</td>
             <td><strong>${fmt(m['2602'])}</strong></td><td>${badge(y2)}</td>
             <td><strong>${fmt(m['2603'])}</strong></td><td>${badge(y3)}</td>
             <td><strong>${fmt(m['26Q1'])}</strong></td><td>${badge(m['yoy'])}</td>
-            <td style="font-size:16px;text-align:center;">${info.emoji}</td>
         </tr>`;
     }).join('');
 }
 
 document.getElementById('metricFilter').addEventListener('change', function() {
-    renderTable(this.value, document.getElementById('trendFilter').value);
+    renderTable(this.value, 'all');
     renderTrends(this.value);
-});
-document.getElementById('trendFilter').addEventListener('change', function() {
-    renderTable(document.getElementById('metricFilter').value, this.value);
 });
 
 renderTrends('chunxiao');
