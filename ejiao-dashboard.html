@@ -79,10 +79,51 @@
         .chart-wrap { position: relative; height: 320px; }
         .chart-wrap.tall { height: 400px; }
 
-        .trend-grid {
+        .combined-block {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            overflow: hidden;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            grid-template-columns: 1.6fr 1fr;
+            margin-bottom: 24px;
+        }
+        .combined-left {
+            overflow: auto;
+            max-height: 620px;
+        }
+        .combined-right {
+            padding: 20px;
+            border-left: 1px solid #e9ecef;
+            overflow-y: auto;
+            max-height: 620px;
+        }
+        .combined-right h3 {
+            font-size: 14px;
+            margin-bottom: 14px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .combined-right h3 i { color: #667eea; }
+        .trend-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .trend-card {
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid #ccc;
+            background: #fafafa;
+        }
+        .trend-card h4 {
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .trend-card {
             background: white;
@@ -112,13 +153,7 @@
         .trend-tag.mix-pn { background: #ffebee; color: #c62828; }
         .trend-tag.mix-np { background: #e3f2fd; color: #1565c0; }
 
-        .data-table {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            overflow: hidden;
-        }
-        .data-table .table-header {
+        .table-header {
             padding: 16px 20px;
             background: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
@@ -183,7 +218,10 @@
         }
 
         @media (max-width: 900px) {
-            .chart-grid, .trend-grid { grid-template-columns: 1fr; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .combined-block { grid-template-columns: 1fr; }
+            .combined-right { border-left: none; border-top: 1px solid #e9ecef; max-height: none; }
+            .combined-left { max-height: 400px; }
             .header h1 { font-size: 20px; }
         }
     </style>
@@ -205,26 +243,27 @@
         </div>
     </div>
 
-    <div class="chart-box" style="margin-bottom: 24px;">
-        <h3><i class="fas fa-chart-simple"></i> 26Q1同比趋势分析 — 各城市月度同比增长分类</h3>
-        <div class="trend-grid" id="trendGrid"></div>
-    </div>
-
-    <div class="data-table">
-        <div class="table-header">
-            <span><i class="fas fa-table"></i> 各城市详细数据（含月度同比）</span>
-            <div class="filter-group">
-                <select id="metricFilter">
-                    <option value="chunxiao">纯销额</option>
-                    <option value="peisong">配送额</option>
-                </select>
+    <div class="combined-block">
+        <div class="combined-left">
+            <div class="table-header">
+                <span><i class="fas fa-table"></i> 各城市详细数据（含月度同比）</span>
+                <div class="filter-group">
+                    <select id="metricFilter">
+                        <option value="chunxiao">纯销额</option>
+                        <option value="peisong">配送额</option>
+                    </select>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="dataTable">
+                    <thead><tr id="tableHead"></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
             </div>
         </div>
-        <div style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
-            <table id="dataTable">
-                <thead><tr id="tableHead"></tr></thead>
-                <tbody id="tableBody"></tbody>
-            </table>
+        <div class="combined-right">
+            <h3><i class="fas fa-chart-simple"></i> 26Q1同比趋势分析</h3>
+            <div class="trend-list" id="trendList"></div>
         </div>
     </div>
 </div>
@@ -329,10 +368,6 @@ const trendNames = {
     '2pos1neg': { label: '1月下滑，2-3月增长', cls: 'mix-pn', emoji: '↗↘' },
     '1pos2neg': { label: '1月、3月下滑，2月增长', cls: 'mix-np', emoji: '↘↗' }
 };
-const trendColors = {
-    vshape: '#1b5e20', peak: '#0d47a1', allrise: '#e65100',
-    allfall: '#880e4f', '2pos1neg': '#c62828', '1pos2neg': '#1565c0'
-};
 
 function renderTrends(metric) {
     const groups = { allrise: [], allfall: [], vshape: [], peak: [], '2pos1neg': [], '1pos2neg': [] };
@@ -340,17 +375,19 @@ function renderTrends(metric) {
         const t = classifyTrend(d, metric);
         if (groups[t]) groups[t].push(d.city);
     });
-    document.getElementById('trendGrid').innerHTML =
+    document.getElementById('trendList').innerHTML =
         ['vshape','peak','allrise','allfall','2pos1neg','1pos2neg']
             .filter(k => groups[k].length > 0)
             .map(key => {
                 const info = trendNames[key];
-                return `<div class="trend-card">
-                    <h4 style="color:${trendColors[key]}">
+                const borderColor = key === 'allrise' ? '#e65100' : key === 'allfall' ? '#880e4f' : key === 'vshape' ? '#1b5e20' : key === 'peak' ? '#0d47a1' : key === '2pos1neg' ? '#c62828' : '#1565c0';
+                const tagCls = key === '2pos1neg' ? 'mix-pn' : key === '1pos2neg' ? 'mix-np' : info.cls;
+                return `<div class="trend-card" style="border-left-color:${borderColor}">
+                    <h4 style="color:${borderColor}">
                         ${info.emoji} ${info.label}
-                        <span style="margin-left:auto;font-size:12px;font-weight:400;color:#888;">${groups[key].length}个城市</span>
+                        <span style="margin-left:auto;font-size:12px;font-weight:400;color:#888;">${groups[key].length}城</span>
                     </h4>
-                    <div>${groups[key].map(c => `<span class="trend-tag ${key === '2pos1neg' ? 'mix-pn' : key === '1pos2neg' ? 'mix-np' : info.cls}">${c}</span>`).join('')}</div>
+                    <div>${groups[key].map(c => `<span class="trend-tag ${tagCls}">${c}</span>`).join('')}</div>
                 </div>`;
             }).join('');
 }
