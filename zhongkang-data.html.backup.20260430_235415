@@ -35,58 +35,8 @@
             background: var(--bg-primary); 
             color: var(--text-primary); 
             line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-        }
-        .sidebar {
-            width: 200px;
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-        }
-        .sidebar .logo {
-            padding: 0 20px 20px;
-            font-size: 18px;
-            font-weight: 700;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            margin-bottom: 10px;
-        }
-        .sidebar a {
-            display: block;
-            padding: 10px 20px;
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .sidebar a:hover, .sidebar a.active {
-            color: white;
-            background: rgba(255,255,255,0.15);
-            font-weight: 600;
-        }
-        .sidebar a i {
-            width: 20px;
-            margin-right: 8px;
-        }
-        .sidebar .back-link {
-            margin-top: auto;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            padding-top: 10px;
-        }
-        .main-wrapper {
-            flex: 1;
             padding: 20px;
-            overflow-x: auto;
-        }
-        @media (max-width: 900px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; flex-direction: row; padding: 10px; align-items: center; gap: 5px; }
-            .sidebar .logo { padding: 0 10px; border-bottom: none; margin: 0; font-size: 14px; border-right: 1px solid rgba(255,255,255,0.2); }
-            .sidebar a { padding: 6px 10px; font-size: 13px; }
-            .main-wrapper { padding: 10px; }
+            min-height: 100vh;
         }
         
         .container {
@@ -117,29 +67,6 @@
             color: var(--text-secondary);
             max-width: 800px;
             margin: 0 auto;
-        }
-        
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 18px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: var(--transition);
-            margin-bottom: 20px;
-        }
-        .back-btn:hover {
-            background: var(--bg-secondary);
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            transform: translateX(-2px);
         }
         
         .info-box {
@@ -329,22 +256,10 @@
         .filter-status{font-size:13px;color:var(--text-secondary);margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color)}
         .filter-status strong{color:var(--primary-color)}
         .selection-hint{font-size:11px;color:var(--text-muted, #adb5bd);font-weight:400;margin-left:auto}
-        .export-menu{position:absolute;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);padding:4px 0;z-index:1000;min-width:120px;display:none}
-        .export-menu a{display:block;padding:8px 16px;text-decoration:none;color:#333;font-size:13px;cursor:pointer}
-        .export-menu a:hover{background:#f0f4ff;color:var(--primary-color)}
-        .export-menu a i{margin-right:6px;width:14px;text-align:center}
     </style>
 </head>
 <body>
-
-<div class="sidebar">
-    <div class="logo"><i class="fas fa-chart-pie"></i> 数据看板</div>
-    <a href="ejiao-dashboard.html"><i class="fas fa-city"></i> 中心城市数据</a>
-    <a href="zhongkang-data.html" class="active"><i class="fas fa-chart-bar"></i> 中康数据</a>
-    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> 返回工作看板</a>
-</div>
-
-<div class="main-wrapper">
+    <div class="container">
         <div class="header">
             <h1><i class="fas fa-chart-bar"></i> 补气补血TOP10产品季度数据</h1>
             <p>22Q1-25Q4 完整季度序列分析 | 10个TOP产品销售额与同比变化</p>
@@ -391,8 +306,9 @@
                     <div>
                         <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
                             <span><i class="fas fa-coins"></i> 季度销售额（百万元）</span>
-                            <span style="font-size: 12px;">
-                                <a href="#" onclick="showExportMenu(event, 'sales'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
+                            <span style="font-size: 12px; display: flex; gap: 8px;">
+                                <a href="#" onclick="exportChartData('sales', 'csv'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-csv"></i> CSV</a>
+                                <a href="#" onclick="exportChartData('sales', 'xlsx'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-excel"></i> XLSX</a>
                             </span>
                         </div>
                         <div class="chart-container">
@@ -403,8 +319,9 @@
                     <div>
                         <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
                             <span><i class="fas fa-chart-line"></i> 销售额同比变化（%）</span>
-                            <span style="font-size: 12px;">
-                                <a href="#" onclick="showExportMenu(event, 'yoy'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
+                            <span style="font-size: 12px; display: flex; gap: 8px;">
+                                <a href="#" onclick="exportChartData('yoy', 'csv'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-csv"></i> CSV</a>
+                                <a href="#" onclick="exportChartData('yoy', 'xlsx'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-excel"></i> XLSX</a>
                             </span>
                         </div>
                         <div class="chart-container">
@@ -415,10 +332,11 @@
                 
                 <!-- 新增：市场份额堆叠条形图（使用真实销售额份额数据） -->
                 <div style="margin-top: 40px; margin-bottom: 40px;">
-                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; gap: 15px; justify-content: space-between;">
                         <span><i class="fas fa-chart-pie" style="color: var(--primary-color);"></i> TOP10产品销售额份额季度变化（堆叠条形图）</span>
-                        <span style="font-size: 12px;">
-                            <a href="#" onclick="showExportMenu(event, 'share'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
+                        <span style="font-size: 12px; display: flex; gap: 8px;">
+                            <a href="#" onclick="exportChartData('share', 'csv'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-csv"></i> CSV</a>
+                            <a href="#" onclick="exportChartData('share', 'xlsx'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer;"><i class="fas fa-file-excel"></i> XLSX</a>
                         </span>
                     </div>
                     
@@ -457,7 +375,6 @@
             <p><i class="fas fa-exclamation-circle"></i> 注：数据基于细分市场工作表的补气补血TOP10产品整理，时间范围为22Q1-25Q4。销售额单位为百万元，同比变化基于去年同期计算。</p>
         </div>
     </div>
-</div><!-- end main-wrapper -->
 
     <script>
         // 产品数据 - 嵌入实际数据
@@ -517,6 +434,12 @@
                     "name": "康缘黄芪精",
                     "sales": [30.94423807, 32.62144284, 39.47185676, 33.85739549, 39.26349066, 57.27334492, 56.4367373, 49.27943696, 44.20854152, 55.25011774, 61.00820038, 54.74730332, 43.99652481, 52.04680358, 60.7589828, 58.40015616],
                     "yoy_changes": [0, 0, 0, 0, 26.9, 75.6, 43.0, 45.5, 12.6, -3.5, 8.1, 11.1, -0.5, -5.8, -0.4, 6.7]
+                },
+                {
+                    "id": "全国",
+                    "name": "全国",
+                    "sales": [1078.92651364, 1087.01729902, 1275.3448314, 1220.0361509, 1605.18325623, 1498.0783191, 1631.61308031, 1784.67320099, 1588.20665005, 1625.82626261, 1849.97663663, 2197.31786435, 1729.30182529, 1707.04138501, 1856.24584153, 2056.12193967],
+                    "yoy_changes": [0, 0, 0, 0, 48.8, 37.8, 27.9, 46.3, -1.1, 8.5, 13.4, 23.1, 8.9, 5.0, 0.3, -6.4]
                 },
                 {
                     "id": "东阿阿胶",
@@ -1290,39 +1213,6 @@
 
         // ============ INIT ============
         // 导出工具函数
-        var exportTargetType = null;
-        
-        function showExportMenu(event, type) {
-            event.stopPropagation();
-            
-            var existing = document.getElementById('exportMenu');
-            if (existing) existing.remove();
-            
-            var rect = event.target.getBoundingClientRect();
-            
-            var menu = document.createElement('div');
-            menu.id = 'exportMenu';
-            menu.className = 'export-menu';
-            menu.style.display = 'block';
-            menu.style.left = (rect.left + window.scrollX - 60) + 'px';
-            menu.style.top = (rect.bottom + window.scrollY + 4) + 'px';
-            
-            menu.innerHTML = '<a onclick="exportChartData(\'' + type + '\', \'csv\'); hideExportMenu(); return false;"><i class=\"fas fa-file-csv\"></i> 导出 CSV</a>'
-                + '<a onclick="exportChartData(\'' + type + '\', \'xlsx\'); hideExportMenu(); return false;"><i class=\"fas fa-file-excel\"></i> 导出 XLSX</a>';
-            
-            document.body.appendChild(menu);
-            
-            setTimeout(function() {
-                document.addEventListener('click', hideExportMenu);
-            }, 10);
-        }
-        
-        function hideExportMenu() {
-            var menu = document.getElementById('exportMenu');
-            if (menu) menu.remove();
-            document.removeEventListener('click', hideExportMenu);
-        }
-        
         function getQuarterLabels() {
             var qs = ['22Q1','22Q2','22Q3','22Q4','23Q1','23Q2','23Q3','23Q4','24Q1','24Q2','24Q3','24Q4','25Q1','25Q2','25Q3','25Q4'];
             return qs;

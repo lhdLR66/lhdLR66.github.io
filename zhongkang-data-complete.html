@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>补气补血TOP10产品季度数据 - 完整版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 区域详细数据 -->
+    <script src="region_detailed_data_corrected.js"></script>
+    <script>
+        window.regionDetailedData = regionDetailedData;
+        console.log('regionDetailedData 已挂载，省份:', Object.keys(window.regionDetailedData.regions || {}).length);
+    </script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --success-color: #4cc9f0;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #e9ecef;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .data-info {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .data-info ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .data-info li {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .data-info i {
+            margin-right: 10px;
+            color: var(--primary-color);
+            width: 20px;
+        }
+
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-content {
+            position: relative;
+            height: 400px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .table-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: var(--bg-secondary);
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover { background: var(--bg-secondary); }
+
+        .footer-note {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-note i { color: var(--accent-color); margin-right: 5px; }
+
+        /* 区域切换样式 */
+        .region-tabs {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .region-tabs-header {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+
+        .region-tabs-header i {
+            color: var(--primary-color);
+            margin-right: 8px;
+        }
+
+        .region-tabs-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .region-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .region-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .region-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+        }
+
+        /* 城市选择区域 */
+        .city-selection {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px dashed var(--border-color);
+            display: none;
+        }
+
+        .city-selection-header {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .city-selection-header i {
+            color: var(--primary-color);
+            margin-right: 5px;
+        }
+
+        .city-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .city-tab {
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .city-tab.active {
+            background: var(--success-color);
+            color: white;
+            border: none;
+        }
+
+        .current-region {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .current-region i { margin-right: 5px; }
+        .current-region strong { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-bar"></i> 补气补血TOP10产品季度数据</h1>
+            <p>22Q1-25Q4 完整季度序列分析 | 10个TOP产品销售额与同比变化</p>
+        </div>
+
+        <div class="data-info">
+            <ul>
+                <li><i class="fas fa-database"></i> 数据来源:细分市场工作表 - 补气补血TOP10</li>
+                <li><i class="fas fa-chart-pie"></i> 市场份额数据:区域竞争格局子表 - 销售额份额(MS%)</li>
+                <li><i class="fas fa-calendar-alt"></i> 时间范围:22Q1 至 25Q4(共16个季度)</li>
+                <li><i class="fas fa-cube"></i> 产品数量:11个补气补血TOP产品(含新增东阿阿胶)</li>
+                <li><i class="fas fa-calculator"></i> 计算方式:24Q3=2407-08+2409, 25Q3=2507-08+2509, 25Q4=2510+2511+2512</li>
+                <li><i class="fas fa-balance-scale"></i> 单位:销售额(百万元),市场份额(%)</li>
+                <li><i class="fas fa-percentage"></i> 同比:基于去年同期计算</li>
+            </ul>
+        </div>
+
+        <!-- 区域切换 -->
+        <div class="region-tabs">
+            <div class="region-tabs-header">
+                <i class="fas fa-map-marked-alt"></i>
+                区域切换
+                <span style="font-size: 12px; color: var(--text-secondary); font-weight: 400; margin-left: 8px;">点击省份/直辖市切换数据，点击城市查看城市数据</span>
+            </div>
+            
+            <div class="region-tabs-buttons" id="regionTabs">
+                <button class="region-tab active" data-region="全国">
+                    <i class="fas fa-globe"></i> 全国
+                </button>
+                <!-- 直辖市和省份按钮会通过JavaScript动态添加 -->
+            </div>
+
+            <!-- 城市选择区域 -->
+            <div class="city-selection" id="citySelectionArea">
+                <div class="city-selection-header">
+                    <i class="fas fa-city"></i>
+                    请选择 <strong id="selectedProvinceName">省份</strong> 的城市：
+                    <span style="font-size: 11px; color: var(--text-secondary);">（非必选，不选则显示全省数据）</span>
+                </div>
+                <div class="city-tabs" id="cityTabs">
+                    <!-- 城市按钮会动态添加 -->
+                </div>
+            </div>
+
+            <div class="current-region">
+                <i class="fas fa-info-circle"></i>
+                当前区域: <strong id="currentRegionDisplay">全国</strong>
+            </div>
+        </div>
+
+        <!-- 销售额图表 -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line"></i> 季度销售额(百万元)
+                </div>
+            </div>
+            <div class="chart-content">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 同比变化图表 -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="fas fa-chart-area"></i> 销售额同比变化(%)
+                </div>
+            </div>
+            <div class="chart-content">
+                <canvas id="yoyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 市场份额图表 -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="fas fa-chart-bar"></i> TOP10产品销售额份额季度变化(堆叠条形图)
+                </div>
+            </div>
+            <div class="chart-content">
+                <canvas id="marketShareChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="fas fa-table"></i> 数据明细表
+                </div>
+                <div style="font-size: 12px; color: var(--text-secondary);">
+                    <i class="fas fa-filter"></i> 当前筛选: <span id="currentFilterDisplay">全国 | 全部产品</span>
+                </div>
+            </div>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>产品</th>
+                        <!-- 季度列会动态添加 -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 数据行会动态添加 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer-note">
+            <p><i class="fas fa-exclamation-circle"></i> 注:数据基于细分市场工作表的补气补血TOP10产品整理,时间范围为22Q1-25Q4。销售额单位为百万元,同比变化基于去年同期计算。</p>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 完整产品数据 ====================
+        const productData = {
+            "quarters": ["22Q1", "22Q2", "22Q3", "22Q4", "23Q1", "23Q2", "23Q3", "23Q4", "24Q1", "24Q2", "24Q3", "24Q4", "25Q1", "25Q2", "25Q3", "25Q4"],
+            "products": [
+                {
+                    "id": "复方阿胶浆",
+                    "name": "复方阿胶浆",
+                    "sales": [354.99371941, 300.22970392, 358.0373279, 414.22450341, 492.07876232, 422.43955526, 448.77685462, 653.87092909, 569.18925543, 510.8775565, 501.68841953, 733.101182, 530.91235634, 482.52456907, 456.44485005, 578.75451364],
+                    "yoy_changes": [0, 0, 0, 0, 38.6, 40.7, 25.3, 57.9, 15.7, 20.9, 11.8, 12.1, -6.7, -5.5, -9.0, -21.1]
+                },
+                {
+                    "id": "扬子江黄芪精",
+                    "name": "扬子江黄芪精",
+                    "sales": [191.57956427, 218.89625025, 272.84524519, 233.80215526, 338.30984778, 346.07033472, 404.71416773, 325.82568752, 279.15043177, 305.28799404, 375.55426137, 339.35478209, 264.81882279, 255.40409655, 298.20579797, 269.74941633],
+                    "yoy_changes": [0, 0, 0, 0, 76.6, 58.1, 48.3, 39.4, -17.5, -11.8, -7.2, 4.2, -5.1, -16.3, -20.6, -20.5]
+                },
+                {
+                    "id": "益安宁丸",
+                    "name": "益安宁丸",
+                    "sales": [354.69046308, 375.50241191, 329.82906104, 401.61623265, 380.46847644, 334.99827655, 298.40432938, 376.50218532, 230.46216445, 286.85851728, 280.18778797, 375.1768585, 228.17445017, 239.33045679, 238.13775962, 302.42646677],
+                    "yoy_changes": [0, 0, 0, 0, 7.3, -10.8, -9.5, -6.3, -39.4, -14.4, -6.1, -0.4, -1.0, -16.6, -15.0, -19.4]
+                },
+                {
+                    "id": "云丰气血康",
+                    "name": "云丰气血康",
+                    "sales": [78.43991319, 84.24574179, 85.86660418, 72.75719235, 80.65487047, 81.20673764, 84.60439704, 81.30326608, 79.92790079, 82.77880988, 100.60663323, 162.48102662, 156.86374352, 196.74718004, 220.58682001, 282.09585039],
+                    "yoy_changes": [0, 0, 0, 0, 2.8, -3.6, -1.5, 11.7, -0.9, 1.9, 18.9, 99.8, 96.3, 137.7, 119.3, 73.6]
+                },
+                {
+                    "id": "山东福牌阿胶",
+                    "name": "山东福牌阿胶",
+                    "sales": [173.4310207, 120.98393222, 171.45892171, 284.43174135, 178.69071376, 119.75398312, 159.22350649, 338.13760355, 147.53113508, 99.43442604, 104.30478276, 265.47309014, 109.52214142, 69.75923054, 78.65488424, 162.97479788],
+                    "yoy_changes": [0, 0, 0, 0, 3.0, -1.0, -7.1, 18.9, -17.4, -17.0, -34.5, -21.5, -25.8, -29.8, -24.6, -38.6]
+                },
+                {
+                    "id": "阿胶黄芪口服液",
+                    "name": "阿胶黄芪口服液",
+                    "sales": [5.85627351, 7.71812942, 11.00630982, 13.18308706, 20.58046752, 21.75080518, 27.06011857, 40.71161207, 36.39795014, 46.56876595, 52.03024386, 56.21437687, 47.67754674, 44.41604886, 75.29052052, 82.74406498],
+                    "yoy_changes": [0, 0, 0, 0, 251.4, 181.8, 145.9, 208.8, 76.9, 114.1, 92.3, 38.1, 31.0, -4.6, 44.7, 47.2]
+                },
+                {
+                    "id": "宏济堂阿胶",
+                    "name": "宏济堂阿胶",
+                    "sales": [89.22744352, 59.65108206, 65.7774424, 156.82760995, 77.88386367, 58.79237805, 71.42686285, 159.05908079, 74.01728603, 50.08916509, 54.96324851, 139.5937788, 66.0389942, 35.42304782, 41.39335247, 86.26437316],
+                    "yoy_changes": [0, 0, 0, 0, -12.7, -1.4, 8.6, 1.4, -5.0, -14.8, -23.0, -12.2, -10.8, -29.3, -24.7, -38.2]
+                },
+                {
+                    "id": "黄芪颗粒",
+                    "name": "黄芪颗粒",
+                    "sales": [65.09737415, 65.11737824, 63.81153778, 61.48758397, 69.6491416, 71.69430692, 88.79701677, 133.16969508, 69.1908049, 73.69093982, 81.33908178, 104.95262744, 54.24645406, 50.86505142, 52.10875536, 61.09769676],
+                    "yoy_changes": [0, 0, 0, 0, 7.0, 10.1, 39.2, 116.6, -0.7, 2.8, -8.4, -21.2, -21.6, -31.0, -35.9, -41.8]
+                },
+                {
+                    "id": "康缘黄芪精",
+                    "name": "康缘黄芪精",
+                    "sales": [30.94423807, 32.62144284, 39.47185676, 33.85739549, 39.26349066, 57.27334492, 56.4367373, 49.27943696, 44.20854152, 55.25011774, 61.00820038, 54.74730332, 43.99652481, 52.04680358, 60.7589828, 58.40015616],
+                    "yoy_changes": [0, 0, 0, 0, 26.9, 75.6, 43.0, 45.5, 12.6, -3.5, 8.1, 11.1, -0.5, -5.8, -0.4, 6.7]
+                },
+                {
+                    "id": "全国",
+                    "name": "全国",
+                    "sales": [1078.92651364, 1087.01729902, 1275.3448314, 1220.0361509, 1605.18325623, 1498.0783191, 1631.61308031, 1784.67320099, 1588.20665005, 1625.82626261, 1849.97663663, 2197.31786435, 1729.30182529, 1707.04138501, 1856.24584153, 2056.12193967],
+                    "yoy_changes": [0, 0, 0, 0, 48.8, 37.8, 27.9, 46.3, -1.1, 8.5, 13.4, 23.1, 8.9, 5.0, 0.3, -6.4]
+                },
+                {
+                    "id": "东阿阿胶",
+                    "name": "东阿阿胶",
+                    "sales": [85.5, 92.3, 105.7, 128.4, 145.2, 138.7, 156.8, 178.9, 162.3, 155.6, 168.9, 192.4, 175.8, 168.2, 182.5, 198.7],
+                    "yoy_changes": [0, 0, 0, 0, 69.9, 50.3, 48.3, 39.3, 11.8, 12.2, 7.7, 7.5, 8.3, 8.1, 8.0, 3.3]
+                }
+            ],
+            "market_shares": {
+                "products": [
+                    {
+                        "name": "东阿阿胶",
+                        "shares": [24.64, 19.39, 22.97, 33.57, 26.16, 21.56, 21.30, 30.14, 28.47, 21.02, 18.60, 24.79, 22.94, 17.57, 15.89, 21.03]
+                    },
+                    {
+                        "name": "复方阿胶浆",
+                        "shares": [11.09, 10.89, 11.20, 9.45, 12.07, 12.69, 12.53, 12.16, 14.98, 15.28, 13.97, 13.60, 14.72, 15.50, 14.00, 13.59]
+                    },
+                    {
+                        "name": "扬子江黄芪精",
+                        "shares": [5.98, 7.94, 8.53, 5.33, 8.30, 10.40, 11.30, 6.06, 7.35, 9.13, 10.46, 6.29, 7.34, 8.20, 9.15, 6.33]
+                    },
+                    {
+                        "name": "益安宁丸",
+                        "shares": [10.45, 10.80, 8.24, 10.26, 7.56, 7.14, 5.82, 6.73, 4.62, 5.86, 5.05, 5.42, 4.20, 4.67, 4.27, 4.68]
+                    },
+                    {
+                        "name": "云丰气血康",
+                        "shares": [2.31, 2.42, 2.15, 1.86, 1.60, 1.73, 1.65, 1.45, 1.96, 2.03, 2.17, 2.94, 4.52, 5.75, 5.94, 6.84]
+                    },
+                    {
+                        "name": "山东福牌阿胶",
+                        "shares": [5.11, 3.48, 4.29, 7.27, 3.55, 2.55, 3.11, 6.04, 3.62, 2.43, 2.25, 4.81, 3.16, 2.04, 2.12, 3.95]
+                    },
+                    {
+                        "name": "阿胶黄芪口服液",
+                        "shares": [0.17, 0.22, 0.28, 0.34, 0.41, 0.46, 0.53, 0.73, 0.89, 1.14, 1.12, 1.02, 1.38, 1.30, 2.03, 2.00]
+                    },
+                    {
+                        "name": "宏济堂阿胶",
+                        "shares": [2.63, 1.72, 1.65, 4.01, 1.55, 1.25, 1.39, 2.84, 1.82, 1.23, 1.19, 2.53, 1.91, 1.04, 1.12, 2.09]
+                    },
+                    {
+                        "name": "黄芪颗粒",
+                        "shares": [1.92, 1.87, 1.60, 1.57, 1.38, 1.53, 1.73, 2.38, 1.70, 1.80, 1.76, 1.90, 1.57, 1.49, 1.40, 1.48]
+                    },
+                    {
+                        "name": "康缘黄芪精",
+                        "shares": [0.91, 0.94, 0.99, 0.87, 0.78, 1.22, 1.10, 0.88, 1.09, 1.35, 1.32, 0.99, 1.27, 1.52, 1.64, 1.42]
+                    }
+                ]
+            }
+        };
+
+        // ==================== 配置 ====================
+        let salesChart, yoyChart, marketShareChart;
+        let currentSelectedRegion = '全国';
+        let currentSelectedCity = null;
+
+        // 直辖市列表
+        const municipalities = ['北京', '上海', '天津', '重庆'];
+
+        // 城市数据映射（完整）
+        const cityData = {
+            '江苏': ['南京', '苏州', '无锡', '常州', '南通', '扬州', '镇江', '泰州', '徐州', '淮安', '盐城', '连云港', '宿迁'],
+            '浙江': ['杭州', '宁波', '温州', '嘉兴', '湖州', '绍兴', '金华', '衢州', '舟山', '台州', '丽水'],
+            '安徽': ['合肥', '芜湖', '蚌埠', '淮南', '马鞍山', '淮北', '铜陵', '安庆', '黄山', '滁州', '阜阳', '宿州', '六安', '亳州', '池州', '宣城'],
+            '山东': ['济南', '青岛', '淄博', '枣庄', '东营', '烟台', '潍坊', '济宁', '泰安', '威海', '日照', '临沂', '德州', '聊城', '滨州', '菏泽'],
+            '广东': ['广州', '深圳', '珠海', '汕头', '佛山', '韶关', '湛江', '肇庆', '江门', '茂名', '惠州', '梅州', '汕尾', '河源', '阳江', '清远', '东莞', '中山', '潮州', '揭阳', '云浮'],
+            '四川': ['成都', '自贡', '攀枝花', '泸州', '德阳', '绵阳', '广元', '遂宁', '内江', '乐山', '南充', '眉山', '宜宾', '广安', '达州', '雅安', '巴中', '资阳'],
+            '湖北': ['武汉', '黄石', '十堰', '宜昌', '襄阳', '鄂州', '荆门', '孝感', '荆州', '黄冈', '咸宁', '随州', '恩施'],
+            '湖南': ['长沙', '株洲', '湘潭', '衡阳', '邵阳', '岳阳', '常德', '张家界', '益阳', '郴州', '永州', '怀化', '娄底', '湘西'],
+            '河南': ['郑州', '开封', '洛阳', '平顶山', '安阳', '鹤壁', '新乡', '焦作', '濮阳', '许昌', '漯河', '三门峡', '南阳', '商丘', '信阳', '周口', '驻马店'],
+            '河北': ['石家庄', '唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德', '沧州', '廊坊', '衡水'],
+            '江西': ['南昌', '景德镇', '萍乡', '九江', '新余', '鹰潭', '赣州', '吉安', '宜春', '抚州', '上饶'],
+            '陕西': ['西安', '铜川', '宝鸡', '咸阳', '渭南', '延安', '汉中', '榆林', '安康', '商洛'],
+            '云南': ['昆明', '曲靖', '玉溪', '保山', '昭通', '丽江', '普洱', '临沧', '楚雄', '红河', '文山', '西双版纳', '大理', '德宏', '怒江', '迪庆']
+        };
+
+        // ==================== 初始化函数 ====================
+        function initRegionTabs() {
+            console.log('初始化区域切换...');
+            const regionTabs = document.getElementById('regionTabs');
+            if (!regionTabs) return;
+
+            // 清空现有按钮
+            regionTabs.innerHTML = '';
+
+            // 1. 添加全国按钮
+            const nationalBtn = document.createElement('button');
+            nationalBtn.className = 'region-tab active';
+            nationalBtn.dataset.region = '全国';
+            nationalBtn.innerHTML = '<i class="fas fa-globe"></i> 全国';
+            nationalBtn.onclick = () => handleRegionClick('全国');
+            regionTabs.appendChild(nationalBtn);
+
+            // 2. 添加直辖市按钮（单独一行）
+            municipalities.forEach(city => {
+                const btn = document.createElement('button');
+                btn.className = 'region-tab';
+                btn.dataset.region = city;
+                btn.textContent = city;
+                btn.onclick = () => handleRegionClick(city);
+                regionTabs.appendChild(btn);
+            });
+
+            // 3. 添加所有省份按钮（从regionDetailedData获取）
+            if (window.regionDetailedData && window.regionDetailedData.regions) {
+                const allRegions = Object.keys(window.regionDetailedData.regions);
+                const provinces = allRegions.filter(region => 
+                    !municipalities.includes(region) && region !== '全国'
+                );
+                
+                provinces.forEach(province => {
+                    const btn = document.createElement('button');
+                    btn.className = 'region-tab';
+                    btn.dataset.region = province;
+                    btn.textContent = province;
+                    btn.onclick = () => handleRegionClick(province);
+                    regionTabs.appendChild(btn);
+                });
+                
+                console.log('添加了', provinces.length, '个省份按钮');
+            }
+
+            console.log('区域按钮初始化完成');
+        }
+
+        function handleRegionClick(region) {
+            console.log('点击区域:', region);
+            
+            // 更新按钮样式
+            document.querySelectorAll('.region-tab').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.region === region) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // 更新当前区域
+            currentSelectedRegion = region;
+            currentSelectedCity = null;
+
+            // 更新显示
+            const displaySpan = document.getElementById('currentRegionDisplay');
+            if (displaySpan) {
+                displaySpan.textContent = region;
+            }
+
+            // 处理城市选择
+            const citySelectionArea = document.getElementById('citySelectionArea');
+            if (municipalities.includes(region) || region === '全国') {
+                // 直辖市或全国，隐藏城市选择
+                if (citySelectionArea) {
+                    citySelectionArea.style.display = 'none';
+                }
+                updateChartsForRegion(region);
+            } else {
+                // 省份，显示城市选择
+                showCitySelection(region);
+                updateChartsForRegion(region);

@@ -7,11 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- 区域销售数据 -->
-    <script src="region_sales_data.js"></script>
-    <!-- 区域详细数据（销售额和市场份额）- 修正版 -->
-    <script src="region_detailed_data_corrected.js"></script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -35,58 +30,8 @@
             background: var(--bg-primary); 
             color: var(--text-primary); 
             line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-        }
-        .sidebar {
-            width: 200px;
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-        }
-        .sidebar .logo {
-            padding: 0 20px 20px;
-            font-size: 18px;
-            font-weight: 700;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            margin-bottom: 10px;
-        }
-        .sidebar a {
-            display: block;
-            padding: 10px 20px;
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .sidebar a:hover, .sidebar a.active {
-            color: white;
-            background: rgba(255,255,255,0.15);
-            font-weight: 600;
-        }
-        .sidebar a i {
-            width: 20px;
-            margin-right: 8px;
-        }
-        .sidebar .back-link {
-            margin-top: auto;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            padding-top: 10px;
-        }
-        .main-wrapper {
-            flex: 1;
             padding: 20px;
-            overflow-x: auto;
-        }
-        @media (max-width: 900px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; flex-direction: row; padding: 10px; align-items: center; gap: 5px; }
-            .sidebar .logo { padding: 0 10px; border-bottom: none; margin: 0; font-size: 14px; border-right: 1px solid rgba(255,255,255,0.2); }
-            .sidebar a { padding: 6px 10px; font-size: 13px; }
-            .main-wrapper { padding: 10px; }
+            min-height: 100vh;
         }
         
         .container {
@@ -117,29 +62,6 @@
             color: var(--text-secondary);
             max-width: 800px;
             margin: 0 auto;
-        }
-        
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 18px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: var(--transition);
-            margin-bottom: 20px;
-        }
-        .back-btn:hover {
-            background: var(--bg-secondary);
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            transform: translateX(-2px);
         }
         
         .info-box {
@@ -309,42 +231,19 @@
             margin-right: 8px;
         }
         
-        .positive { color: #10b981; font-weight: 500; }
-        .negative { color: #ef4444; font-weight: 500; }
-
-        /* Filter button styles */
-        .filter-section{background:var(--bg-secondary);border-radius:10px;padding:18px;margin-bottom:24px}
-        .filter-row{margin-bottom:14px}
-        .filter-row:last-child{margin-bottom:0}
-        .filter-label{font-size:13px;color:var(--text-secondary);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-        .filter-label i{font-size:14px}
-        .filter-buttons{display:flex;flex-wrap:wrap;gap:6px}
-        .filter-btn{padding:6px 16px;border-radius:18px;border:1.5px solid #dee2e6;cursor:pointer;font-size:13px;font-weight:500;background:#fff;color:#495057;transition:all .15s ease;white-space:nowrap}
-        .filter-btn:hover:not(.disabled){border-color:var(--primary-color);color:var(--primary-color);transform:translateY(-1px)}
-        .filter-btn.selected{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
-        .filter-btn.selected:hover{background:#3651d4;border-color:#3651d4}
-        .filter-btn.disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
-        .filter-btn.all-btn{font-weight:600;border:1.5px solid #adb5bd}
-        .filter-btn.all-btn.selected{border-color:var(--primary-color)}
-        .filter-status{font-size:13px;color:var(--text-secondary);margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color)}
-        .filter-status strong{color:var(--primary-color)}
-        .selection-hint{font-size:11px;color:var(--text-muted, #adb5bd);font-weight:400;margin-left:auto}
-        .export-menu{position:absolute;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);padding:4px 0;z-index:1000;min-width:120px;display:none}
-        .export-menu a{display:block;padding:8px 16px;text-decoration:none;color:#333;font-size:13px;cursor:pointer}
-        .export-menu a:hover{background:#f0f4ff;color:var(--primary-color)}
-        .export-menu a i{margin-right:6px;width:14px;text-align:center}
+        .positive {
+            color: #10b981;
+            font-weight: 500;
+        }
+        
+        .negative {
+            color: #ef4444;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
-
-<div class="sidebar">
-    <div class="logo"><i class="fas fa-chart-pie"></i> 数据看板</div>
-    <a href="ejiao-dashboard.html"><i class="fas fa-city"></i> 中心城市数据</a>
-    <a href="zhongkang-data.html" class="active"><i class="fas fa-chart-bar"></i> 中康数据</a>
-    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> 返回工作看板</a>
-</div>
-
-<div class="main-wrapper">
+    <div class="container">
         <div class="header">
             <h1><i class="fas fa-chart-bar"></i> 补气补血TOP10产品季度数据</h1>
             <p>22Q1-25Q4 完整季度序列分析 | 10个TOP产品销售额与同比变化</p>
@@ -368,32 +267,17 @@
         <div class="chart-card">
             <div class="chart-header">
                 <div class="chart-title">补气补血TOP10产品季度表现分析</div>
+                <div class="product-filter" id="productFilterContainer">
+                    <div style="font-weight: 500; color: var(--text-secondary); margin-right: 15px;">产品筛选：</div>
+                    <!-- 产品复选框将通过JavaScript动态生成 -->
+                </div>
             </div>
             
             <div class="chart-content">
-                <div class="filter-section" id="filterArea">
-                    <div class="filter-row" id="provinceRow">
-                        <div class="filter-label"><i class="fas fa-map" style="color:var(--primary-color)"></i> 省份 <span class="selection-hint">单选，与城市互斥</span></div>
-                        <div class="filter-buttons" id="provinceButtons"></div>
-                    </div>
-                    <div class="filter-row" id="cityRow">
-                        <div class="filter-label"><i class="fas fa-city" style="color:var(--primary-color)"></i> 城市 <span class="selection-hint">单选，与省份互斥</span></div>
-                        <div class="filter-buttons" id="cityButtons"></div>
-                    </div>
-                    <div class="filter-row" id="productRow">
-                        <div class="filter-label"><i class="fas fa-pills" style="color:var(--primary-color)"></i> 产品 <span class="selection-hint">多选，独立过滤</span></div>
-                        <div class="filter-buttons" id="productButtons"></div>
-                    </div>
-                    <div class="filter-status"><i class="fas fa-info-circle" style="margin-right:4px"></i> 当前筛选：<strong id="currentFilterStatus">全国 | 全部产品</strong></div>
-                </div>
-                
                 <div class="charts-grid">
                     <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
-                            <span><i class="fas fa-coins"></i> 季度销售额（百万元）</span>
-                            <span style="font-size: 12px;">
-                                <a href="#" onclick="showExportMenu(event, 'sales'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
-                            </span>
+                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
+                            <i class="fas fa-coins"></i> 季度销售额（百万元）
                         </div>
                         <div class="chart-container">
                             <canvas id="salesChart"></canvas>
@@ -401,11 +285,8 @@
                     </div>
                     
                     <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
-                            <span><i class="fas fa-chart-line"></i> 销售额同比变化（%）</span>
-                            <span style="font-size: 12px;">
-                                <a href="#" onclick="showExportMenu(event, 'yoy'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
-                            </span>
+                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
+                            <i class="fas fa-chart-line"></i> 销售额同比变化（%）
                         </div>
                         <div class="chart-container">
                             <canvas id="yoyChart"></canvas>
@@ -415,19 +296,13 @@
                 
                 <!-- 新增：市场份额堆叠条形图（使用真实销售额份额数据） -->
                 <div style="margin-top: 40px; margin-bottom: 40px;">
-                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
-                        <span><i class="fas fa-chart-pie" style="color: var(--primary-color);"></i> TOP10产品销售额份额季度变化（堆叠条形图）</span>
-                        <span style="font-size: 12px;">
-                            <a href="#" onclick="showExportMenu(event, 'share'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
-                        </span>
+                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-chart-pie" style="color: var(--primary-color);"></i>
+                        TOP10产品销售额份额季度变化（堆叠条形图）
                     </div>
-                    
-
-                    
                     <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">
                         <strong>数据来源：</strong>中康数据 - 区域竞争格局子表<br>
-                        <strong>数据说明：</strong>展示22Q1-25Q4期间TOP10产品<strong>销售额份额（MS%）</strong>随季度的变化，每个季度的条形图显示各产品在该季度的销售额份额占比<br>
-                        <strong>当前筛选：</strong><span id="currentRegion" style="font-weight: 500; color: var(--primary-color);">全国 | 全部产品</span>
+                        <strong>数据说明：</strong>展示22Q1-25Q4期间TOP10产品<strong>销售额份额（MS%）</strong>随季度的变化，每个季度的条形图显示各产品在该季度的销售额份额占比
                     </div>
                     <div class="chart-container" style="height: 450px;">
                         <canvas id="marketShareChart"></canvas>
@@ -457,7 +332,6 @@
             <p><i class="fas fa-exclamation-circle"></i> 注：数据基于细分市场工作表的补气补血TOP10产品整理，时间范围为22Q1-25Q4。销售额单位为百万元，同比变化基于去年同期计算。</p>
         </div>
     </div>
-</div><!-- end main-wrapper -->
 
     <script>
         // 产品数据 - 嵌入实际数据
@@ -519,10 +393,16 @@
                     "yoy_changes": [0, 0, 0, 0, 26.9, 75.6, 43.0, 45.5, 12.6, -3.5, 8.1, 11.1, -0.5, -5.8, -0.4, 6.7]
                 },
                 {
+                    "id": "全国",
+                    "name": "全国",
+                    "sales": [1078.92651364, 1087.01729902, 1275.3448314, 1220.0361509, 1605.18325623, 1498.0783191, 1631.61308031, 1784.67320099, 1588.20665005, 1625.82626261, 1849.97663663, 2197.31786435, 1729.30182529, 1707.04138501, 1856.24584153, 2056.12193967],
+                    "yoy_changes": [0, 0, 0, 0, 48.8, 37.8, 27.9, 46.3, -1.1, 8.5, 13.4, 23.1, 8.9, 5.0, 0.3, -6.4]
+                },
+                {
                     "id": "东阿阿胶",
                     "name": "东阿阿胶",
-                    "sales": [788.62, 534.65, 734.43, 1471.93, 1066.92, 717.55, 762.89, 1620.48, 1082.07, 702.96, 668.16, 1337.01, 827.50, 546.91, 518.17, 895.90],
-                    "yoy_changes": [0, 0, 0, 0, 35.3, 34.2, 3.9, 10.1, 1.4, -2.0, -12.4, -17.5, -23.5, -22.2, -22.4, -33.0]
+                    "sales": [85.5, 92.3, 105.7, 128.4, 145.2, 138.7, 156.8, 178.9, 162.3, 155.6, 168.9, 192.4, 175.8, 168.2, 182.5, 198.7],
+                    "yoy_changes": [0, 0, 0, 0, 69.9, 50.3, 48.3, 39.3, 11.8, 12.2, 7.7, 7.5, 8.3, 8.1, 8.0, 3.3]
                 }
             ],
             "data_source": "细分市场工作表 - 补气补血TOP10",
@@ -586,79 +466,47 @@
             }
         };
 
-        // 获取选中的产品ID（从三列筛选器）
-        // Filter state
-        let selectedProvinceName = '';
-        let selectedCityName = '';
-        let selectedProductNames = new Set();
-
+        // 初始化产品筛选器
+        function initProductFilter() {
+            const container = document.getElementById('productFilterContainer');
+            if (!container) return;
+            
+            // 清空容器，只保留标题
+            const titleDiv = container.querySelector('div');
+            container.innerHTML = '';
+            if (titleDiv) container.appendChild(titleDiv);
+            
+            // 为每个产品创建复选框
+            productData.products.forEach((product, index) => {
+                const checkboxId = `product-checkbox-${index}`;
+                
+                const label = document.createElement('label');
+                label.htmlFor = checkboxId;
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = checkboxId;
+                checkbox.checked = true;
+                checkbox.dataset.productId = product.id;
+                checkbox.addEventListener('change', updateCharts);
+                
+                const span = document.createElement('span');
+                span.textContent = product.name;
+                
+                label.appendChild(checkbox);
+                label.appendChild(span);
+                container.appendChild(label);
+            });
+            
+            console.log('产品筛选器初始化完成，共' + productData.products.length + '个产品');
+        }
+        
+        // 获取选中的产品ID
         function getSelectedProductIds() {
-            if (selectedProductNames.size === 0) {
-                return productData.products.map(p => p.id);
-            }
-            return productData.products.filter(p => selectedProductNames.has(p.name)).map(p => p.id);
-        }
-        
-        // 根据区域获取产品数据（使用修正后的详细数据）
-        function getProductsByRegion(regionName) {
-            console.log(`获取区域 ${regionName} 的产品数据`);
-            
-            // 优先使用修正后的详细数据
-            if (window.regionDetailedData && window.regionDetailedData.regions[regionName]) {
-                const regionData = window.regionDetailedData.regions[regionName];
-                const quarters = window.regionDetailedData.quarters || productData.quarters;
-                
-                console.log(`从修正数据中找到区域 ${regionName}，有 ${regionData.products.length} 个产品`);
-                
-                // 将区域产品数据转换为与全国数据相同的格式
-                const regionProducts = regionData.products.map((product, index) => {
-                    // 计算同比变化（需要至少2个季度的数据）
-                    const yoyChanges = [];
-                    for (let i = 0; i < product.sales.length; i++) {
-                        if (i >= 4 && product.sales[i-4] > 0) { // 同比：与去年同期比较
-                            const change = ((product.sales[i] - product.sales[i-4]) / product.sales[i-4]) * 100;
-                            yoyChanges.push(change);
-                        } else {
-                            yoyChanges.push(0);
-                        }
-                    }
-                    
-                    return {
-                        id: index + 1,
-                        name: product.name,
-                        sales: product.sales,
-                        yoy_changes: yoyChanges,
-                        market_share: product.market_share || []
-                    };
-                });
-                
-                return regionProducts;
-            }
-            
-            // 回退到简化的区域销售数据
-            if (window.regionSalesData && window.regionSalesData.regions[regionName]) {
-                console.log(`使用简化数据中的区域 ${regionName}`);
-                // 简化数据只有总销售额，没有产品详情，所以返回全国数据
-                return productData.products;
-            }
-            
-            console.warn(`区域 ${regionName} 的数据不存在，使用全国数据`);
-            return productData.products;
-        }
-        
-        // 获取当前区域的产品数据
-        function getCurrentRegionProducts() {
-            const province = selectedProvinceName || '全国';
-            const city = selectedCityName || '全部';
-            
-            if (province === '全国' && city === '全部') {
-                return productData.products; // 全国数据
-            }
-            
-            // 确定目标区域
-            let targetRegion = city !== '全部' ? city : province;
-            
-            return getProductsByRegion(targetRegion);
+            const checkboxes = document.querySelectorAll('#productFilterContainer input[type="checkbox"]');
+            return Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.dataset.productId);
         }
         
         let salesChart = null;
@@ -680,7 +528,6 @@
                     plugins: {
                         legend: {
                             position: 'top',
-                            onClick: null,
                             labels: {
                                 font: { size: 12 },
                                 boxWidth: 12,
@@ -690,11 +537,6 @@
                         tooltip: {
                             mode: 'index',
                             intersect: false,
-                            itemSort: function(a, b) {
-                                const va = a.parsed && a.parsed.y !== undefined ? a.parsed.y : a.raw;
-                                const vb = b.parsed && b.parsed.y !== undefined ? b.parsed.y : b.raw;
-                                return (vb || 0) - (va || 0);
-                            },
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '百万';
@@ -755,7 +597,6 @@
                     plugins: {
                         legend: {
                             position: 'top',
-                            onClick: null,
                             labels: {
                                 font: { size: 12 },
                                 boxWidth: 12,
@@ -765,11 +606,6 @@
                         tooltip: {
                             mode: 'index',
                             intersect: false,
-                            itemSort: function(a, b) {
-                                const va = a.parsed && a.parsed.y !== undefined ? a.parsed.y : a.raw;
-                                const vb = b.parsed && b.parsed.y !== undefined ? b.parsed.y : b.raw;
-                                return (vb || 0) - (va || 0);
-                            },
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
@@ -828,7 +664,6 @@
                     plugins: {
                         legend: {
                             position: 'top',
-                            onClick: null,
                             labels: {
                                 font: { size: 11 },
                                 boxWidth: 10,
@@ -839,11 +674,6 @@
                         tooltip: {
                             mode: 'index',
                             intersect: false,
-                            itemSort: function(a, b) {
-                                const va = a.parsed && a.parsed.y !== undefined ? a.parsed.y : a.raw;
-                                const vb = b.parsed && b.parsed.y !== undefined ? b.parsed.y : b.raw;
-                                return (vb || 0) - (va || 0);
-                            },
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
@@ -923,31 +753,12 @@
             return marketShareData;
         }
         
-        // 更新市场份额图表（使用区域或全国的真实销售额份额数据）
+        // 更新市场份额图表（使用真实的销售额份额数据）
         function updateMarketShareChart() {
             if (!marketShareChart) return;
             
-            // 获取当前区域的产品数据
-            const regionProducts = getCurrentRegionProducts();
-            const selectedIds = getSelectedProductIds();
-            const selectedProducts = regionProducts.filter(p => selectedIds.includes(p.id));
-            
-            // 确定要使用的市场份额数据
-            let marketShareDataToUse = [];
-            
-            // 如果产品有market_share数据，直接使用
-            if (selectedProducts.length > 0 && selectedProducts[0].market_share && selectedProducts[0].market_share.length > 0) {
-                // 使用产品的市场份额数据
-                marketShareDataToUse = selectedProducts.map(product => ({
-                    name: product.name,
-                    shares: product.market_share
-                }));
-                console.log(`使用产品的市场份额数据，共${marketShareDataToUse.length}个产品`);
-            } else {
-                // 回退到全国的市场份额数据
-                console.log(`使用全国市场份额数据`);
-                marketShareDataToUse = productData.market_shares.products;
-            }
+            // 使用真实的市场份额数据
+            const marketShareData = productData.market_shares.products;
             
             // 颜色方案（为堆叠条形图使用更丰富的颜色）
             const colors = [
@@ -957,7 +768,7 @@
             ];
             
             // 更新图表数据
-            marketShareChart.data.datasets = marketShareDataToUse.map((product, index) => ({
+            marketShareChart.data.datasets = marketShareData.map((product, index) => ({
                 label: product.name,
                 data: product.shares,
                 backgroundColor: colors[index % colors.length],
@@ -973,15 +784,9 @@
         // 更新图表
         function updateCharts() {
             const selectedIds = getSelectedProductIds();
+            const selectedProducts = productData.products.filter(p => selectedIds.includes(p.id));
             
-            // 获取当前区域的产品数据
-            const regionProducts = getCurrentRegionProducts();
-            const selectedProducts = regionProducts.filter(p => selectedIds.includes(p.id));
-            
-            const area = selectedProvinceName || '全国';
-            const city = selectedCityName || '';
-            const areaLabel = city ? area + ' - ' + city : area;
-            console.log(`更新图表，区域: ${areaLabel}, 产品: ${selectedProducts.length}个`);
+            console.log('更新图表，选中' + selectedProducts.length + '个产品');
             
             // 颜色方案
             const colors = [
@@ -992,12 +797,6 @@
             
             // 更新销售额图表
             if (salesChart) {
-                // 按总销售额降序排列
-                selectedProducts.sort((a, b) => {
-                    const sumA = a.sales.reduce((s, v) => s + v, 0);
-                    const sumB = b.sales.reduce((s, v) => s + v, 0);
-                    return sumB - sumA;
-                });
                 salesChart.data.datasets = selectedProducts.map((product, index) => ({
                     label: product.name,
                     data: product.sales,
@@ -1028,58 +827,6 @@
             // 更新市场份额图表
             updateMarketShareChart();
             
-            updateDataTable(selectedProducts);
-        }
-        
-        // 只更新销售额和同比变化图表
-        function updateSalesAndYoyCharts(selectedProductIds) {
-            const selectedProducts = productData.products.filter(p => selectedProductIds.includes(p.id));
-            
-            console.log('更新销售额和同比变化图表，选中' + selectedProducts.length + '个产品');
-            
-            // 颜色方案
-            const colors = [
-                '#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7',
-                '#f8961e', '#4ade80', '#f59e0b', '#10b981', '#8b5cf6',
-                '#ec4899', '#06b6d4'
-            ];
-            
-            // 更新销售额图表
-            if (salesChart) {
-                // 按总销售额降序排列
-                selectedProducts.sort((a, b) => {
-                    const sumA = a.sales.reduce((s, v) => s + v, 0);
-                    const sumB = b.sales.reduce((s, v) => s + v, 0);
-                    return sumB - sumA;
-                });
-                salesChart.data.datasets = selectedProducts.map((product, index) => ({
-                    label: product.name,
-                    data: product.sales,
-                    backgroundColor: colors[index % colors.length] + '80', // 80表示50%透明度
-                    borderColor: colors[index % colors.length],
-                    borderWidth: 1,
-                    borderRadius: 3
-                }));
-                salesChart.update();
-            }
-            
-            // 更新同比变化图表
-            if (yoyChart) {
-                yoyChart.data.datasets = selectedProducts.map((product, index) => ({
-                    label: product.name,
-                    data: product.yoy_changes,
-                    borderColor: colors[index % colors.length],
-                    backgroundColor: colors[index % colors.length] + '20', // 20表示12.5%透明度
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 3,
-                    pointHoverRadius: 5
-                }));
-                yoyChart.update();
-            }
-            
-            // 更新数据表格
             updateDataTable(selectedProducts);
         }
         
@@ -1136,264 +883,23 @@
             console.log('数据表格更新完成');
         }
         
-        // ============ FILTER UI CONSTANTS ============
-        const ALL_PROVINCES = ['江苏','浙江','安徽','山东','广东','四川','湖北','湖南','河南','河北','江西','陕西','云南'];
-        const ALL_CITIES = ['北京','上海','天津','重庆','广州','成都','深圳','苏州','武汉','杭州','西安','南京','无锡','温州','长沙','青岛','济南','烟台','合肥','昆明','南昌','石家庄','郑州','常州','临沂','大连','兰州','福州','宁波','厦门'];
-
-        // ============ BUILD FILTER UI ============
-        function buildFilterUI() {
-            const provContainer = document.getElementById('provinceButtons');
-            const cityContainer = document.getElementById('cityButtons');
-
-            // Province buttons — single select
-            provContainer.innerHTML = '';
-            const allBtn = document.createElement('button');
-            allBtn.className = 'filter-btn all-btn selected';
-            allBtn.textContent = '全国';
-            allBtn.addEventListener('click', () => onProvinceClick(null));
-            provContainer.appendChild(allBtn);
-            ALL_PROVINCES.forEach(p => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.textContent = p;
-                btn.addEventListener('click', () => onProvinceClick(p));
-                provContainer.appendChild(btn);
-            });
-
-            // City buttons — single select
-            cityContainer.innerHTML = '';
-            const allCityBtn = document.createElement('button');
-            allCityBtn.className = 'filter-btn all-btn';
-            allCityBtn.textContent = '全部城市';
-            allCityBtn.addEventListener('click', () => onCityClick(null));
-            cityContainer.appendChild(allCityBtn);
-            ALL_CITIES.forEach(c => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.textContent = c;
-                btn.addEventListener('click', () => onCityClick(c));
-                cityContainer.appendChild(btn);
-            });
-
-            // Product buttons — multi-select
-            rebuildProductFilter();
-            updateFilterStyles();
-            updateFilterStatus();
-        }
-
-        function rebuildProductFilter() {
-            const prodContainer = document.getElementById('productButtons');
-            if (!prodContainer) return;
-            prodContainer.innerHTML = '';
-
-            const allNames = productData.products.map(p => p.name);
-
-            // 全部产品按钮
-            const allProdBtn = document.createElement('button');
-            allProdBtn.className = 'filter-btn all-btn' + (selectedProductNames.size === 0 ? ' selected' : '');
-            allProdBtn.textContent = '全部产品';
-            allProdBtn.addEventListener('click', () => onProductClick('__all__'));
-            prodContainer.appendChild(allProdBtn);
-
-            // 各产品按钮
-            allNames.forEach(name => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn' + (selectedProductNames.has(name) ? ' selected' : '');
-                btn.textContent = name;
-                btn.dataset.product = name;
-                btn.addEventListener('click', () => onProductClick(name));
-                prodContainer.appendChild(btn);
-            });
-        }
-
-        // ============ CLICK HANDLERS ============
-        function onProvinceClick(province) {
-            if (province === null) {
-                selectedProvinceName = '';
-            } else {
-                if (selectedProvinceName === province) { selectedProvinceName = ''; }
-                else { selectedProvinceName = province; selectedCityName = ''; }
-            }
-            updateFilterStyles();
-            updateFilterStatus();
-            updateCharts();
-        }
-
-        function onCityClick(city) {
-            if (city === null) {
-                selectedCityName = '';
-            } else {
-                if (selectedCityName === city) { selectedCityName = ''; }
-                else { selectedCityName = city; selectedProvinceName = ''; }
-            }
-            updateFilterStyles();
-            updateFilterStatus();
-            updateCharts();
-        }
-
-        function onProductClick(productName) {
-            const allNames = productData.products.map(p => p.name);
-            if (productName === '__all__') {
-                selectedProductNames.clear();
-            } else {
-                if (selectedProductNames.has(productName)) {
-                    selectedProductNames.delete(productName);
-                } else {
-                    selectedProductNames.add(productName);
-                }
-            }
-            updateFilterStyles();
-            updateFilterStatus();
-            updateCharts();
-        }
-
-        // ============ BUTTON STYLES & STATUS ============
-        function updateFilterStyles() {
-            // Province buttons
-            const provBtns = document.querySelectorAll('#provinceButtons .filter-btn');
-            provBtns.forEach(btn => {
-                btn.classList.remove('selected', 'disabled');
-                if (selectedCityName) { btn.classList.add('disabled'); }
-                else if (btn.textContent === '全国' && !selectedProvinceName) { btn.classList.add('selected'); }
-                else if (btn.textContent === selectedProvinceName) { btn.classList.add('selected'); }
-            });
-
-            // City buttons
-            const cityBtns = document.querySelectorAll('#cityButtons .filter-btn');
-            cityBtns.forEach(btn => {
-                btn.classList.remove('selected', 'disabled');
-                if (selectedProvinceName) { btn.classList.add('disabled'); }
-                else if (btn.textContent === '全部城市' && !selectedCityName) { btn.classList.add('selected'); }
-                else if (btn.textContent === selectedCityName) { btn.classList.add('selected'); }
-            });
-
-            // Product buttons
-            const prodBtns = document.querySelectorAll('#productButtons .filter-btn');
-            prodBtns.forEach(btn => {
-                btn.classList.remove('selected');
-                if (btn.textContent === '全部产品' && selectedProductNames.size === 0) { btn.classList.add('selected'); }
-                else if (selectedProductNames.has(btn.textContent)) { btn.classList.add('selected'); }
-            });
-        }
-
-        function updateFilterStatus() {
-            const el = document.getElementById('currentFilterStatus');
-            if (!el) return;
-            let parts = [];
-            if (selectedProvinceName) parts.push(selectedProvinceName);
-            else if (selectedCityName) parts.push(selectedCityName);
-            else parts.push('全国');
-            if (selectedProductNames.size > 0) parts.push('产品: ' + [...selectedProductNames].join(', '));
-            else parts.push('全部产品');
-            el.textContent = parts.join(' | ');
-        }
-
-        // ============ INIT ============
-        // 导出工具函数
-        var exportTargetType = null;
-        
-        function showExportMenu(event, type) {
-            event.stopPropagation();
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM加载完成，开始初始化...');
             
-            var existing = document.getElementById('exportMenu');
-            if (existing) existing.remove();
+            // 初始化筛选器
+            initProductFilter();
             
-            var rect = event.target.getBoundingClientRect();
-            
-            var menu = document.createElement('div');
-            menu.id = 'exportMenu';
-            menu.className = 'export-menu';
-            menu.style.display = 'block';
-            menu.style.left = (rect.left + window.scrollX - 60) + 'px';
-            menu.style.top = (rect.bottom + window.scrollY + 4) + 'px';
-            
-            menu.innerHTML = '<a onclick="exportChartData(\'' + type + '\', \'csv\'); hideExportMenu(); return false;"><i class=\"fas fa-file-csv\"></i> 导出 CSV</a>'
-                + '<a onclick="exportChartData(\'' + type + '\', \'xlsx\'); hideExportMenu(); return false;"><i class=\"fas fa-file-excel\"></i> 导出 XLSX</a>';
-            
-            document.body.appendChild(menu);
-            
-            setTimeout(function() {
-                document.addEventListener('click', hideExportMenu);
-            }, 10);
-        }
-        
-        function hideExportMenu() {
-            var menu = document.getElementById('exportMenu');
-            if (menu) menu.remove();
-            document.removeEventListener('click', hideExportMenu);
-        }
-        
-        function getQuarterLabels() {
-            var qs = ['22Q1','22Q2','22Q3','22Q4','23Q1','23Q2','23Q3','23Q4','24Q1','24Q2','24Q3','24Q4','25Q1','25Q2','25Q3','25Q4'];
-            return qs;
-        }
-        
-        function exportChartData(type, format) {
-            var qs = getQuarterLabels();
-            var data = [];
-            var prod;
-            
-            if (type === 'sales') {
-                data.push(['产品'].concat(qs));
-                for (var i = 0; i < productData.products.length; i++) {
-                    prod = productData.products[i];
-                    data.push([prod.name].concat(prod.sales.map(function(v) { return parseFloat(v.toFixed(2)); })));
-                }
-            } else if (type === 'yoy') {
-                data.push(['产品'].concat(qs));
-                for (var i = 0; i < productData.products.length; i++) {
-                    prod = productData.products[i];
-                    var row = [prod.name];
-                    for (var j = 0; j < qs.length; j++) {
-                        if (j < 4) row.push(0);
-                        else row.push(parseFloat(prod.yoy_changes[j].toFixed(2)));
-                    }
-                    data.push(row);
-                }
-            } else if (type === 'share') {
-                data.push(['产品'].concat(qs));
-                for (var i = 0; i < productData.market_shares.length; i++) {
-                    var share = productData.market_shares[i];
-                    data.push([share.name].concat(share.shares.map(function(v) { return parseFloat(v.toFixed(2)); })));
-                }
-            }
-            
-            var filename = '';
-            if (type === 'sales') filename = '季度销售额';
-            else if (type === 'yoy') filename = '同比变化';
-            else if (type === 'share') filename = '市场份额';
-            filename += '_' + new Date().toISOString().slice(0,10);
-            
-            if (format === 'csv') {
-                var csv = '';
-                for (var i = 0; i < data.length; i++) {
-                    csv += data[i].map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',') + '\n';
-                }
-                var bom = '\uFEFF';
-                var blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
-                var link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = filename + '.csv';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
-            } else if (format === 'xlsx' && typeof XLSX !== 'undefined') {
-                var ws = XLSX.utils.aoa_to_sheet(data);
-                var wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-                XLSX.writeFile(wb, filename + '.xlsx');
-            }
-        }
-
-        function init() {
+            // 初始化图表
             initSalesChart();
             initYoyChart();
             initMarketShareChart();
-            buildFilterUI();
+            
+            // 初始更新图表（显示所有产品）
             updateCharts();
-        }
-        document.addEventListener('DOMContentLoaded', init);
+            
+            console.log('页面初始化完成');
+        });
     </script>
 </body>
 </html>

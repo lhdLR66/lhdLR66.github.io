@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试页面</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>简单测试</h1>
+    <canvas id="testChart" width="400" height="200"></canvas>
+    
+    <script>
+        console.log('测试脚本开始执行');
+        
+        // 简单测试Chart.js
+        const ctx = document.getElementById('testChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['A', 'B', 'C'],
+                datasets: [{
+                    label: '测试数据',
+                    data: [10, 20, 30],
+                    backgroundColor: 'blue'
+                }]
+            }
+        });
+        
+        console.log('图表创建成功');
+    </script>
+</body>
+</html>
