@@ -242,7 +242,7 @@
 <div class="section">
     <div class="section-title">
         <i class="fas fa-calendar-check"></i> 月度看板
-        <span class="hint">月度预算 = 1-4月预算 ÷ 4</span>
+
     </div>
     <div class="two-col">
         <!-- 左：总体柱状图 -->
@@ -304,7 +304,7 @@
                     <td class="num">8,216.03</td>
                     <td class="num">8,544.26</td>
                     <td class="num" style="color:var(--success);">+12.1%</td>
-                    <td class="num"><span class="rate-tag rate-success">96.2%</span></td>
+                    <td class="num"><span class="rate-tag rate-warning">96.2%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:26.9%"></div></div><span class="progress-pct" style="color:var(--danger)">26.9%</span></div></td>
                 </tr>
                 <tr>
@@ -312,7 +312,7 @@
                     <td class="num">512.10</td>
                     <td class="num">689.47</td>
                     <td class="num" style="color:var(--danger);">-54%</td>
-                    <td class="num"><span class="rate-tag rate-warning">74.3%</span></td>
+                    <td class="num"><span class="rate-tag rate-danger">74.3%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:18.2%"></div></div><span class="progress-pct" style="color:var(--danger)">18.2%</span></div></td>
                 </tr>
                 <tr>
@@ -320,7 +320,7 @@
                     <td class="num">137.50</td>
                     <td class="num">144.78</td>
                     <td class="num" style="color:var(--success);">+16%</td>
-                    <td class="num"><span class="rate-tag rate-success">95.0%</span></td>
+                    <td class="num"><span class="rate-tag rate-warning">95.0%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:25.7%"></div></div><span class="progress-pct" style="color:var(--danger)">25.7%</span></div></td>
                 </tr>
                 <tr>
@@ -336,7 +336,7 @@
                     <td class="num">51,675.06</td>
                     <td class="num">83,037.59</td>
                     <td class="num" style="color:var(--danger);">-38%</td>
-                    <td class="num"><span class="rate-tag rate-warning">62.2%</span></td>
+                    <td class="num"><span class="rate-tag rate-danger">62.2%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:18.7%"></div></div><span class="progress-pct" style="color:var(--danger)">18.7%</span></div></td>
                 </tr>
             </tbody>
@@ -371,9 +371,8 @@ function rateColor(v) {
   return 'var(--danger)';
 }
 function rateClass(v) {
-  if (v >= 100) return 'rate-success';
-  if (v >= 80) return 'rate-success';
-  if (v >= 60) return 'rate-warning';
+  if (v > 100) return 'rate-success';
+  if (v >= 90) return 'rate-warning';
   return 'rate-danger';
 }
 function fmt(n) { return n.toLocaleString('zh-CN', { minimumFractionDigits: 2 }); }
