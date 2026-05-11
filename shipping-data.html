@@ -244,17 +244,11 @@
         <i class="fas fa-calendar-check"></i> 月度看板
         <span class="hint">月度预算 = 1-4月预算 ÷ 4</span>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-        <label for="monthSelect" style="font-size:14px;font-weight:500;">选择月份：</label>
-        <select id="monthSelect" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--card);color:var(--text);cursor:pointer;">
-            <option value="4月">4月</option>
-        </select>
-    </div>
     <div class="two-col">
         <!-- 左：总体柱状图 -->
         <div class="table-card">
             <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
-                <i class="fas fa-chart-bar" style="color:var(--primary);margin-right:6px;"></i>各品规月度完成 vs 预算
+                <i class="fas fa-chart-bar" style="color:var(--primary);margin-right:6px;"></i>各品规月度完成
             </div>
             <div class="chart-body" style="padding:14px;">
                 <canvas id="monthlyChart" style="max-height:340px;"></canvas>
@@ -262,12 +256,15 @@
         </div>
         <!-- 右：分渠道明细表 -->
         <div class="table-card">
-            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
-                <i class="fas fa-sitemap" style="color:var(--primary);margin-right:6px;"></i>OTC复方阿胶浆 分渠道明细
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:space-between;">
+                <span><i class="fas fa-sitemap" style="color:var(--primary);margin-right:6px;"></i>OTC复方阿胶浆 分渠道明细</span>
+                <select id="monthSelect" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--card);color:var(--text);cursor:pointer;">
+                    <option value="4月">4月</option>
+                </select>
             </div>
             <table id="channelTable">
                 <thead>
-                    <tr><th>渠道/部门</th><th class="num">完成（万元）</th><th class="num">预算（万元）</th><th class="num">完成率</th></tr>
+                    <tr><th>渠道/部门</th><th class="num">月完成（万元）</th><th class="num">完成占比</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -383,13 +380,12 @@ function fmt(n) { return n.toLocaleString('zh-CN', { minimumFractionDigits: 2 })
 function pct(a,b) { return b === 0 ? '-' : (a / b * 100).toFixed(1) + '%'; }
 function numPct(a,b) { return b === 0 ? 0 : (a / b * 100); }
 
+const ANNUAL_BUDGET = 276660; // OTC复方阿胶浆全年预算（万元）
 let chart;
 
 function renderChart(month) {
   const otc = data.OTC[month];
   const r = data.R[month];
-  const otcRate = numPct(otc.complete, otc.budget);
-  const rRate = numPct(r.complete, r.budget);
   const ctx = document.getElementById('monthlyChart').getContext('2d');
   if (chart) chart.destroy();
   chart = new Chart(ctx, {
@@ -398,20 +394,10 @@ function renderChart(month) {
       labels: ['OTC复方阿胶浆', 'R复方阿胶浆'],
       datasets: [
         {
-          label: '当月完成',
+          label: '月度完成（万元）',
           data: [otc.complete, r.complete],
           backgroundColor: ['#4361ee', '#f72585'],
-          borderRadius: 6,
-          order: 1
-        },
-        {
-          label: '当月预算',
-          data: [otc.budget, r.budget],
-          backgroundColor: 'rgba(200,200,210,0.45)',
-          borderColor: 'rgba(160,160,170,0.6)',
-          borderWidth: 1,
-          borderRadius: 6,
-          order: 2
+          borderRadius: 6
         }
       ]
     },
@@ -419,67 +405,35 @@ function renderChart(month) {
       responsive: true,
       maintainAspectRatio: true,
       plugins: {
-        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) {
-              return ctx.dataset.label + ': ' + fmt(ctx.raw) + ' 万元';
-            }
-          }
-        }
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '完成: ' + fmt(ctx.raw) + ' 万元' } }
       },
       scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { callback: v => (v/10000).toFixed(1) + '亿' }
-        }
+        y: { beginAtZero: true, ticks: { callback: v => (v/10000).toFixed(1) + '亿' } }
       }
-    },
-    plugins: [{
-      id: 'rateLabels',
-      afterDatasetsDraw(chart) {
-        const ctx = chart.ctx;
-        const meta = chart.getDatasetMeta(0);
-        const rates = [otcRate, rRate];
-        meta.data.forEach((bar, i) => {
-          const r = rates[i];
-          ctx.save();
-          ctx.font = 'bold 13px Poppins, sans-serif';
-          ctx.fillStyle = r >= 100 ? '#06d6a0' : (r >= 60 ? '#b38a00' : '#ef476f');
-          ctx.textAlign = 'center';
-          ctx.fillText(r.toFixed(1) + '%', bar.x, bar.y - 8);
-          ctx.restore();
-        });
-      }
-    }]
+    }
   });
 }
 
 function renderTable(month) {
   const channels = data.OTC[month].channels;
-  let totalC = 0, totalB = 0;
+  let totalC = 0;
   let html = '';
   channels.forEach(ch => {
-    const cr = numPct(ch.complete, ch.budget);
-    const diff = ch.complete - ch.budget;
-    const diffColor = diff >= 0 ? 'var(--success)' : 'var(--danger)';
-    const diffSign = diff >= 0 ? '+' : '';
+    const share = (ch.complete / ANNUAL_BUDGET * 100);
     const note = ch.note ? ' <span style="font-size:12px;color:var(--success);">' + ch.note + '</span>' : '';
     html += '<tr>' +
       '<td>' + ch.name + note + '</td>' +
       '<td class="num">' + fmt(ch.complete) + '</td>' +
-      '<td class="num">' + fmt(ch.budget) + '</td>' +
-      '<td class="num"><span class="rate-tag ' + rateClass(cr) + '">' + pct(ch.complete, ch.budget) + '</span></td>' +
+      '<td class="num"><span class="rate-tag ' + rateClass(share) + '">' + share.toFixed(2) + '%</span></td>' +
       '</tr>';
     totalC += ch.complete;
-    totalB += ch.budget;
   });
-  const tr = numPct(totalC, totalB);
+  const totalShare = (totalC / ANNUAL_BUDGET * 100);
   html += '<tr class="total">' +
     '<td>合计</td>' +
     '<td class="num">' + fmt(totalC) + '</td>' +
-    '<td class="num">' + fmt(totalB) + '</td>' +
-    '<td class="num"><span class="rate-tag ' + rateClass(tr) + '">' + pct(totalC, totalB) + '</span></td>' +
+    '<td class="num"><span class="rate-tag ' + rateClass(totalShare) + '">' + totalShare.toFixed(2) + '%</span></td>' +
     '</tr>';
   document.querySelector('#channelTable tbody').innerHTML = html;
 }
