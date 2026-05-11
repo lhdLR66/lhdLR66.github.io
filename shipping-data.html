@@ -114,7 +114,10 @@
         }
         .kpi-card .kpi-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
         .kpi-card .kpi-value { font-size: 28px; font-weight: 700; }
-        .kpi-card .kpi-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+        .kpi-card .kpi-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+        .kpi-progress { margin-top: 10px; }
+        .kpi-progress .kpi-progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+        .kpi-progress .kpi-progress-label .kpi-annual-rate { font-weight: 700; font-size: 14px; }
 
         /* Table card */
         .table-card {
@@ -204,7 +207,7 @@
 
 <div class="note-bar">
     <i class="fas fa-circle-info"></i>
-    <span class="highlight">★</span> 数字营销事业部 = 平台经销 + 自营店铺合并 | 月度预算按1-4月预算均摊估算（÷4）
+    <span class="highlight">★</span> 数字营销事业部 = 平台经销 + 自营店铺合并 | 月度预算按1-4月预算÷4均摊 | 全年预算按1-4月预算×3年化估算
 </div>
 
 <!-- ====== 产品汇总 KPI ====== -->
@@ -214,17 +217,29 @@
         <div class="kpi-card" style="border-left-color: var(--primary);">
             <div class="kpi-label">OTC复方阿胶浆</div>
             <div class="kpi-value">51,675.06<span style="font-size:14px;color:#6c757d"> 万</span></div>
-            <div class="kpi-sub">1-4月累计完成 · 完成率 <span class="rate-tag rate-warning">62.2%</span></div>
+            <div class="kpi-sub">全年预算 249,112.77 万（年化估算）</div>
+            <div class="kpi-progress">
+                <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate" style="color:var(--danger);">20.7%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:20.7%"></div></div>
+            </div>
         </div>
         <div class="kpi-card" style="border-left-color: var(--over);">
             <div class="kpi-label">R复方阿胶浆</div>
             <div class="kpi-value">9,901.25<span style="font-size:14px;color:#6c757d"> 万</span></div>
-            <div class="kpi-sub">1-4月累计完成 · 完成率 <span class="rate-tag rate-success">118.2%</span></div>
+            <div class="kpi-sub">全年预算 25,137.00 万（年化估算）</div>
+            <div class="kpi-progress">
+                <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate" style="color:var(--danger);">39.4%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:39.4%"></div></div>
+            </div>
         </div>
         <div class="kpi-card" style="border-left-color: var(--success);">
             <div class="kpi-label">合计</div>
             <div class="kpi-value">61,576.31<span style="font-size:14px;color:#6c757d"> 万</span></div>
-            <div class="kpi-sub">1-4月累计完成 · 完成率 <span class="rate-tag rate-warning">67.4%</span></div>
+            <div class="kpi-sub">全年预算 274,249.77 万（年化估算）</div>
+            <div class="kpi-progress">
+                <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate" style="color:var(--danger);">22.5%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:22.5%"></div></div>
+            </div>
         </div>
     </div>
 </div>
