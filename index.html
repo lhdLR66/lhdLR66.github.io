@@ -125,6 +125,27 @@
             color: #4361ee;
         }
         
+        .shipping-data-card {
+            background: linear-gradient(135deg, rgba(6, 214, 160, 0.1), rgba(67, 97, 238, 0.1));
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .shipping-data-card::before {
+            content: '📦';
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.1;
+            z-index: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
         .chart-container { height: 200px; margin-bottom: 20px; }
         
         @media (max-width: 768px) {
@@ -200,6 +221,22 @@
                             <div class="sales-data-subtitle">点击查看补气补血TOP10产品数据</div>
                             <div style="font-size: 14px; color: var(--text-secondary);">
                                 <i class="fas fa-arrow-right"></i> 中康数据看板
+                            </div>
+                        </div>
+                    </section>
+                </a>
+
+                <!-- 发货数据卡片 -->
+                <a href="https://lrwork.xyz/shipping-data.html" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                    <section class="card shipping-data-card">
+                        <div class="sales-data-content">
+                            <div class="sales-data-icon" style="color: #06d6a0;">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="sales-data-title">发货数据</div>
+                            <div class="sales-data-subtitle">点击查看复方阿胶浆1-4月发货数据</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">
+                                <i class="fas fa-arrow-right"></i> 发货数据看板
                             </div>
                         </div>
                     </section>

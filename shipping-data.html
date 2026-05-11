@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发货数据 - 复方阿胶浆2026年1-4月</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --success-color: #06d6a0;
+            --warning-color: #ffd166;
+            --danger-color: #ef476f;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #e9ecef;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 100;
+        }
+        .sidebar .logo {
+            padding: 0 20px 20px;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 10px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            color: white;
+            background: rgba(255,255,255,0.15);
+            font-weight: 600;
+        }
+        .sidebar a i { width: 20px; margin-right: 8px; }
+        .sidebar .back-link {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 10px;
+        }
+        .main-wrapper {
+            margin-left: 200px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        @media (max-width: 900px) {
+            .sidebar { width: 100%; flex-direction: row; padding: 10px; align-items: center; gap: 5px; position: relative; height: auto; overflow-x: auto; }
+            .sidebar .logo { padding: 0 10px; border-bottom: none; margin: 0; font-size: 14px; border-right: 1px solid rgba(255,255,255,0.2); }
+            .sidebar a { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+            .main-wrapper { padding: 10px; margin-left: 0; }
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header p { font-size: 15px; color: var(--text-secondary); max-width: 800px; margin: 0 auto; }
+        .info-box {
+            background: linear-gradient(135deg, rgba(67,97,238,0.05), rgba(58,12,163,0.05));
+            border: 1px solid rgba(67,97,238,0.15);
+            padding: 18px 22px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .info-box i { color: var(--primary-color); margin-right: 6px; }
+        .info-box .note { color: #f72585; font-weight: 500; }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border-left: 4px solid var(--primary-color);
+        }
+        .summary-card.card-otc { border-left-color: #4361ee; }
+        .summary-card.card-r { border-left-color: #f72585; }
+        .summary-card .product-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .summary-card .product-name .badge { font-size: 12px; padding: 3px 10px; border-radius: 20px; color: white; font-weight: 500; }
+        .badge-otc { background: #4361ee; }
+        .badge-r { background: #f72585; }
+        .summary-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .metric {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        .metric .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .metric .value { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+        .metric .sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .completion-rate {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+            padding: 14px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        .completion-rate .rate-value {
+            font-size: 36px;
+            font-weight: 700;
+        }
+        .completion-rate .rate-label { font-size: 13px; color: var(--text-secondary); }
+        .rate-high { color: #06d6a0; }
+        .rate-mid { color: #ffd166; }
+        .rate-low { color: #ef476f; }
+
+        /* Chart Section */
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .chart-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px var(--shadow-color);
+            overflow: hidden;
+        }
+        .chart-card.full { grid-column: 1 / -1; }
+        .chart-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chart-header i { color: var(--primary-color); }
+        .chart-body { padding: 20px; position: relative; }
+        .chart-body canvas { max-height: 380px; }
+
+        /* Table */
+        .table-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px var(--shadow-color);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        .table-title {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .table-title i { color: var(--primary-color); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr.total-row td {
+            font-weight: 700;
+            background: rgba(67,97,238,0.04);
+            border-top: 2px solid var(--primary-color);
+        }
+        .rate-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .rate-badge.high { background: rgba(6,214,160,0.12); color: #06d6a0; }
+        .rate-badge.mid { background: rgba(255,209,102,0.15); color: #c79100; }
+        .rate-badge.low { background: rgba(239,71,111,0.1); color: #ef476f; }
+        .rate-badge.over { background: rgba(247,37,133,0.1); color: #f72585; }
+        .merge-note { font-size: 12px; color: #06d6a0; margin-left: 6px; }
+        .number { font-variant-numeric: tabular-nums; text-align: right; }
+
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .summary-metrics { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo"><i class="fas fa-chart-pie"></i> 数据看板</div>
+    <a href="ejiao-dashboard.html"><i class="fas fa-city"></i> 中心城市数据</a>
+    <a href="zhongkang-data.html"><i class="fas fa-chart-bar"></i> 中康数据</a>
+    <a href="shipping-data.html" class="active"><i class="fas fa-truck"></i> 发货数据</a>
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> 返回工作看板</a>
+</div>
+
+<div class="main-wrapper">
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-truck"></i> 复方阿胶浆 2026年1-4月发货数据</h1>
+            <p>数据来源：东阿阿胶各板块销售发出完成跟踪表（截至4月30日）| 单位：万元（含税）</p>
+        </div>
+
+        <div class="info-box">
+            <i class="fas fa-circle-info"></i>
+            <span class="note">★</span> 数字营销事业部的"平台经销"与"自营店铺"已合并为单一"数字营销事业部"
+        </div>
+
+        <!-- Product Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card card-otc">
+                <div class="product-name">
+                    OTC复方阿胶浆 <span class="badge badge-otc">OTC</span>
+                </div>
+                <div class="summary-metrics">
+                    <div class="metric">
+                        <div class="label">4月完成</div>
+                        <div class="value">2,079.79<span style="font-size:13px;color:#6c757d">万</span></div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">1-4月预算</div>
+                        <div class="value">83,037.59<span style="font-size:13px;color:#6c757d">万</span></div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">1-4月完成</div>
+                        <div class="value">51,675.06<span style="font-size:13px;color:#6c757d">万</span></div>
+                    </div>
+                </div>
+                <div class="completion-rate">
+                    <span class="rate-label">完成率</span>
+                    <span class="rate-value rate-mid">62.2%</span>
+                </div>
+            </div>
+            <div class="summary-card card-r">
+                <div class="product-name">
+                    R复方阿胶浆 <span class="badge badge-r">Rx</span>
+                </div>
+                <div class="summary-metrics">
+                    <div class="metric">
+                        <div class="label">4月完成</div>
+                        <div class="value">1,440.73<span style="font-size:13px;color:#6c757d">万</span></div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">1-4月预算</div>
+                        <div class="value">8,379.00<span style="font-size:13px;color:#6c757d">万</span></div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">1-4月完成</div>
+                        <div class="value">9,901.25<span style="font-size:13px;color:#6c757d">万</span></div>
+                    </div>
+                </div>
+                <div class="completion-rate">
+                    <span class="rate-label">完成率</span>
+                    <span class="rate-value rate-high">118.2%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-header"><i class="fas fa-chart-bar"></i> 1-4月完成 vs 预算（分渠道）</div>
+                <div class="chart-body"><canvas id="budgetVsActualChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header"><i class="fas fa-chart-pie"></i> 1-4月完成金额占比（分渠道）</div>
+                <div class="chart-body"><canvas id="channelShareChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card full">
+                <div class="chart-header"><i class="fas fa-gauge-high"></i> 各渠道预算完成率对比</div>
+                <div class="chart-body"><canvas id="completionRateChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Product Summary Table -->
+        <div class="table-card">
+            <div class="table-title"><i class="fas fa-table"></i> 产品汇总</div>
+            <table>
+                <thead>
+                    <tr><th>品规</th><th class="number">4月完成（万元）</th><th class="number">1-4月预算（万元）</th><th class="number">1-4月完成（万元）</th><th class="number">完成率</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>OTC复方阿胶浆</td>
+                        <td class="number">2,079.79</td><td class="number">83,037.59</td><td class="number">51,675.06</td>
+                        <td><span class="rate-badge mid">62.2%</span></td>
+                    </tr>
+                    <tr>
+                        <td>R复方阿胶浆</td>
+                        <td class="number">1,440.73</td><td class="number">8,379.00</td><td class="number">9,901.25</td>
+                        <td><span class="rate-badge high">118.2%</span></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>合计</td>
+                        <td class="number">3,520.51</td><td class="number">91,416.59</td><td class="number">61,576.31</td>
+                        <td><span class="rate-badge mid">67.4%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Channel Detail Table -->
+        <div class="table-card">
+            <div class="table-title"><i class="fas fa-sitemap"></i> 分渠道明细 — OTC复方阿胶浆</div>
+            <table>
+                <thead>
+                    <tr><th>渠道/部门</th><th class="number">4月完成（万元）</th><th class="number">1-4月预算（万元）</th><th class="number">1-4月完成（万元）</th><th class="number">完成率</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>OTC事业部（药品）</td>
+                        <td class="number">1,569.37</td><td class="number">73,529.40</td><td class="number">42,412.47</td>
+                        <td><span class="rate-badge low">57.7%</span></td>
+                    </tr>
+                    <tr>
+                        <td>数字营销事业部<span class="merge-note">← 平台经销+自营店铺合并</span></td>
+                        <td class="number">435.55</td><td class="number">8,544.26</td><td class="number">8,216.03</td>
+                        <td><span class="rate-badge high">96.2%</span></td>
+                    </tr>
+                    <tr>
+                        <td>海外事业部</td>
+                        <td class="number">17.06</td><td class="number">689.47</td><td class="number">512.10</td>
+                        <td><span class="rate-badge mid">74.3%</span></td>
+                    </tr>
+                    <tr>
+                        <td>滋补生活事业部 零售</td>
+                        <td class="number">23.41</td><td class="number">144.78</td><td class="number">137.50</td>
+                        <td><span class="rate-badge high">95.0%</span></td>
+                    </tr>
+                    <tr>
+                        <td>文旅事业部 零售</td>
+                        <td class="number">34.39</td><td class="number">129.69</td><td class="number">396.97</td>
+                        <td><span class="rate-badge over">306.1%</span></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>合计</td>
+                        <td class="number">2,079.79</td><td class="number">83,037.59</td><td class="number">51,675.06</td>
+                        <td><span class="rate-badge mid">62.2%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Budget vs Actual chart
+const ctx1 = document.getElementById('budgetVsActualChart').getContext('2d');
+new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: ['OTC事业部\n（药品）', '数字营销\n事业部', '海外事业部', '滋补生活\n事业部', '文旅事业部'],
+        datasets: [
+            {
+                label: '1-4月预算',
+                data: [73529.40, 8544.26, 689.47, 144.78, 129.69],
+                backgroundColor: 'rgba(67,97,238,0.15)',
+                borderColor: '#4361ee',
+                borderWidth: 2,
+                borderRadius: 6,
+                borderDash: [5,5]
+            },
+            {
+                label: '1-4月完成',
+                data: [42412.47, 8216.03, 512.10, 137.50, 396.97],
+                backgroundColor: 'rgba(6,214,160,0.7)',
+                borderColor: '#06d6a0',
+                borderWidth: 2,
+                borderRadius: 6
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+                callbacks: {
+                    label: function(ctx) { return ctx.dataset.label + ': ' + ctx.raw.toLocaleString('zh-CN', {minimumFractionDigits:2}) + ' 万元'; }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { callback: v => v.toLocaleString('zh-CN') + '万' }
+            },
+            x: { ticks: { font: { size: 11 } } }
+        }
+    }
+});
+
+// Channel share pie chart
+const ctx2 = document.getElementById('channelShareChart').getContext('2d');
+new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+        labels: ['OTC事业部（药品）', '数字营销事业部', '海外事业部', '滋补生活事业部', '文旅事业部'],
+        datasets: [{
+            data: [42412.47, 8216.03, 512.10, 137.50, 396.97],
+            backgroundColor: ['#4361ee', '#06d6a0', '#ffd166', '#4cc9f0', '#f72585'],
+            borderColor: '#fff',
+            borderWidth: 3,
+            hoverBorderWidth: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+            tooltip: {
+                callbacks: {
+                    label: function(ctx) {
+                        const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                        const pct = (ctx.raw / total * 100).toFixed(1);
+                        return ctx.label + ': ' + ctx.raw.toLocaleString('zh-CN', {minimumFractionDigits:2}) + '万元 (' + pct + '%)';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Completion rate horizontal bar
+const ctx3 = document.getElementById('completionRateChart').getContext('2d');
+new Chart(ctx3, {
+    type: 'bar',
+    data: {
+        labels: ['文旅事业部', '数字营销事业部', '滋补生活事业部', '海外事业部', 'OTC事业部（药品）'],
+        datasets: [{
+            label: '完成率',
+            data: [306.1, 96.2, 95.0, 74.3, 57.7],
+            backgroundColor: function(ctx) {
+                const v = ctx.raw;
+                if (v >= 100) return 'rgba(6,214,160,0.8)';
+                if (v >= 80) return 'rgba(6,214,160,0.6)';
+                if (v >= 60) return 'rgba(255,209,102,0.8)';
+                return 'rgba(239,71,111,0.7)';
+            },
+            borderColor: function(ctx) {
+                const v = ctx.raw;
+                if (v >= 100) return '#06d6a0';
+                if (v >= 80) return '#06d6a0';
+                if (v >= 60) return '#ffd166';
+                return '#ef476f';
+            },
+            borderWidth: 2,
+            borderRadius: 6
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => '完成率: ' + ctx.raw + '%' } }
+        },
+        scales: {
+            x: {
+                ticks: { callback: v => v + '%' },
+                grid: { color: 'rgba(0,0,0,0.04)' }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
