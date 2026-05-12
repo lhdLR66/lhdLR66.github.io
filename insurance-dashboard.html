@@ -283,7 +283,7 @@ let _geoJson = null;
 
 async function ensureGeoJson() {
   if (_geoJsonLoaded) return _geoJson;
-  const resp = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+  const resp = await fetch('china-geo.json');
   _geoJson = await resp.json();
   echarts.registerMap('china', _geoJson);
   _geoJsonLoaded = true;
@@ -292,8 +292,9 @@ async function ensureGeoJson() {
 
 async function renderMap() {
   const dom = document.getElementById('chart-map');
-  if (!dom || !dom.clientHeight) return; // container not visible
+  if (!dom || !dom.clientHeight) return;
   const chart = echarts.init(dom);
+  chart.showLoading({ text: '地图加载中...', color: '#4361ee' });
   
   const provData = {};
   DATA.provinces.forEach(p => {
@@ -345,6 +346,7 @@ async function renderMap() {
     }]
   });
   
+  chart.hideLoading();
   window._mapChart = chart;
   // Handle resize
   window.addEventListener('resize', () => chart.resize());
