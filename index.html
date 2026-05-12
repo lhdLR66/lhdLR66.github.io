@@ -146,6 +146,27 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+        .insurance-card {
+            background: linear-gradient(135deg, rgba(239, 71, 111, 0.1), rgba(247, 37, 133, 0.1));
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .insurance-card::before {
+            content: '🛡️';
+            position: absolute;
+            font-size: 100px;
+            opacity: 0.1;
+            z-index: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
         .chart-container { height: 200px; margin-bottom: 20px; }
         
         @media (max-width: 768px) {
@@ -237,6 +258,22 @@
                             <div class="sales-data-subtitle">点击查看复方阿胶浆1-4月发货数据</div>
                             <div style="font-size: 14px; color: var(--text-secondary);">
                                 <i class="fas fa-arrow-right"></i> 发货数据看板
+                            </div>
+                        </div>
+                    </section>
+                </a>
+
+                <!-- 医保数据卡片 -->
+                <a href="https://lrwork.xyz/insurance-dashboard.html" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                    <section class="card insurance-card">
+                        <div class="sales-data-content">
+                            <div class="sales-data-icon" style="color: #f72585;">
+                                <i class="fas fa-shield-halved"></i>
+                            </div>
+                            <div class="sales-data-title">医保政策</div>
+                            <div class="sales-data-subtitle">点击查看复方阿胶浆全国医保政策追踪</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">
+                                <i class="fas fa-arrow-right"></i> 医保政策看板
                             </div>
                         </div>
                     </section>
