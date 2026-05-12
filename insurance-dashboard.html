@@ -277,51 +277,77 @@ function renderAll() {
   renderProvinceTrend();
 }
 
-// Map
-function renderMap() {
-  const chart = echarts.init(document.getElementById('chart-map'));
+// Map - preload GeoJSON
+let _geoJsonLoaded = false;
+let _geoJson = null;
+
+async function ensureGeoJson() {
+  if (_geoJsonLoaded) return _geoJson;
+  const resp = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+  _geoJson = await resp.json();
+  echarts.registerMap('china', _geoJson);
+  _geoJsonLoaded = true;
+  return _geoJson;
+}
+
+async function renderMap() {
+  const dom = document.getElementById('chart-map');
+  if (!dom || !dom.clientHeight) return; // container not visible
+  const chart = echarts.init(dom);
+  
   const provData = {};
   DATA.provinces.forEach(p => {
     const name = getMapName(p.province);
     provData[name] = { rate: p.pooling_rate, cities: p.cities, pooling: p.pooling_cities };
   });
 
-  // Load China map
-  fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
-    .then(r => r.json())
-    .then(geoJson => {
-      echarts.registerMap('china', geoJson);
-      const mapData = Object.entries(provData).map(([name, d]) => ({
-        name, value: d.rate,
-        itemStyle: { areaColor: d.rate > 50 ? '#06d6a0' : d.rate > 0 ? '#ffd166' : '#e2e8f0' }
-      }));
+  await ensureGeoJson();
+  
+  const mapData = Object.entries(provData).map(([name, d]) => ({
+    name, value: d.rate
+  }));
 
-      chart.setOption({
-        tooltip: {
-          trigger: 'item',
-          formatter: function(p) {
-            if (!p.data) return '';
-            const d = provData[p.name];
-            if (!d) return p.name + '<br/>无数据';
-            return `<b>${p.name}</b><br/>统筹覆盖率: ${d.rate}%<br/>统筹城市: ${d.pooling}/${d.cities}`;
-          }
-        },
-        visualMap: {
-          min: 0, max: 100,
-          text: ['高', '低'],
-          realtime: false,
-          calculable: true,
-          inRange: { color: ['#e2e8f0', '#ffd166', '#06d6a0'] }
-        },
-        series: [{
-          type: 'map', map: 'china',
-          roam: false,
-          emphasis: { label: { show: true, fontSize: 13 }, itemStyle: { areaColor: '#4361ee' } },
-          data: mapData
-        }]
-      });
-    });
+  chart.setOption({
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: 'rgba(30,41,59,0.95)',
+      borderColor: '#334155',
+      textStyle: { color: '#e2e8f0' },
+      formatter: function(p) {
+        if (!p.data || p.data.value === undefined) return p.name + '<br/>无数据';
+        const d = provData[p.name];
+        if (!d) return p.name + '<br/>无数据';
+        return `<b>${p.name}</b><br/>统筹覆盖率: <b style="color:#06d6a0">${d.rate}%</b><br/>统筹城市: ${d.pooling}/${d.cities}`;
+      }
+    },
+    visualMap: {
+      min: 0, max: 100,
+      text: ['100%', '0%'],
+      realtime: false,
+      calculable: true,
+      orient: 'horizontal',
+      left: 'center',
+      bottom: 10,
+      itemWidth: 16,
+      itemHeight: 120,
+      inRange: { color: ['#e2e8f0', '#94a3b8', '#ffd166', '#06d6a0'] }
+    },
+    series: [{
+      type: 'map', map: 'china',
+      roam: 'scale',
+      scaleLimit: { min: 1, max: 5 },
+      label: { show: false },
+      emphasis: {
+        label: { show: true, fontSize: 14, fontWeight: 'bold' },
+        itemStyle: { areaColor: '#4361ee' }
+      },
+      data: mapData
+    }]
+  });
+  
   window._mapChart = chart;
+  // Handle resize
+  window.addEventListener('resize', () => chart.resize());
 }
 
 // Province pooling rate
