@@ -283,7 +283,14 @@ let _geoJson = null;
 
 async function ensureGeoJson() {
   if (_geoJsonLoaded) return _geoJson;
-  const resp = await fetch('china-geo.json');
+  // Try local first (same-origin), fallback to raw GitHub
+  let resp;
+  try {
+    resp = await fetch('china-geo.json');
+    if (!resp.ok) throw new Error('local 404');
+  } catch(e) {
+    resp = await fetch('https://raw.githubusercontent.com/lhdLR66/lhdLR66.github.io/main/china-geo.json');
+  }
   _geoJson = await resp.json();
   echarts.registerMap('china', _geoJson);
   _geoJsonLoaded = true;
