@@ -212,9 +212,9 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
   <div id="tab-cities" class="tab-content">
     <div class="panel" style="margin-bottom:20px;">
       <div class="panel-header"><h3>中心城市医保分类</h3></div>
-      <div style="font-size:13px; font-weight:600; color:var(--text2); margin-bottom:8px;">可统筹城市 <span class="tag tag-green">14城</span></div>
+      <div style="font-size:13px; font-weight:600; color:var(--text2); margin-bottom:8px;">可统筹城市 <span class="tag tag-green">8城</span></div>
       <div class="city-tags" id="city-pooling-tags"></div>
-      <div style="font-size:13px; font-weight:600; color:var(--text2); margin:16px 0 8px;">仅个账城市 <span class="tag tag-gray">5城</span></div>
+      <div style="font-size:13px; font-weight:600; color:var(--text2); margin:16px 0 8px;">仅个账城市 <span class="tag tag-gray">11城</span></div>
       <div class="city-tags" id="city-individual-tags"></div>
     </div>
 
@@ -557,9 +557,15 @@ function renderKeyCities() {
   renderCityRestrictions(cities);
 }
 
+function hasEffectivePooling(c) {
+  if (!(c.pooling === true || c.pooling === 'partial')) return false;
+  const total = (c.pooling_amount||0) + (c.individual_amount||0) + (c.cash_amount||0);
+  return total > 0 && Math.round((c.pooling_amount||0)/total*100) >= 10;
+}
+
 function renderCityTags(cities) {
-  const hasPooling = cities.filter(c => c.pooling === true || c.pooling === 'partial');
-  const noPooling = cities.filter(c => !(c.pooling === true || c.pooling === 'partial'));
+  const hasPooling = cities.filter(c => hasEffectivePooling(c));
+  const noPooling = cities.filter(c => !hasEffectivePooling(c));
   
   document.getElementById('city-pooling-tags').innerHTML = hasPooling.map(c => {
     const cls = c.trend==='收紧' ? 'city-tag tightening' : 'city-tag';
@@ -575,7 +581,7 @@ function renderCityTags(cities) {
 function renderCityRestrictions(cities) {
   const tbody = document.querySelector('#table-city-restrict tbody');
   tbody.innerHTML = cities.map(c => {
-    const hasPooling = c.pooling === true || c.pooling === 'partial';
+    const hasPooling = hasEffectivePooling(c);
     const poolingTag = hasPooling ? '<span class="tag tag-green">是</span>' : '<span class="tag tag-gray">否</span>';
     const trendTag = c.trend==='收紧' ? '<span class="tag tag-red">收紧</span>' : c.trend==='利好' ? '<span class="tag tag-green">利好</span>' : '<span class="tag tag-blue">不变</span>';
     const pAmt = c.pooling_amount||0, iAmt = c.individual_amount||0, caAmt = c.cash_amount||0;
