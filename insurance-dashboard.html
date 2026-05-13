@@ -151,6 +151,12 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
         <div class="panel-header"><h3>全国统筹覆盖热力图</h3><span class="tag tag-blue">绿色=统筹开放 · 灰色=未开放</span></div>
         <div class="chart-container" style="height:440px;" id="chart-region-overview"></div>
       </div>
+
+      <!-- Rightmost: Province pooling vs individual -->
+      <div class="panel" style="width:420px; flex-shrink:0;">
+        <div class="panel-header"><h3>各省份统筹/个账金额</h3></div>
+        <div class="chart-container" style="height:440px;" id="chart-province-amounts"></div>
+      </div>
     </div>
 
     <!-- 省份总览情况 -->
@@ -240,6 +246,26 @@ function switchTab(name) {
   if (name === 'detail') { renderDetailTable(); }
 }
 
+// Province pooling vs individual amounts bar chart
+function renderProvinceAmounts() {
+  const dom = document.getElementById('chart-province-amounts');
+  if (!dom || !dom.clientHeight) return;
+  const chart = echarts.init(dom);
+  const top = [...DATA.provinces].filter(p=>p.total_amount>0).sort((a,b)=>b.total_amount-a.total_amount);
+  chart.setOption({
+    tooltip: { trigger:'axis' },
+    legend: { data:['统筹金额','个账金额'], top:0 },
+    grid: { left:60, right:20, top:40, bottom:20 },
+    xAxis: { type:'value', axisLabel:{formatter:'{value}万'} },
+    yAxis: { type:'category', data:top.map(p=>p.province).reverse(), axisLabel:{fontSize:11} },
+    series: [
+      { name:'统筹金额', type:'bar', data:top.map(p=>p.pooling_amount).reverse(), itemStyle:{color:'#4361ee'}, barGap:'10%' },
+      { name:'个账金额', type:'bar', data:top.map(p=>p.individual_amount).reverse(), itemStyle:{color:'#06d6a0'} },
+    ]
+  });
+  window._provAmtChart = chart;
+}
+
 function renderAll() {
   // Stats
   const s = DATA.summary;
@@ -254,6 +280,7 @@ function renderAll() {
 
   renderRegionOverview();
   renderPaymentPie();
+  renderProvinceAmounts();
   renderPaymentBar();
   renderProvinceRate();
   renderProvinceTrend();
@@ -520,7 +547,7 @@ function filterTable() {
 
 // Resize handler
 window.addEventListener('resize', () => {
-  ['_regionChart','_prvChart','_trendChart','_pieChart','_paybarChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
+  ['_regionChart','_prvChart','_trendChart','_pieChart','_provAmtChart','_paybarChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
     if (window[k]) window[k].resize();
   });
 });
