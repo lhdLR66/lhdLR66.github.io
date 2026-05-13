@@ -82,10 +82,10 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .city-tag.tightening { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
 
 /* Inline payment bar */
-.pay-bar-wrap { position:relative; display:flex; height:20px; border-radius:4px; overflow:hidden; min-width:140px; cursor:pointer; }
-.pay-bar-pooling { background:#4361ee; }
+.pay-bar-wrap { position:relative; display:flex; height:20px; border-radius:4px; min-width:140px; cursor:pointer; }
+.pay-bar-pooling { background:#4361ee; border-radius:4px 0 0 4px; }
 .pay-bar-individual { background:#06d6a0; }
-.pay-bar-cash { background:#f72585; }
+.pay-bar-cash { background:#f72585; border-radius:0 4px 4px 0; }
 .pay-tip { display:none; position:absolute; bottom:28px; left:50%; transform:translateX(-50%); background:rgba(30,41,59,0.95); color:#e2e8f0; padding:8px 12px; border-radius:8px; font-size:12px; white-space:nowrap; z-index:10; pointer-events:none; }
 .pay-bar-wrap:hover .pay-tip { display:block; }
 
