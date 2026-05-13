@@ -113,34 +113,37 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 
   <!-- Tab: Overview -->
   <div id="tab-overview" class="tab-content active">
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="label">可统筹报销城市</div>
-        <div class="value" id="stat-pooling">-</div>
-        <div class="sub">全国323个城市</div>
+    <!-- Stats + Heatmap side by side -->
+    <div style="display:flex; gap:20px; margin-bottom:20px;">
+      <!-- Left: 4 stat cards stacked vertically -->
+      <div style="width:260px; flex-shrink:0; display:flex; flex-direction:column; gap:16px;">
+        <div class="stat-card">
+          <div class="label">可统筹报销城市</div>
+          <div class="value" id="stat-pooling">-</div>
+          <div class="sub">全国323个城市</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="label">1-3月统筹报销总额</div>
+          <div class="value" id="stat-pooling-amt">-</div>
+          <div class="sub">占全渠道 <span id="stat-pooling-pct">-</span></div>
+        </div>
+        <div class="stat-card warning">
+          <div class="label">政策收紧城市</div>
+          <div class="value" id="stat-tightening">-</div>
+          <div class="sub">利好城市仅 <span id="stat-favorable">-</span> 个</div>
+        </div>
+        <div class="stat-card success">
+          <div class="label">个账可刷城市</div>
+          <div class="value" id="stat-individual">-</div>
+          <div class="sub">主要支付渠道</div>
+        </div>
       </div>
-      <div class="stat-card accent">
-        <div class="label">1-3月统筹报销总额</div>
-        <div class="value" id="stat-pooling-amt">-</div>
-        <div class="sub">占全渠道 <span id="stat-pooling-pct">-</span></div>
-      </div>
-      <div class="stat-card warning">
-        <div class="label">政策收紧城市</div>
-        <div class="value" id="stat-tightening">-</div>
-        <div class="sub">利好城市仅 <span id="stat-favorable">-</span> 个</div>
-      </div>
-      <div class="stat-card success">
-        <div class="label">个账可刷城市</div>
-        <div class="value" id="stat-individual">-</div>
-        <div class="sub">主要支付渠道</div>
-      </div>
-    </div>
 
-    <!-- Region overview -->
-    <div class="panel" style="margin-bottom:20px;">
-      <div class="panel-header"><h3>全国统筹覆盖热力图</h3><span class="tag tag-blue">绿色=统筹开放 · 灰色=未开放</span></div>
-      <div class="chart-container chart-lg" id="chart-region-overview"></div>
+      <!-- Right: Heatmap -->
+      <div class="panel" style="flex:1; min-width:0;">
+        <div class="panel-header"><h3>全国统筹覆盖热力图</h3><span class="tag tag-blue">绿色=统筹开放 · 灰色=未开放</span></div>
+        <div class="chart-container" style="height:440px;" id="chart-region-overview"></div>
+      </div>
     </div>
 
     <!-- Province summary -->
@@ -310,7 +313,7 @@ async function renderRegionOverview() {
     },
     series: [{
       type: 'map', map: 'china',
-      roam: 'scale',
+      roam: true,
       scaleLimit: { min: 1, max: 5 },
       label: { show: false },
       emphasis: {
