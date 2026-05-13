@@ -81,6 +81,14 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .city-tag { display:inline-block; padding:8px 18px; border-radius:20px; font-size:14px; font-weight:600; background:var(--card); box-shadow:var(--shadow); color:var(--text); }
 .city-tag.tightening { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
 
+/* Inline payment bar */
+.pay-bar-wrap { position:relative; display:flex; height:20px; border-radius:4px; overflow:hidden; min-width:140px; cursor:pointer; }
+.pay-bar-pooling { background:#4361ee; }
+.pay-bar-individual { background:#06d6a0; }
+.pay-bar-cash { background:#f72585; }
+.pay-tip { display:none; position:absolute; bottom:28px; left:50%; transform:translateX(-50%); background:rgba(30,41,59,0.95); color:#e2e8f0; padding:8px 12px; border-radius:8px; font-size:12px; white-space:nowrap; z-index:10; pointer-events:none; }
+.pay-bar-wrap:hover .pay-tip { display:block; }
+
 @media(max-width:1200px) {
   .stats-row { grid-template-columns:repeat(2,1fr); }
   .grid-2, .grid-3 { grid-template-columns:1fr; }
@@ -209,16 +217,10 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
       <div class="city-tags" id="city-individual-tags"></div>
     </div>
 
-    <div class="grid-2">
-      <div class="panel">
-        <div class="panel-header"><h3>支付结构对比</h3></div>
-        <div class="chart-container" style="height:500px;" id="chart-city-proportion"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-header"><h3>限制条件明细</h3></div>
-        <div style="max-height:500px;overflow-y:auto;">
-          <table class="data-table" id="table-city-restrict"><thead><tr><th>城市</th><th>区域</th><th>统筹</th><th>趋势</th><th>限制条件</th></tr></thead><tbody></tbody></table>
-        </div>
+    <div class="panel full-width">
+      <div class="panel-header"><h3>限制条件明细</h3></div>
+      <div style="max-height:600px;overflow-y:auto;">
+        <table class="data-table" id="table-city-restrict"><thead><tr><th>城市</th><th>区域</th><th>统筹</th><th>趋势</th><th>支付结构</th><th>限制条件</th></tr></thead><tbody></tbody></table>
       </div>
     </div>
   </div>
@@ -551,7 +553,6 @@ function getKeyCities() {
 function renderKeyCities() {
   const cities = getKeyCities();
   renderCityTags(cities);
-  renderCityProportionChart(cities);
   renderCityRestrictions(cities);
 }
 
@@ -570,55 +571,31 @@ function renderCityTags(cities) {
   }).join('');
 }
 
-function renderCityProportionChart(cities) {
-  const dom = document.getElementById('chart-city-proportion');
-  if (!dom || !dom.clientHeight) return;
-  const chart = echarts.init(dom);
-  const sorted = [...cities].sort((a,b)=>((b.pooling_amount||0)+(b.individual_amount||0)+(b.cash_amount||0))-((a.pooling_amount||0)+(a.individual_amount||0)+(a.cash_amount||0)));
-  chart.setOption({
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: 'rgba(30,41,59,0.95)',
-      borderColor: '#334155',
-      textStyle: { color: '#e2e8f0', fontSize: 13 },
-      formatter: function(params) {
-        const total = params.reduce((sum, p) => sum + (p.value || 0), 0);
-        let html = '<b style="font-size:14px">' + params[0].name + '</b><br/>';
-        html += '<div style="margin-top:4px">';
-        params.forEach(p => {
-          const pct = total > 0 ? Math.round(p.value / total * 100) : 0;
-          html += p.marker + ' ' + p.seriesName + ': <b>' + (p.value||0).toLocaleString() + '万</b> (' + pct + '%)<br/>';
-        });
-        html += '</div><div style="margin-top:4px;padding-top:4px;border-top:1px solid #475569">总计: <b>' + total.toLocaleString() + '万</b></div>';
-        return html;
-      }
-    },
-    legend: { data:['统筹金额','个账金额','现金金额'], top:0 },
-    grid: { left:60, right:40, top:40, bottom:20 },
-    xAxis: { type:'value', axisLabel:{formatter:'{value}万'} },
-    yAxis: { type:'category', data:sorted.map(c=>c.key).reverse(), axisLabel:{fontSize:12} },
-    series: [
-      { name:'统筹金额', type:'bar', stack:'total', data:sorted.map(c=>c.pooling_amount||0).reverse(), itemStyle:{color:'#4361ee'}, label:{show:true,formatter:function(p){return p.value>10?p.value+'万':'';},fontSize:10} },
-      { name:'个账金额', type:'bar', stack:'total', data:sorted.map(c=>c.individual_amount||0).reverse(), itemStyle:{color:'#06d6a0'}, label:{show:true,formatter:function(p){return p.value>10?p.value+'万':'';},fontSize:10} },
-      { name:'现金金额', type:'bar', stack:'total', data:sorted.map(c=>c.cash_amount||0).reverse(), itemStyle:{color:'#f72585'} },
-    ]
-  });
-  window._cityPropChart = chart;
-}
-
 function renderCityRestrictions(cities) {
   const tbody = document.querySelector('#table-city-restrict tbody');
   tbody.innerHTML = cities.map(c => {
     const hasPooling = c.pooling === true || c.pooling === 'partial';
     const poolingTag = hasPooling ? '<span class="tag tag-green">是</span>' : '<span class="tag tag-gray">否</span>';
     const trendTag = c.trend==='收紧' ? '<span class="tag tag-red">收紧</span>' : c.trend==='利好' ? '<span class="tag tag-green">利好</span>' : '<span class="tag tag-blue">不变</span>';
+    const pAmt = c.pooling_amount||0, iAmt = c.individual_amount||0, caAmt = c.cash_amount||0;
+    const total = pAmt + iAmt + caAmt;
+    const pW = total>0 ? Math.round(pAmt/total*100) : 0;
+    const iW = total>0 ? Math.round(iAmt/total*100) : 0;
+    const cW = total>0 ? Math.max(1, 100-pW-iW) : 0;
+    const tip = `统筹: ${pAmt.toLocaleString()}万 (${pW}%) | 个账: ${iAmt.toLocaleString()}万 (${iW}%) | 现金: ${caAmt.toLocaleString()}万 (${cW}%)`;
+    const bar = `<div class="pay-bar-wrap">
+      ${pW>0?`<div class="pay-bar-pooling" style="width:${pW}%"></div>`:''}
+      ${iW>0?`<div class="pay-bar-individual" style="width:${iW}%"></div>`:''}
+      ${cW>0?`<div class="pay-bar-cash" style="width:${cW}%"></div>`:''}
+      <div class="pay-tip">${tip}</div>
+    </div>`;
     return `<tr>
       <td><b>${c.key}</b></td>
       <td>${c.region}</td>
       <td>${poolingTag}</td>
       <td>${trendTag}</td>
-      <td style="max-width:320px;font-size:12px;color:var(--text2)">${c.restriction_detail || '-'}</td>
+      <td>${bar}</td>
+      <td style="max-width:300px;font-size:12px;color:var(--text2)">${c.restriction_detail || '-'}</td>
     </tr>`;
   }).join('');
 }
@@ -655,7 +632,7 @@ function filterTable() {
 
 // Resize handler
 window.addEventListener('resize', () => {
-  ['_regionChart','_prvChart','_trendChart','_pieChart','_topPoolChart','_topIndivChart','_restrictChart','_cityPropChart'].forEach(k => {
+  ['_regionChart','_prvChart','_trendChart','_pieChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
     if (window[k]) window[k].resize();
   });
 });
