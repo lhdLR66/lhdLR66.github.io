@@ -76,14 +76,10 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .full-width { grid-column:1/-1; }
 .section-title { font-size:15px; font-weight:700; color:var(--primary); margin-bottom:14px; padding:8px 0; border-bottom:2px solid var(--primary); }
 
-/* City cards */
-.city-cards { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
-.city-card { background:var(--card); border-radius:12px; padding:18px 16px; box-shadow:var(--shadow); }
-.city-card .cname { font-size:16px; font-weight:700; margin-bottom:2px; }
-.city-card .cregion { font-size:11px; color:var(--text2); margin-bottom:10px; }
-.city-card .camt { font-size:12px; color:var(--text2); margin-bottom:4px; }
-.city-card .camt b { color:var(--text); font-size:15px; }
-.city-card .ctags { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+/* City tags */
+.city-tags { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+.city-tag { display:inline-block; padding:8px 18px; border-radius:20px; font-size:14px; font-weight:600; background:var(--card); box-shadow:var(--shadow); color:var(--text); }
+.city-tag.tightening { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
 
 @media(max-width:1200px) {
   .stats-row { grid-template-columns:repeat(2,1fr); }
@@ -205,8 +201,11 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 
   <!-- Tab: Key Cities -->
   <div id="tab-cities" class="tab-content">
-    <div class="section-title">🏙️ 19个中心城市医保总览</div>
-    <div class="city-cards" id="city-cards"></div>
+    <div class="section-title">🏙️ 可统筹城市 <span class="tag tag-green">14城</span></div>
+    <div class="city-tags" id="city-pooling-tags"></div>
+
+    <div class="section-title">🏙️ 仅个账城市 <span class="tag tag-gray">5城</span></div>
+    <div class="city-tags" id="city-individual-tags"></div>
 
     <div class="grid-2">
       <div class="panel">
@@ -553,27 +552,24 @@ function getKeyCities() {
 
 function renderKeyCities() {
   const cities = getKeyCities();
-  renderCityCards(cities);
+  renderCityTags(cities);
   renderCityPoolingChart(cities);
   renderCityIndividualChart(cities);
   renderCityRestrictions(cities);
 }
 
-function renderCityCards(cities) {
-  const dom = document.getElementById('city-cards');
-  dom.innerHTML = cities.map(c => {
-    const hasPooling = c.pooling === true || c.pooling === 'partial';
-    const poolingTag = hasPooling ? '<span class="tag tag-green">统筹</span>' : '<span class="tag tag-gray">无统筹</span>';
-    const iaTag = c.individual_account ? '<span class="tag tag-green">个账</span>' : '<span class="tag tag-gray">无个账</span>';
-    const trendTag = c.trend==='收紧' ? '<span class="tag tag-red">收紧</span>' : c.trend==='利好' ? '<span class="tag tag-green">利好</span>' : '<span class="tag tag-blue">不变</span>';
-    const amt = (c.pooling_amount||0)+(c.individual_amount||0)+(c.cash_amount||0);
-    return `<div class="city-card">
-      <div class="cname">${c.key}</div>
-      <div class="cregion">${c.region}</div>
-      <div class="camt">统筹 <b>${(c.pooling_amount||0).toLocaleString()}万</b></div>
-      <div class="camt">个账 <b>${(c.individual_amount||0).toLocaleString()}万</b></div>
-      <div class="ctags">${poolingTag} ${iaTag} ${trendTag}</div>
-    </div>`;
+function renderCityTags(cities) {
+  const hasPooling = cities.filter(c => c.pooling === true || c.pooling === 'partial');
+  const noPooling = cities.filter(c => !(c.pooling === true || c.pooling === 'partial'));
+  
+  document.getElementById('city-pooling-tags').innerHTML = hasPooling.map(c => {
+    const cls = c.trend==='收紧' ? 'city-tag tightening' : 'city-tag';
+    return `<span class="${cls}">${c.key}</span>`;
+  }).join('');
+  
+  document.getElementById('city-individual-tags').innerHTML = noPooling.map(c => {
+    const cls = c.trend==='收紧' ? 'city-tag tightening' : 'city-tag';
+    return `<span class="${cls}">${c.key}</span>`;
   }).join('');
 }
 
