@@ -161,11 +161,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 
     <!-- 省份总览情况 -->
     <div class="section-title">📊 省份总览情况</div>
-    <div class="grid-3">
-      <div class="panel">
-        <div class="panel-header"><h3>各省区支付渠道对比</h3></div>
-        <div class="chart-container chart-sm" id="chart-payment-bar"></div>
-      </div>
+    <div class="grid-2">
       <div class="panel">
         <div class="panel-header"><h3>各省区统筹覆盖率排行</h3></div>
         <div class="chart-container chart-sm" id="chart-province-rate"></div>
@@ -281,7 +277,6 @@ function renderAll() {
   renderRegionOverview();
   renderPaymentPie();
   renderProvinceAmounts();
-  renderPaymentBar();
   renderProvinceRate();
   renderProvinceTrend();
   renderTopPooling();
@@ -547,7 +542,7 @@ function filterTable() {
 
 // Resize handler
 window.addEventListener('resize', () => {
-  ['_regionChart','_prvChart','_trendChart','_pieChart','_provAmtChart','_paybarChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
+  ['_regionChart','_prvChart','_trendChart','_pieChart','_provAmtChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
     if (window[k]) window[k].resize();
   });
 });
