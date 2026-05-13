@@ -289,18 +289,48 @@ function renderProvinceAmounts() {
   window._provAmtChart = chart;
 }
 
+function getEffStats() {
+  const eff = { pooling_cities: 0, total_cities: DATA.cities_raw.length, pooling_amount: 0, individual_amount: 0, cash_amount: 0, total_amount: 0, tightening: 0, favorable: 0, neutral: 0, has_individual: 0 };
+  const provMap = {};
+  for (const c of DATA.cities_raw) {
+    const r = c.region;
+    if (!provMap[r]) provMap[r] = { cities: 0, pool_cities: 0, pool_amt: 0, ind_amt: 0, cash_amt: 0, tighten: 0, neutral: 0, favorable: 0 };
+    provMap[r].cities++;
+    const hp = hasEffectivePooling(c);
+    const pA = c.pooling_amount||0, iA = c.individual_amount||0, caA = c.cash_amount||0;
+    if (hp) {
+      eff.pooling_cities++;
+      eff.pooling_amount += pA;
+      provMap[r].pool_cities++;
+      provMap[r].pool_amt += pA;
+    }
+    eff.individual_amount += iA;
+    eff.cash_amount += caA;
+    eff.total_amount += pA + iA + caA;
+    provMap[r].ind_amt += iA;
+    provMap[r].cash_amt += caA;
+    if (c.individual_account) eff.has_individual++;
+    if (hp) {
+      if (c.trend==='收紧') { eff.tightening++; provMap[r].tighten++; }
+      else if (c.trend==='利好') { eff.favorable++; provMap[r].favorable++; }
+      else { eff.neutral++; provMap[r].neutral++; }
+    }
+  }
+  eff.pooling_rate = Math.round(eff.pooling_cities/eff.total_cities*100);
+  eff.pooling_pct = eff.total_amount>0 ? Math.round(eff.pooling_amount/eff.total_amount*100) : 0;
+  eff.provinces = Object.entries(provMap).map(([k,v]) => ({ province:k, ...v, pooling_rate:v.cities>0?Math.round(v.pool_cities/v.cities*100):0 }));
+  return eff;
+}
+
 function renderAll() {
-  // Stats
-  const s = DATA.summary;
-  document.getElementById('stat-pooling').textContent = s.pooling_cities + ' 个 (' + s.pooling_rate + '%)';
-  document.getElementById('stat-pooling-amt').textContent = s.pooling_amount.toLocaleString() + ' 万';
-  document.getElementById('stat-pooling-pct').textContent = s.pooling_pct + '%';
-  document.getElementById('stat-tightening').textContent = s.tightening + ' 个';
-  document.getElementById('stat-favorable').textContent = s.favorable;
-
-  const hasIndividual = DATA.cities_raw.filter(c=>c.individual_account).length;
-  document.getElementById('stat-individual').textContent = hasIndividual + ' 个 (' + Math.round(hasIndividual/s.total_cities*100) + '%)';
-
+  const eff = getEffStats();
+  document.getElementById('stat-pooling').textContent = eff.pooling_cities + ' 个 (' + eff.pooling_rate + '%)';
+  document.getElementById('stat-pooling-amt').textContent = Math.round(eff.pooling_amount).toLocaleString() + ' 万';
+  document.getElementById('stat-pooling-pct').textContent = eff.pooling_pct + '%';
+  document.getElementById('stat-tightening').textContent = eff.tightening + ' 个';
+  document.getElementById('stat-favorable').textContent = eff.favorable;
+  document.getElementById('stat-individual').textContent = eff.has_individual + ' 个 (' + Math.round(eff.has_individual/eff.total_cities*100) + '%)';
+  window._effStats = eff;
   renderRegionOverview();
   renderPaymentPie();
   renderProvinceRate();
@@ -338,9 +368,32 @@ async function renderRegionOverview() {
 
   await ensureGeoJson();
 
-  const mapData = DATA.map_provinces.map(d => ({ name: d.name, value: d.pooling_rate, cities: d.cities, pooling: d.pooling_cities }));
+  // Rebuild map data with effective pooling (>=10%)
+  const effRegion = {};
+  DATA.cities_raw.forEach(c => {
+    const r = c.province;
+    if (!effRegion[r]) effRegion[r] = { cities:0, pool:0 };
+    effRegion[r].cities++;
+    if (hasEffectivePooling(c)) effRegion[r].pool++;
+  });
+
+  const GEO_REGION = {
+    '河北':'冀晋','山西':'冀晋','北京':'京津','天津':'京津',
+    '黑龙江':'东北','吉林':'东北','辽宁':'东北','内蒙古':'东北',
+    '上海':'浙沪','浙江':'浙沪','江苏':'江苏','安徽':'安徽',
+    '江西':'江西','福建':'福建','山东':'山东','河南':'河南',
+    '湖北':'湖北','湖南':'湖南','广东':'广东','广西':'广西','海南':'广东',
+    '四川':'四川','重庆':'重庆','贵州':'贵州','云南':'云南','西藏':'四川',
+    '陕西':'陕西','甘肃':'甘青宁','青海':'甘青宁','宁夏':'甘青宁','新疆':'新疆'
+  };
+
+  const mapData = DATA.map_provinces.map(d => {
+    const er = effRegion[GEO_REGION[d.province] || d.province] || { cities:d.cities||1, pool:0 };
+    const rate = er.cities>0 ? Math.round(er.pool/er.cities*100) : 0;
+    return { name:d.name, value:rate, cities:er.cities, pooling:er.pool };
+  });
   const provLookup = {};
-  DATA.map_provinces.forEach(d => { provLookup[d.name] = d; });
+  mapData.forEach(d => { provLookup[d.name] = d; });
 
   chart.setOption({
     tooltip: {
@@ -351,7 +404,7 @@ async function renderRegionOverview() {
       formatter: function(p) {
         const d = provLookup[p.name];
         if (!d) return p.name + '<br/>无数据';
-        return `<b>${d.province || p.name}</b><br/>统筹覆盖率: <b style="color:#06d6a0">${d.pooling_rate || 0}%</b><br/>统筹城市: ${d.pooling_cities || 0}/${d.cities || 0}`;
+        return `<b>${p.name}</b><br/>有效统筹率: <b style="color:#06d6a0">${d.value || 0}%</b><br/>统筹城市: ${d.pooling || 0}/${d.cities || 0}`;
       }
     },
     visualMap: {
@@ -386,7 +439,8 @@ async function renderRegionOverview() {
 // Province pooling rate
 function renderProvinceRate() {
   const chart = echarts.init(document.getElementById('chart-province-rate'));
-  const sorted = [...DATA.provinces].sort((a,b) => b.pooling_rate - a.pooling_rate);
+  const provinces = (window._effStats||getEffStats()).provinces;
+  const sorted = [...provinces].sort((a,b) => b.pooling_rate - a.pooling_rate);
   chart.setOption({
     tooltip: { trigger: 'axis' },
     grid: { left:60, right:40, top:10, bottom:20 },
@@ -406,7 +460,8 @@ function renderProvinceRate() {
 // Province trend distribution
 function renderProvinceTrend() {
   const chart = echarts.init(document.getElementById('chart-province-trend'));
-  const sorted = [...DATA.provinces].sort((a,b) => b.cities - a.cities);
+  const provinces = (window._effStats||getEffStats()).provinces;
+  const sorted = [...provinces].sort((a,b) => b.cities - a.cities);
   chart.setOption({
     tooltip: { trigger:'axis' },
     legend: { data:['收紧','不变','利好'], top:0 },
@@ -425,7 +480,7 @@ function renderProvinceTrend() {
 // Payment pie
 function renderPaymentPie() {
   const chart = echarts.init(document.getElementById('chart-payment-pie'));
-  const s = DATA.summary;
+  const eff = window._effStats||getEffStats();
   chart.setOption({
     tooltip: { trigger:'item', formatter:'{b}: {c}万 ({d}%)' },
     legend: { bottom:0 },
@@ -434,9 +489,9 @@ function renderPaymentPie() {
       itemStyle:{borderRadius:8,borderColor:'#fff',borderWidth:2},
       label:{formatter:'{b}\n{d}%'},
       data: [
-        { name:'统筹报销', value:s.pooling_amount, itemStyle:{color:'#4361ee'} },
-        { name:'个账支付', value:s.individual_amount, itemStyle:{color:'#06d6a0'} },
-        { name:'现金支付', value:s.cash_amount, itemStyle:{color:'#f72585'} },
+        { name:'统筹报销', value:Math.round(eff.pooling_amount), itemStyle:{color:'#4361ee'} },
+        { name:'个账支付', value:Math.round(eff.individual_amount), itemStyle:{color:'#06d6a0'} },
+        { name:'现金支付', value:Math.round(eff.cash_amount), itemStyle:{color:'#f72585'} },
       ]
     }]
   });
@@ -470,7 +525,7 @@ function cleanCityName(city, province) {
 // Top pooling cities
 function renderTopPooling() {
   const chart = echarts.init(document.getElementById('chart-top-pooling'));
-  const data = DATA.top_pooling.slice(0,15);
+  const data = DATA.top_pooling.filter(c => hasEffectivePooling(c)).slice(0,15);
   chart.setOption({
     tooltip: { trigger:'axis' },
     grid: { left:110, right:60, top:10, bottom:20 },
@@ -526,7 +581,8 @@ function renderRestrictions() {
 // Risk table
 function renderRiskTable() {
   const tbody = document.querySelector('#table-risk tbody');
-  tbody.innerHTML = DATA.risk_cities.map((c,i) => `
+  const risk = DATA.risk_cities.filter(c => hasEffectivePooling(c));
+  tbody.innerHTML = risk.map((c,i) => `
     <tr>
       <td><b>${c.city}</b></td>
       <td>${c.province}</td>
@@ -621,7 +677,7 @@ function renderDetailTable(filter) {
   empty.style.display = 'none';
 
   tbody.innerHTML = rows.map(c => {
-    const poolingTag = c.pooling===true ? '<span class="tag tag-green">是</span>' : c.pooling==='partial' ? '<span class="tag tag-yellow">部分</span>' : '<span class="tag tag-gray">否</span>';
+    const poolingTag = hasEffectivePooling(c) ? '<span class="tag tag-green">是</span>' : c.pooling==='partial' ? '<span class="tag tag-yellow">弱</span>' : '<span class="tag tag-gray">否</span>';
     const iaTag = c.individual_account ? '<span class="tag tag-green">是</span>' : '<span class="tag tag-gray">否</span>';
     const trendTag = c.trend==='收紧' ? '<span class="tag tag-red">收紧</span>' : c.trend==='利好' ? '<span class="tag tag-green">利好</span>' : '<span class="tag tag-blue">不变</span>';
     return `<tr>
