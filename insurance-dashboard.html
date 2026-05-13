@@ -86,7 +86,8 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .pay-bar-pooling { background:#4361ee; border-radius:4px 0 0 4px; }
 .pay-bar-individual { background:#06d6a0; }
 .pay-bar-cash { background:#f72585; border-radius:0 4px 4px 0; }
-.pay-tip { display:none; position:absolute; bottom:28px; left:50%; transform:translateX(-50%); background:rgba(30,41,59,0.95); color:#e2e8f0; padding:8px 12px; border-radius:8px; font-size:12px; white-space:nowrap; z-index:10; pointer-events:none; }
+.pay-tip { display:none; position:absolute; bottom:28px; left:50%; transform:translateX(-50%); background:rgba(30,41,59,0.95); color:#e2e8f0; padding:10px 14px; border-radius:8px; font-size:13px; white-space:nowrap; z-index:10; pointer-events:none; line-height:1.8; }
+.pay-tip .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
 .pay-bar-wrap:hover .pay-tip { display:block; }
 
 @media(max-width:1200px) {
@@ -582,7 +583,7 @@ function renderCityRestrictions(cities) {
     const pW = total>0 ? Math.round(pAmt/total*100) : 0;
     const iW = total>0 ? Math.round(iAmt/total*100) : 0;
     const cW = total>0 ? Math.max(1, 100-pW-iW) : 0;
-    const tip = `统筹: ${pAmt.toLocaleString()}万 (${pW}%) | 个账: ${iAmt.toLocaleString()}万 (${iW}%) | 现金: ${caAmt.toLocaleString()}万 (${cW}%)`;
+    const tip = `<span class="dot" style="background:#4361ee"></span>统筹 ${pAmt.toLocaleString()}万 (${pW}%)<br/><span class="dot" style="background:#06d6a0"></span>个账 ${iAmt.toLocaleString()}万 (${iW}%)<br/><span class="dot" style="background:#f72585"></span>现金 ${caAmt.toLocaleString()}万 (${cW}%)`;
     const bar = `<div class="pay-bar-wrap">
       ${pW>0?`<div class="pay-bar-pooling" style="width:${pW}%"></div>`:''}
       ${iW>0?`<div class="pay-bar-individual" style="width:${iW}%"></div>`:''}
