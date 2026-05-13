@@ -291,10 +291,9 @@ async function renderRegionOverview() {
       borderColor: '#334155',
       textStyle: { color: '#e2e8f0' },
       formatter: function(p) {
-        if (!p.data || p.data.value === undefined) return p.name + '<br/>无数据';
         const d = provLookup[p.name];
         if (!d) return p.name + '<br/>无数据';
-        return `<b>${d.province}</b><br/>统筹覆盖率: <b style="color:#06d6a0">${d.pooling_rate}%</b><br/>统筹城市: ${d.pooling}/${d.cities}`;
+        return `<b>${d.province || p.name}</b><br/>统筹覆盖率: <b style="color:#06d6a0">${d.pooling_rate || 0}%</b><br/>统筹城市: ${d.pooling_cities || 0}/${d.cities || 0}`;
       }
     },
     visualMap: {
