@@ -117,7 +117,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
     <div class="section-title">📊 全国总览情况</div>
     <div style="display:flex; gap:20px; margin-bottom:20px;">
       <!-- Left: 4 stat cards stacked vertically -->
-      <div style="width:260px; flex-shrink:0; display:flex; flex-direction:column; gap:16px;">
+      <div style="width:300px; flex-shrink:0; display:flex; flex-direction:column; gap:16px;">
         <div class="stat-card">
           <div class="label">可统筹报销城市</div>
           <div class="value" id="stat-pooling">-</div>
@@ -141,7 +141,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
       </div>
 
       <!-- Middle: Payment pie -->
-      <div class="panel" style="width:320px; flex-shrink:0;">
+      <div class="panel" style="width:340px; flex-shrink:0;">
         <div class="panel-header"><h3>全国支付渠道结构</h3></div>
         <div class="chart-container" id="chart-payment-pie"></div>
       </div>
@@ -362,7 +362,7 @@ function renderProvinceTrend() {
   chart.setOption({
     tooltip: { trigger:'axis' },
     legend: { data:['收紧','不变','利好'], top:0 },
-    grid: { left:60, right:20, top:40, bottom:20 },
+    grid: { left:60, right:20, top:40, bottom:60 },
     xAxis: { type:'category', data:sorted.map(p=>p.province), axisLabel:{rotate:45,fontSize:11} },
     yAxis: { type:'value' },
     series: [
@@ -402,7 +402,7 @@ function renderPaymentBar() {
   chart.setOption({
     tooltip: { trigger:'axis' },
     legend: { data:['统筹','个账','现金'], top:0 },
-    grid: { left:60, right:20, top:40, bottom:20 },
+    grid: { left:60, right:20, top:40, bottom:60 },
     xAxis: { type:'category', data:top.map(p=>p.province), axisLabel:{rotate:45,fontSize:11} },
     yAxis: { type:'value' },
     series: [
@@ -414,15 +414,20 @@ function renderPaymentBar() {
   window._paybarChart = chart;
 }
 
+function cleanCityName(city, province) {
+  const pattern = new RegExp('^' + province + '(省|市|维吾尔自治区|壮族自治区|回族自治区)?');
+  return city.replace(pattern, '');
+}
+
 // Top pooling cities
 function renderTopPooling() {
   const chart = echarts.init(document.getElementById('chart-top-pooling'));
   const data = DATA.top_pooling.slice(0,15);
   chart.setOption({
     tooltip: { trigger:'axis' },
-    grid: { left:100, right:60, top:10, bottom:20 },
+    grid: { left:110, right:60, top:10, bottom:20 },
     xAxis: { type:'value', axisLabel:{formatter:'{value}万'} },
-    yAxis: { type:'category', data:data.map(d=>d.city+' ('+d.province+')').reverse(), axisLabel:{fontSize:11} },
+    yAxis: { type:'category', data:data.map(d=>cleanCityName(d.city,d.province)+' ('+d.province+')').reverse(), axisLabel:{fontSize:11} },
     series: [{
       type:'bar', data:data.map(d=>d.amount).reverse(),
       itemStyle:{ color: function(p){ return p.data > 100 ? '#ef476f' : '#4361ee'; } },
@@ -438,9 +443,9 @@ function renderTopIndividual() {
   const data = DATA.top_individual.slice(0,15);
   chart.setOption({
     tooltip: { trigger:'axis' },
-    grid: { left:100, right:60, top:10, bottom:20 },
+    grid: { left:110, right:60, top:10, bottom:20 },
     xAxis: { type:'value', axisLabel:{formatter:'{value}万'} },
-    yAxis: { type:'category', data:data.map(d=>d.city+' ('+d.province+')').reverse(), axisLabel:{fontSize:11} },
+    yAxis: { type:'category', data:data.map(d=>cleanCityName(d.city,d.province)+' ('+d.province+')').reverse(), axisLabel:{fontSize:11} },
     series: [{
       type:'bar', data:data.map(d=>d.amount).reverse(),
       itemStyle:{ color: function(p){ return p.data > 100 ? '#f72585' : '#06d6a0'; } },
@@ -450,10 +455,10 @@ function renderTopIndividual() {
   window._topIndivChart = chart;
 }
 
-// Restrictions
+// Restrictions (exclude cities without pooling)
 function renderRestrictions() {
   const chart = echarts.init(document.getElementById('chart-restrictions'));
-  const data = DATA.restriction_tags.slice(0,10);
+  const data = DATA.restriction_tags.filter(d => d.name !== '统筹未开放').slice(0,10);
   chart.setOption({
     tooltip: { trigger:'axis' },
     grid: { left:120, right:40, top:10, bottom:20 },
