@@ -63,7 +63,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 /* Table */
 .data-table { width:100%; border-collapse:collapse; font-size:13px; }
 .data-table th { text-align:left; padding:10px 12px; background:#f8fafc; border-bottom:2px solid var(--border); font-weight:600; color:var(--text2); font-size:12px; }
-.data-table td { padding:10px 12px; border-bottom:1px solid var(--border); }
+.data-table td { padding:10px 12px; border-bottom:1px solid var(--border); overflow:visible; }
 .data-table tr:hover td { background:#f8fafc; }
 .data-table .num { text-align:right; font-variant-numeric:tabular-nums; }
 .tag { display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:500; }
@@ -219,7 +219,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
     </div>
 
     <div class="panel full-width">
-      <div class="panel-header"><h3>限制条件明细</h3></div>
+      <div class="panel-header"><h3>详细医保政策</h3></div>
       <div style="max-height:600px;overflow-y:auto;">
         <table class="data-table" id="table-city-restrict"><thead><tr><th>城市</th><th>区域</th><th>统筹</th><th>趋势</th><th>支付结构</th><th>限制条件</th></tr></thead><tbody></tbody></table>
       </div>
