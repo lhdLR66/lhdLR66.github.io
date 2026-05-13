@@ -61,7 +61,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
 .panel-header h3 { font-size:16px; font-weight:600; }
 .chart-container { width:100%; height:380px; }
-.chart-sm { height:320px; }
+.chart-sm { height:440px; }
 .chart-lg { height:440px; }
 
 /* Table */
@@ -294,10 +294,10 @@ function renderRegionOverview() {
 // Province pooling rate
 function renderProvinceRate() {
   const chart = echarts.init(document.getElementById('chart-province-rate'));
-  const sorted = [...DATA.provinces].sort((a,b) => b.pooling_rate - a.pooling_rate).slice(0,15);
+  const sorted = [...DATA.provinces].sort((a,b) => b.pooling_rate - a.pooling_rate);
   chart.setOption({
     tooltip: { trigger: 'axis' },
-    grid: { left:100, right:40, top:10, bottom:20 },
+    grid: { left:60, right:40, top:10, bottom:20 },
     xAxis: { type:'value', max:100, axisLabel:{formatter:'{value}%'} },
     yAxis: { type:'category', data:sorted.map(p=>p.province).reverse(), axisLabel:{fontSize:12} },
     series: [{
@@ -354,7 +354,7 @@ function renderPaymentPie() {
 // Payment bar by province
 function renderPaymentBar() {
   const chart = echarts.init(document.getElementById('chart-payment-bar'));
-  const top = [...DATA.provinces].filter(p=>p.total_amount>0).sort((a,b)=>b.total_amount-a.total_amount).slice(0,12);
+  const top = [...DATA.provinces].filter(p=>p.total_amount>0).sort((a,b)=>b.total_amount-a.total_amount);
   chart.setOption({
     tooltip: { trigger:'axis' },
     legend: { data:['统筹','个账','现金'], top:0 },
