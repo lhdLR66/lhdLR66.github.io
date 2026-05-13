@@ -469,9 +469,9 @@ function renderProvinceTrend() {
     xAxis: { type:'category', data:sorted.map(p=>p.province), axisLabel:{rotate:45,fontSize:11} },
     yAxis: { type:'value' },
     series: [
-      { name:'收紧', type:'bar', stack:'total', data:sorted.map(p=>p['收紧']), itemStyle:{color:'#ef476f'} },
-      { name:'不变', type:'bar', stack:'total', data:sorted.map(p=>p['不变']), itemStyle:{color:'#64748b'} },
-      { name:'利好', type:'bar', stack:'total', data:sorted.map(p=>p['利好']), itemStyle:{color:'#06d6a0'} },
+      { name:'收紧', type:'bar', stack:'total', data:sorted.map(p=>p.tighten), itemStyle:{color:'#ef476f'} },
+      { name:'不变', type:'bar', stack:'total', data:sorted.map(p=>p.neutral), itemStyle:{color:'#64748b'} },
+      { name:'利好', type:'bar', stack:'total', data:sorted.map(p=>p.favorable), itemStyle:{color:'#06d6a0'} },
     ]
   });
   window._trendChart = chart;
@@ -501,7 +501,8 @@ function renderPaymentPie() {
 // Payment bar by province
 function renderPaymentBar() {
   const chart = echarts.init(document.getElementById('chart-payment-bar'));
-  const top = [...DATA.provinces].filter(p=>p.total_amount>0).sort((a,b)=>b.total_amount-a.total_amount);
+  const provinces = (window._effStats||getEffStats()).provinces;
+  const top = [...provinces].sort((a,b)=>(b.pool_amt+b.ind_amt+b.cash_amt)-(a.pool_amt+a.ind_amt+a.cash_amt));
   chart.setOption({
     tooltip: { trigger:'axis' },
     legend: { data:['统筹','个账','现金'], top:0 },
@@ -509,9 +510,9 @@ function renderPaymentBar() {
     xAxis: { type:'category', data:top.map(p=>p.province), axisLabel:{rotate:45,fontSize:11} },
     yAxis: { type:'value' },
     series: [
-      { name:'统筹', type:'bar', stack:'total', data:top.map(p=>p.pooling_amount), itemStyle:{color:'#4361ee'} },
-      { name:'个账', type:'bar', stack:'total', data:top.map(p=>p.individual_amount), itemStyle:{color:'#06d6a0'} },
-      { name:'现金', type:'bar', stack:'total', data:top.map(p=>p.cash_amount), itemStyle:{color:'#f72585'} },
+      { name:'统筹', type:'bar', stack:'total', data:top.map(p=>p.pool_amt), itemStyle:{color:'#4361ee'} },
+      { name:'个账', type:'bar', stack:'total', data:top.map(p=>p.ind_amt), itemStyle:{color:'#06d6a0'} },
+      { name:'现金', type:'bar', stack:'total', data:top.map(p=>p.cash_amt), itemStyle:{color:'#f72585'} },
     ]
   });
   window._paybarChart = chart;
@@ -581,15 +582,15 @@ function renderRestrictions() {
 // Risk table
 function renderRiskTable() {
   const tbody = document.querySelector('#table-risk tbody');
-  const risk = DATA.risk_cities.filter(c => hasEffectivePooling(c));
-  tbody.innerHTML = risk.map((c,i) => `
+  const risk = DATA.risk_cities.filter(c => hasEffectivePooling(c)).slice(0,10);
+  tbody.innerHTML = risk.length ? risk.map((c,i) => `
     <tr>
       <td><b>${c.city}</b></td>
       <td>${c.province}</td>
       <td class="num"><span class="tag tag-red">${c.pooling_pct}%</span></td>
       <td style="max-width:260px;font-size:12px;color:var(--text2)">${c.restriction || '-'}</td>
     </tr>
-  `).join('');
+  `).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text2);padding:20px;">暂无数据</td></tr>';
 }
 
 // Key cities
