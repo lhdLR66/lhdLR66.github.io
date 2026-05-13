@@ -243,7 +243,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
       <div style="max-height:600px;overflow-y:auto;">
         <table class="data-table" id="table-detail">
           <thead><tr>
-            <th class="sortable" onclick="sortDetailTable('region')">省区</th><th class="sortable" onclick="sortDetailTable('city')">城市</th><th>城市经理</th><th class="sortable" onclick="sortDetailTable('pooling')">统筹报销</th><th class="sortable" onclick="sortDetailTable('pharmacies')">统筹药店</th><th class="sortable" onclick="sortDetailTable('individual')">个账</th>
+            <th class="sortable" onclick="sortDetailTable('region')">省区</th><th class="sortable" onclick="sortDetailTable('city')">城市</th><th class="sortable" onclick="sortDetailTable('pooling')">统筹报销</th><th class="sortable" onclick="sortDetailTable('pharmacies')">统筹药店</th><th class="sortable" onclick="sortDetailTable('individual')">个账</th>
             <th class="num sortable" onclick="sortDetailTable('total_amt')">支付结构</th>
             <th class="sortable" onclick="sortDetailTable('trend')">政策趋势</th><th>限制条件</th>
           </tr></thead>
@@ -262,6 +262,7 @@ let DATA = null;
 async function loadData() {
   const resp = await fetch('insurance-data.json');
   DATA = await resp.json();
+  renderDetailTable();
   renderAll();
 }
 
@@ -272,7 +273,6 @@ function switchTab(name) {
   document.getElementById('tab-'+name).classList.add('active');
   if (name === 'overview') { renderAll(); }
   if (name === 'cities') { renderKeyCities(); }
-  if (name === 'detail') { renderDetailTable(); }
 }
 
 // Province pooling vs individual amounts bar chart
@@ -719,7 +719,7 @@ function renderDetailTable(filter) {
       <div class="pay-tip">${tip}</div>
     </div>`;
     return `<tr>
-      <td>${c.region}</td><td><b>${c.city}</b></td><td style="font-size:12px;color:var(--text2)">${c.manager||'-'}</td>
+      <td>${c.region}</td><td><b>${c.city}</b></td>
       <td>${poolingTag}</td><td class="num">${c.pooling_pharmacies||0}</td><td>${iaTag}</td>
       <td style="min-width:140px">${bar}</td>
       <td>${trendTag}</td><td style="max-width:240px;font-size:12px;color:var(--text2)">${c.restriction_detail||'-'}</td>
