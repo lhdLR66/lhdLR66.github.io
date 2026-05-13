@@ -191,14 +191,6 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
       </div>
     </div>
 
-    <!-- 各省份统筹/个账金额 -->
-    <div style="margin-bottom:20px;">
-      <div class="section-title">📊 各省份统筹/个账金额</div>
-      <div class="panel">
-        <div class="panel-header"><h3>各省份统筹/个账金额</h3></div>
-        <div class="chart-container chart-sm" id="chart-province-amounts"></div>
-      </div>
-    </div>
   </div>
 
   <!-- Tab: Detail -->
@@ -276,7 +268,6 @@ function renderAll() {
 
   renderRegionOverview();
   renderPaymentPie();
-  renderProvinceAmounts();
   renderProvinceRate();
   renderProvinceTrend();
   renderTopPooling();
@@ -542,7 +533,7 @@ function filterTable() {
 
 // Resize handler
 window.addEventListener('resize', () => {
-  ['_regionChart','_prvChart','_trendChart','_pieChart','_provAmtChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
+  ['_regionChart','_prvChart','_trendChart','_pieChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
     if (window[k]) window[k].resize();
   });
 });
