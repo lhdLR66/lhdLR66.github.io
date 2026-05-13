@@ -46,7 +46,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .tab-content.active { display:block; }
 
 /* Cards */
-.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
+.stats-row { display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:20px; }
 .stat-card { background:var(--card); border-radius:var(--radius); padding:20px 24px; box-shadow:var(--shadow); }
 .stat-card .label { font-size:13px; color:var(--text2); margin-bottom:6px; }
 .stat-card .value { font-size:28px; font-weight:700; }
@@ -131,16 +131,26 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
         <div class="sub">全国323个城市</div>
       </div>
       <div class="stat-card accent">
-        <div class="label">1-3月统筹报销总额</div>
+        <div class="label">统筹报销总额</div>
         <div class="value" id="stat-pooling-amt">-</div>
         <div class="sub">占全渠道 <span id="stat-pooling-pct">-</span></div>
+      </div>
+      <div class="stat-card success">
+        <div class="label">个账支付总额</div>
+        <div class="value" id="stat-individual-amt">-</div>
+        <div class="sub">占全渠道 <span id="stat-individual-pct">-</span></div>
+      </div>
+      <div class="stat-card" style="border-left: 3px solid #f72585;">
+        <div class="label">现金支付总额</div>
+        <div class="value" id="stat-cash-amt" style="color:#f72585;">-</div>
+        <div class="sub">占全渠道 <span id="stat-cash-pct">-</span></div>
       </div>
       <div class="stat-card warning">
         <div class="label">政策收紧城市</div>
         <div class="value" id="stat-tightening">-</div>
         <div class="sub">利好城市仅 <span id="stat-favorable">-</span> 个</div>
       </div>
-      <div class="stat-card success">
+      <div class="stat-card">
         <div class="label">个账可刷城市</div>
         <div class="value" id="stat-individual">-</div>
         <div class="sub">主要支付渠道</div>
@@ -266,6 +276,10 @@ function renderAll() {
   document.getElementById('stat-pooling').textContent = s.pooling_cities + ' 个 (' + s.pooling_rate + '%)';
   document.getElementById('stat-pooling-amt').textContent = s.pooling_amount.toLocaleString() + ' 万';
   document.getElementById('stat-pooling-pct').textContent = s.pooling_pct + '%';
+  document.getElementById('stat-individual-amt').textContent = s.individual_amount.toLocaleString() + ' 万';
+  document.getElementById('stat-individual-pct').textContent = s.individual_pct + '%';
+  document.getElementById('stat-cash-amt').textContent = s.cash_amount.toLocaleString() + ' 万';
+  document.getElementById('stat-cash-pct').textContent = s.cash_pct + '%';
   document.getElementById('stat-tightening').textContent = s.tightening + ' 个';
   document.getElementById('stat-favorable').textContent = s.favorable;
 
