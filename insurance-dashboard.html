@@ -46,7 +46,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .tab-content.active { display:block; }
 
 /* Cards */
-.stats-row { display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:20px; }
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
 .stat-card { background:var(--card); border-radius:var(--radius); padding:20px 24px; box-shadow:var(--shadow); }
 .stat-card .label { font-size:13px; color:var(--text2); margin-bottom:6px; }
 .stat-card .value { font-size:28px; font-weight:700; }
@@ -131,36 +131,26 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
         <div class="sub">全国323个城市</div>
       </div>
       <div class="stat-card accent">
-        <div class="label">统筹报销总额</div>
+        <div class="label">1-3月统筹报销总额</div>
         <div class="value" id="stat-pooling-amt">-</div>
         <div class="sub">占全渠道 <span id="stat-pooling-pct">-</span></div>
-      </div>
-      <div class="stat-card success">
-        <div class="label">个账支付总额</div>
-        <div class="value" id="stat-individual-amt">-</div>
-        <div class="sub">占全渠道 <span id="stat-individual-pct">-</span></div>
-      </div>
-      <div class="stat-card" style="border-left: 3px solid #f72585;">
-        <div class="label">现金支付总额</div>
-        <div class="value" id="stat-cash-amt" style="color:#f72585;">-</div>
-        <div class="sub">占全渠道 <span id="stat-cash-pct">-</span></div>
       </div>
       <div class="stat-card warning">
         <div class="label">政策收紧城市</div>
         <div class="value" id="stat-tightening">-</div>
         <div class="sub">利好城市仅 <span id="stat-favorable">-</span> 个</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card success">
         <div class="label">个账可刷城市</div>
         <div class="value" id="stat-individual">-</div>
         <div class="sub">主要支付渠道</div>
       </div>
     </div>
 
-    <!-- Map -->
+    <!-- Region overview -->
     <div class="panel" style="margin-bottom:20px;">
-      <div class="panel-header"><h3>全国统筹覆盖热力图</h3><span class="tag tag-blue">绿色=统筹开放 · 灰色=未开放</span></div>
-      <div class="chart-container chart-lg" id="chart-map"></div>
+      <div class="panel-header"><h3>各销售区域统筹覆盖率</h3><span class="tag tag-blue">21个销售区域</span></div>
+      <div class="chart-container chart-lg" id="chart-region-overview"></div>
     </div>
 
     <!-- Province summary -->
@@ -240,20 +230,6 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 <script>
 let DATA = null;
 
-// Province name mapping for ECharts map
-const PROVINCE_MAP = {
-  '河北':'河北省','山西':'山西省','陕西':'陕西省','湖南':'湖南省','安徽':'安徽省',
-  '江苏':'江苏省','浙江':'浙江省','河南':'河南省','山东':'山东省','广东':'广东省',
-  '广西':'广西壮族自治区','贵州':'贵州省','云南':'云南省','四川':'四川省','湖北':'湖北省',
-  '福建':'福建省','江西':'江西省','新疆':'新疆维吾尔自治区','甘肃':'甘肃省','青海':'青海省',
-  '宁夏':'宁夏回族自治区','辽宁':'辽宁省','吉林':'吉林省','黑龙江':'黑龙江省',
-  '内蒙古':'内蒙古自治区','海南':'海南省','上海':'上海市','北京':'北京市','天津':'天津市','重庆':'重庆市',
-};
-
-function getMapName(short) {
-  return PROVINCE_MAP[short] || short;
-}
-
 async function loadData() {
   const resp = await fetch('insurance-data.json');
   DATA = await resp.json();
@@ -265,7 +241,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelector(`.tab:nth-child(${name==='overview'?1:name==='analysis'?2:3})`).classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
-  if (name === 'overview') { renderMap(); renderProvinceRate(); renderProvinceTrend(); }
+  if (name === 'overview') { renderRegionOverview(); renderProvinceRate(); renderProvinceTrend(); }
   if (name === 'analysis') { renderPaymentPie(); renderPaymentBar(); renderTopPooling(); renderTopIndividual(); renderRestrictions(); renderRiskTable(); }
   if (name === 'detail') { renderDetailTable(); }
 }
@@ -276,101 +252,43 @@ function renderAll() {
   document.getElementById('stat-pooling').textContent = s.pooling_cities + ' 个 (' + s.pooling_rate + '%)';
   document.getElementById('stat-pooling-amt').textContent = s.pooling_amount.toLocaleString() + ' 万';
   document.getElementById('stat-pooling-pct').textContent = s.pooling_pct + '%';
-  document.getElementById('stat-individual-amt').textContent = s.individual_amount.toLocaleString() + ' 万';
-  document.getElementById('stat-individual-pct').textContent = s.individual_pct + '%';
-  document.getElementById('stat-cash-amt').textContent = s.cash_amount.toLocaleString() + ' 万';
-  document.getElementById('stat-cash-pct').textContent = s.cash_pct + '%';
   document.getElementById('stat-tightening').textContent = s.tightening + ' 个';
   document.getElementById('stat-favorable').textContent = s.favorable;
 
   const hasIndividual = DATA.cities_raw.filter(c=>c.individual_account).length;
   document.getElementById('stat-individual').textContent = hasIndividual + ' 个 (' + Math.round(hasIndividual/s.total_cities*100) + '%)';
 
-  renderMap();
+  renderRegionOverview();
   renderProvinceRate();
   renderProvinceTrend();
 }
 
-// Map - preload GeoJSON
-let _geoJsonLoaded = false;
-let _geoJson = null;
-
-async function ensureGeoJson() {
-  if (_geoJsonLoaded) return _geoJson;
-  // Try local first (same-origin), fallback to raw GitHub
-  let resp;
-  try {
-    resp = await fetch('china-geo.json');
-    if (!resp.ok) throw new Error('local 404');
-  } catch(e) {
-    resp = await fetch('https://raw.githubusercontent.com/lhdLR66/lhdLR66.github.io/main/china-geo.json');
-  }
-  _geoJson = await resp.json();
-  echarts.registerMap('china', _geoJson);
-  _geoJsonLoaded = true;
-  return _geoJson;
-}
-
-async function renderMap() {
-  const dom = document.getElementById('chart-map');
-  if (!dom || !dom.clientHeight) return;
-  const chart = echarts.init(dom);
-  chart.showLoading({ text: '地图加载中...', color: '#4361ee' });
-  
-  const provData = {};
-  DATA.provinces.forEach(p => {
-    const name = getMapName(p.province);
-    provData[name] = { rate: p.pooling_rate, cities: p.cities, pooling: p.pooling_cities };
-  });
-
-  await ensureGeoJson();
-  
-  const mapData = Object.entries(provData).map(([name, d]) => ({
-    name, value: d.rate
-  }));
-
+// Region overview bar chart
+function renderRegionOverview() {
+  const chart = echarts.init(document.getElementById('chart-region-overview'));
+  const sorted = [...DATA.provinces].sort((a,b) => b.pooling_rate - a.pooling_rate);
   chart.setOption({
     tooltip: {
-      trigger: 'item',
-      backgroundColor: 'rgba(30,41,59,0.95)',
-      borderColor: '#334155',
-      textStyle: { color: '#e2e8f0' },
-      formatter: function(p) {
-        if (!p.data || p.data.value === undefined) return p.name + '<br/>无数据';
-        const d = provData[p.name];
-        if (!d) return p.name + '<br/>无数据';
-        return `<b>${p.name}</b><br/>统筹覆盖率: <b style="color:#06d6a0">${d.rate}%</b><br/>统筹城市: ${d.pooling}/${d.cities}`;
+      trigger: 'axis',
+      formatter: function(params) {
+        const d = sorted[params[0].dataIndex];
+        return `<b>${d.province}</b><br/>统筹覆盖率: ${d.pooling_rate}%<br/>统筹城市: ${d.pooling_cities}/${d.cities}<br/>统筹药店: ${d.total_pharmacies}家`;
       }
     },
-    visualMap: {
-      min: 0, max: 100,
-      text: ['100%', '0%'],
-      realtime: false,
-      calculable: true,
-      orient: 'horizontal',
-      left: 'center',
-      bottom: 10,
-      itemWidth: 16,
-      itemHeight: 120,
-      inRange: { color: ['#e2e8f0', '#94a3b8', '#ffd166', '#06d6a0'] }
-    },
+    grid: { left:140, right:80, top:10, bottom:30 },
+    xAxis: { type:'value', max:100, axisLabel:{formatter:'{value}%'} },
+    yAxis: { type:'category', data:sorted.map(p=>p.province).reverse(), axisLabel:{fontSize:12} },
     series: [{
-      type: 'map', map: 'china',
-      roam: 'scale',
-      scaleLimit: { min: 1, max: 5 },
-      label: { show: false },
-      emphasis: {
-        label: { show: true, fontSize: 14, fontWeight: 'bold' },
-        itemStyle: { areaColor: '#4361ee' }
-      },
-      data: mapData
+      type:'bar',
+      data:sorted.map(p => ({
+        value: p.pooling_rate,
+        itemStyle: { color: p.pooling_rate > 70 ? '#06d6a0' : p.pooling_rate > 30 ? '#ffd166' : p.pooling_rate > 0 ? '#f72585' : '#94a3b8' }
+      })).reverse(),
+      label:{ show:true, position:'right', formatter:function(p){return p.value+'%'}, fontSize:11 },
+      barMaxWidth: 24
     }]
   });
-  
-  chart.hideLoading();
-  window._mapChart = chart;
-  // Handle resize
-  window.addEventListener('resize', () => chart.resize());
+  window._regionChart = chart;
 }
 
 // Province pooling rate
@@ -553,7 +471,7 @@ function filterTable() {
 
 // Resize handler
 window.addEventListener('resize', () => {
-  ['_mapChart','_prvChart','_trendChart','_pieChart','_paybarChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
+  ['_regionChart','_prvChart','_trendChart','_pieChart','_paybarChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
     if (window[k]) window[k].resize();
   });
 });
