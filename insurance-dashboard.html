@@ -526,14 +526,14 @@ function cleanCityName(city, province) {
 // Top pooling cities
 function renderTopPooling() {
   const chart = echarts.init(document.getElementById('chart-top-pooling'));
-  const data = DATA.top_pooling.filter(c => hasEffectivePooling(c)).slice(0,15);
+  const data = DATA.cities_raw.filter(c => hasEffectivePooling(c)).sort((a,b) => (b.pooling_amount||0) - (a.pooling_amount||0)).slice(0,15);
   chart.setOption({
     tooltip: { trigger:'axis' },
     grid: { left:110, right:60, top:10, bottom:20 },
     xAxis: { type:'value', axisLabel:{formatter:'{value}万'} },
     yAxis: { type:'category', data:data.map(d=>cleanCityName(d.city,d.province)+' ('+d.province+')').reverse(), axisLabel:{fontSize:11} },
     series: [{
-      type:'bar', data:data.map(d=>d.amount).reverse(),
+      type:'bar', data:data.map(d=>d.pooling_amount||0).reverse(),
       itemStyle:{ color: function(p){ return p.data > 100 ? '#ef476f' : '#4361ee'; } },
       label:{ show:true, position:'right', formatter:'{c}万', fontSize:11 }
     }]
@@ -582,7 +582,10 @@ function renderRestrictions() {
 // Risk table
 function renderRiskTable() {
   const tbody = document.querySelector('#table-risk tbody');
-  const risk = DATA.risk_cities.filter(c => hasEffectivePooling(c)).slice(0,10);
+  const risk = DATA.risk_cities.filter(r => {
+    const c = DATA.cities_raw.find(x => x.city.includes(r.city) || r.city.includes(x.city));
+    return c && hasEffectivePooling(c);
+  }).slice(0,10);
   tbody.innerHTML = risk.length ? risk.map((c,i) => `
     <tr>
       <td><b>${c.city}</b></td>
