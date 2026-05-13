@@ -63,7 +63,13 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 
 /* Table */
 .data-table { width:100%; border-collapse:collapse; font-size:13px; }
+.data-table thead { position:sticky; top:0; z-index:2; }
 .data-table th { text-align:left; padding:10px 12px; background:#f8fafc; border-bottom:2px solid var(--border); font-weight:600; color:var(--text2); font-size:12px; }
+.data-table th.sortable { cursor:pointer; user-select:none; }
+.data-table th.sortable:hover { color:var(--primary); }
+.data-table th.sortable::after { content:' ↕'; font-size:10px; opacity:0.4; }
+.data-table th.sortable.asc::after { content:' ↑'; opacity:1; }
+.data-table th.sortable.desc::after { content:' ↓'; opacity:1; }
 .data-table td { padding:10px 12px; border-bottom:1px solid var(--border); overflow:visible; }
 .data-table tr:hover td { background:#f8fafc; }
 .data-table .num { text-align:right; font-variant-numeric:tabular-nums; }
@@ -237,9 +243,9 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
       <div style="max-height:600px;overflow-y:auto;">
         <table class="data-table" id="table-detail">
           <thead><tr>
-            <th>省区</th><th>城市</th><th>城市经理</th><th>统筹报销</th><th>统筹药店</th><th>个账</th>
-            <th class="num">统筹金额(万)</th><th class="num">个账金额(万)</th><th class="num">现金金额(万)</th>
-            <th>政策趋势</th><th>限制条件</th>
+            <th class="sortable" onclick="sortDetailTable('region')">省区</th><th class="sortable" onclick="sortDetailTable('city')">城市</th><th>城市经理</th><th class="sortable" onclick="sortDetailTable('pooling')">统筹报销</th><th class="sortable" onclick="sortDetailTable('pharmacies')">统筹药店</th><th class="sortable" onclick="sortDetailTable('individual')">个账</th>
+            <th class="num sortable" onclick="sortDetailTable('pooling_amt')">统筹金额(万)</th><th class="num sortable" onclick="sortDetailTable('individual_amt')">个账金额(万)</th><th class="num sortable" onclick="sortDetailTable('cash_amt')">现金金额(万)</th>
+            <th class="sortable" onclick="sortDetailTable('trend')">政策趋势</th><th>限制条件</th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -262,7 +268,7 @@ async function loadData() {
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.tab:nth-child(${name==='overview'?1:2})`).classList.add('active');
+  document.querySelector(`.tab:nth-child(${name==='overview'?1:name==='cities'?2:3})`).classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
   if (name === 'overview') { renderAll(); }
   if (name === 'cities') { renderKeyCities(); }
@@ -680,8 +686,26 @@ function renderDetailTable(filter) {
   if (rows.length === 0) { empty.style.display = 'block'; tbody.innerHTML = ''; return; }
   empty.style.display = 'none';
 
+  // Sort
+  if (_detailSort.field) {
+    const f = _detailSort.field, asc = _detailSort.asc;
+    rows = [...rows].sort((a,b) => {
+      let va, vb;
+      if (f === 'pooling') { va = hasEffectivePooling(a) ? 2 : (a.pooling === true || a.pooling === 'partial') ? 1 : 0; vb = hasEffectivePooling(b) ? 2 : (b.pooling === true || b.pooling === 'partial') ? 1 : 0; }
+      else if (f === 'individual') { va = a.individual_account ? 1 : 0; vb = b.individual_account ? 1 : 0; }
+      else if (f === 'pooling_amt') { va = a.pooling_amount || 0; vb = b.pooling_amount || 0; }
+      else if (f === 'individual_amt') { va = a.individual_amount || 0; vb = b.individual_amount || 0; }
+      else if (f === 'cash_amt') { va = a.cash_amount || 0; vb = b.cash_amount || 0; }
+      else if (f === 'pharmacies') { va = a.pooling_pharmacies || 0; vb = b.pooling_pharmacies || 0; }
+      else if (f === 'trend') { const o = {'收紧':2,'利好':1,'不变':0}; va = o[a.trend] ?? 0; vb = o[b.trend] ?? 0; }
+      else { va = (a[f] || '').toString().localeCompare((b[f] || '').toString(), 'zh'); }
+      const cmp = typeof va === 'number' ? va - vb : 0;
+      return asc ? cmp : -cmp;
+    });
+  }
+
   tbody.innerHTML = rows.map(c => {
-    const poolingTag = hasEffectivePooling(c) ? '<span class="tag tag-green">是</span>' : c.pooling==='partial' ? '<span class="tag tag-yellow">弱</span>' : '<span class="tag tag-gray">否</span>';
+    const poolingTag = hasEffectivePooling(c) ? '<span class="tag tag-green">是</span>' : (c.pooling === true || c.pooling === 'partial') ? '<span class="tag tag-yellow">弱</span>' : '<span class="tag tag-gray">否</span>';
     const iaTag = c.individual_account ? '<span class="tag tag-green">是</span>' : '<span class="tag tag-gray">否</span>';
     const trendTag = c.trend==='收紧' ? '<span class="tag tag-red">收紧</span>' : c.trend==='利好' ? '<span class="tag tag-green">利好</span>' : '<span class="tag tag-blue">不变</span>';
     return `<tr>
@@ -696,6 +720,21 @@ function renderDetailTable(filter) {
 function filterTable() {
   const q = document.getElementById('search-input').value;
   renderDetailTable(q);
+}
+
+let _detailSort = { field:null, asc:true };
+function sortDetailTable(field) {
+  const ths = document.querySelectorAll('#table-detail th.sortable');
+  ths.forEach(th => th.classList.remove('asc','desc'));
+  const target = document.querySelector(`#table-detail th.sortable[onclick*="${field}"]`);
+  if (_detailSort.field === field && _detailSort.asc) {
+    _detailSort = { field, asc:false };
+    target && target.classList.add('desc');
+  } else {
+    _detailSort = { field, asc:true };
+    target && target.classList.add('asc');
+  }
+  renderDetailTable(document.getElementById('search-input').value);
 }
 
 // Resize handler
