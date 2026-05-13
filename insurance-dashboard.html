@@ -207,7 +207,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
       </div>
       <div class="panel">
         <div class="panel-header"><h3>高风险城市预警</h3><span class="tag tag-red">统筹依赖度高 + 政策收紧</span></div>
-        <div style="max-height:380px;overflow-y:auto;">
+        <div>
           <table class="data-table" id="table-risk"><thead><tr><th>城市</th><th>省区</th><th>统筹占比</th><th>限制条件</th></tr></thead><tbody></tbody></table>
         </div>
       </div>
@@ -240,7 +240,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
         <h3>全部城市明细</h3>
         <input type="text" id="search-input" placeholder="🔍 搜索城市、省区..." style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;width:240px;" oninput="filterTable()">
       </div>
-      <div style="max-height:600px;overflow-y:auto;">
+      <div>
         <table class="data-table" id="table-detail">
           <thead><tr>
             <th class="sortable" onclick="sortDetailTable('region')">省区</th><th class="sortable" onclick="sortDetailTable('city')">城市</th><th class="sortable" onclick="sortDetailTable('pooling')">统筹报销</th><th class="sortable" onclick="sortDetailTable('pharmacies')">统筹药店</th><th class="sortable" onclick="sortDetailTable('individual')">个账</th>
