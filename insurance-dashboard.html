@@ -76,6 +76,15 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .full-width { grid-column:1/-1; }
 .section-title { font-size:15px; font-weight:700; color:var(--primary); margin-bottom:14px; padding:8px 0; border-bottom:2px solid var(--primary); }
 
+/* City cards */
+.city-cards { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+.city-card { background:var(--card); border-radius:12px; padding:18px 16px; box-shadow:var(--shadow); }
+.city-card .cname { font-size:16px; font-weight:700; margin-bottom:2px; }
+.city-card .cregion { font-size:11px; color:var(--text2); margin-bottom:10px; }
+.city-card .camt { font-size:12px; color:var(--text2); margin-bottom:4px; }
+.city-card .camt b { color:var(--text); font-size:15px; }
+.city-card .ctags { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+
 @media(max-width:1200px) {
   .stats-row { grid-template-columns:repeat(2,1fr); }
   .grid-2, .grid-3 { grid-template-columns:1fr; }
@@ -108,6 +117,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
   <!-- Tabs -->
   <div class="tabs">
     <button class="tab active" onclick="switchTab('overview')">📊 总览</button>
+    <button class="tab" onclick="switchTab('cities')">🏙️ 中心城市</button>
     <button class="tab" onclick="switchTab('detail')">📋 明细</button>
   </div>
 
@@ -193,6 +203,25 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 
   </div>
 
+  <!-- Tab: Key Cities -->
+  <div id="tab-cities" class="tab-content">
+    <div class="section-title">🏙️ 19个中心城市医保总览</div>
+    <div class="city-cards" id="city-cards"></div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-header"><h3>中心城市统筹/个账金额对比</h3></div>
+        <div class="chart-container" style="height:520px;" id="chart-city-amounts"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>中心城市限制条件明细</h3></div>
+        <div style="max-height:520px;overflow-y:auto;">
+          <table class="data-table" id="table-city-restrict"><thead><tr><th>城市</th><th>区域</th><th>统筹</th><th>个账</th><th>统筹金额</th><th>个账金额</th><th>趋势</th><th>限制条件</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Tab: Detail -->
   <div id="tab-detail" class="tab-content">
     <div class="panel full-width">
@@ -231,6 +260,7 @@ function switchTab(name) {
   document.querySelector(`.tab:nth-child(${name==='overview'?1:2})`).classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
   if (name === 'overview') { renderAll(); }
+  if (name === 'cities') { renderKeyCities(); }
   if (name === 'detail') { renderDetailTable(); }
 }
 
@@ -501,6 +531,87 @@ function renderRiskTable() {
   `).join('');
 }
 
+// Key cities
+const KEY_CITY_NAMES = ['西安','重庆','成都','昆明','广州','深圳','长沙','上海','南京','杭州','合肥','济南','青岛','烟台','北京','天津','石家庄','郑州','沈阳'];
+
+function getKeyCities() {
+  const result = [];
+  for (const kc of KEY_CITY_NAMES) {
+    for (const c of DATA.cities_raw) {
+      if (c.city.includes(kc) || kc.includes(c.city)) {
+        result.push({...c, key:kc});
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+function renderKeyCities() {
+  const cities = getKeyCities();
+  renderCityCards(cities);
+  renderCityComparison(cities);
+  renderCityRestrictions(cities);
+}
+
+function renderCityCards(cities) {
+  const dom = document.getElementById('city-cards');
+  dom.innerHTML = cities.map(c => {
+    const hasPooling = c.pooling === true || c.pooling === 'partial';
+    const poolingTag = hasPooling ? '<span class="tag tag-green">统筹</span>' : '<span class="tag tag-gray">无统筹</span>';
+    const iaTag = c.individual_account ? '<span class="tag tag-green">个账</span>' : '<span class="tag tag-gray">无个账</span>';
+    const trendTag = c.trend==='收紧' ? '<span class="tag tag-red">收紧</span>' : c.trend==='利好' ? '<span class="tag tag-green">利好</span>' : '<span class="tag tag-blue">不变</span>';
+    const amt = (c.pooling_amount||0)+(c.individual_amount||0)+(c.cash_amount||0);
+    return `<div class="city-card">
+      <div class="cname">${c.key}</div>
+      <div class="cregion">${c.region}</div>
+      <div class="camt">统筹 <b>${(c.pooling_amount||0).toLocaleString()}万</b></div>
+      <div class="camt">个账 <b>${(c.individual_amount||0).toLocaleString()}万</b></div>
+      <div class="ctags">${poolingTag} ${iaTag} ${trendTag}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCityComparison(cities) {
+  const dom = document.getElementById('chart-city-amounts');
+  if (!dom || !dom.clientHeight) return;
+  const chart = echarts.init(dom);
+  const sorted = [...cities].sort((a,b)=>((b.pooling_amount||0)+(b.individual_amount||0))-((a.pooling_amount||0)+(a.individual_amount||0)));
+  chart.setOption({
+    tooltip: { trigger:'axis' },
+    legend: { data:['统筹金额','个账金额','现金金额'], top:0 },
+    grid: { left:70, right:20, top:40, bottom:20 },
+    xAxis: { type:'category', data:sorted.map(c=>c.key), axisLabel:{fontSize:11} },
+    yAxis: { type:'value', axisLabel:{formatter:'{value}万'} },
+    series: [
+      { name:'统筹金额', type:'bar', stack:'total', data:sorted.map(c=>c.pooling_amount||0), itemStyle:{color:'#4361ee'} },
+      { name:'个账金额', type:'bar', stack:'total', data:sorted.map(c=>c.individual_amount||0), itemStyle:{color:'#06d6a0'} },
+      { name:'现金金额', type:'bar', stack:'total', data:sorted.map(c=>c.cash_amount||0), itemStyle:{color:'#f72585'} },
+    ]
+  });
+  window._cityCompChart = chart;
+}
+
+function renderCityRestrictions(cities) {
+  const tbody = document.querySelector('#table-city-restrict tbody');
+  tbody.innerHTML = cities.map(c => {
+    const hasPooling = c.pooling === true || c.pooling === 'partial';
+    const poolingTag = hasPooling ? '<span class="tag tag-green">是</span>' : '<span class="tag tag-gray">否</span>';
+    const iaTag = c.individual_account ? '<span class="tag tag-green">是</span>' : '<span class="tag tag-gray">否</span>';
+    const trendTag = c.trend==='收紧' ? '<span class="tag tag-red">收紧</span>' : c.trend==='利好' ? '<span class="tag tag-green">利好</span>' : '<span class="tag tag-blue">不变</span>';
+    return `<tr>
+      <td><b>${c.key}</b></td>
+      <td>${c.region}</td>
+      <td>${poolingTag}</td>
+      <td>${iaTag}</td>
+      <td class="num">${(c.pooling_amount||0).toLocaleString()}万</td>
+      <td class="num">${(c.individual_amount||0).toLocaleString()}万</td>
+      <td>${trendTag}</td>
+      <td style="max-width:300px;font-size:12px;color:var(--text2)">${c.restriction_detail || '-'}</td>
+    </tr>`;
+  }).join('');
+}
+
 // Detail table
 function renderDetailTable(filter) {
   const tbody = document.querySelector('#table-detail tbody');
@@ -533,7 +644,7 @@ function filterTable() {
 
 // Resize handler
 window.addEventListener('resize', () => {
-  ['_regionChart','_prvChart','_trendChart','_pieChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
+  ['_regionChart','_prvChart','_trendChart','_pieChart','_topPoolChart','_topIndivChart','_restrictChart','_cityCompChart'].forEach(k => {
     if (window[k]) window[k].resize();
   });
 });
