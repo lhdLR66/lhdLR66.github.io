@@ -201,26 +201,18 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 
   <!-- Tab: Key Cities -->
   <div id="tab-cities" class="tab-content">
-    <div class="section-title">🏙️ 可统筹城市 <span class="tag tag-green">14城</span></div>
-    <div class="city-tags" id="city-pooling-tags"></div>
-
-    <div class="section-title">🏙️ 仅个账城市 <span class="tag tag-gray">5城</span></div>
-    <div class="city-tags" id="city-individual-tags"></div>
-
-    <div class="grid-2">
-      <div class="panel">
-        <div class="panel-header"><h3>可刷统筹城市 <span class="tag tag-green">14城</span></h3></div>
-        <div class="chart-container" style="height:440px;" id="chart-city-pooling"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-header"><h3>仅个账城市 <span class="tag tag-gray">5城</span></h3></div>
-        <div class="chart-container" style="height:440px;" id="chart-city-individual"></div>
-      </div>
+    <div class="panel" style="margin-bottom:20px;">
+      <div class="panel-header"><h3>中心城市医保分类</h3></div>
+      <div style="font-size:13px; font-weight:600; color:var(--text2); margin-bottom:8px;">可统筹城市 <span class="tag tag-green">14城</span></div>
+      <div class="city-tags" id="city-pooling-tags"></div>
+      <div style="font-size:13px; font-weight:600; color:var(--text2); margin:16px 0 8px;">仅个账城市 <span class="tag tag-gray">5城</span></div>
+      <div class="city-tags" id="city-individual-tags"></div>
     </div>
-    <div class="panel full-width" style="margin-top:20px;">
+
+    <div class="panel full-width">
       <div class="panel-header"><h3>中心城市限制条件明细</h3></div>
-      <div style="max-height:400px;overflow-y:auto;">
-        <table class="data-table" id="table-city-restrict"><thead><tr><th>城市</th><th>区域</th><th>统筹</th><th>个账</th><th>统筹金额</th><th>个账金额</th><th>趋势</th><th>限制条件</th></tr></thead><tbody></tbody></table>
+      <div style="max-height:500px;overflow-y:auto;">
+        <table class="data-table" id="table-city-restrict"><thead><tr><th>城市</th><th>区域</th><th>统筹</th><th>个账</th><th class="num">统筹金额</th><th class="num">统筹占比</th><th class="num">个账金额</th><th class="num">个账占比</th><th class="num">现金金额</th><th class="num">现金占比</th><th>趋势</th><th>限制条件</th></tr></thead><tbody></tbody></table>
       </div>
     </div>
   </div>
@@ -553,8 +545,6 @@ function getKeyCities() {
 function renderKeyCities() {
   const cities = getKeyCities();
   renderCityTags(cities);
-  renderCityPoolingChart(cities);
-  renderCityIndividualChart(cities);
   renderCityRestrictions(cities);
 }
 
@@ -573,47 +563,6 @@ function renderCityTags(cities) {
   }).join('');
 }
 
-function renderCityPoolingChart(cities) {
-  const dom = document.getElementById('chart-city-pooling');
-  if (!dom || !dom.clientHeight) return;
-  const chart = echarts.init(dom);
-  const hasPooling = cities.filter(c => c.pooling === true || c.pooling === 'partial');
-  const sorted = [...hasPooling].sort((a,b)=>((b.pooling_amount||0)+(b.individual_amount||0)+(b.cash_amount||0))-((a.pooling_amount||0)+(a.individual_amount||0)+(a.cash_amount||0)));
-  chart.setOption({
-    tooltip: { trigger:'axis' },
-    legend: { data:['统筹金额','个账金额','现金金额'], top:0 },
-    grid: { left:70, right:20, top:40, bottom:20 },
-    xAxis: { type:'category', data:sorted.map(c=>c.key), axisLabel:{fontSize:11} },
-    yAxis: { type:'value', axisLabel:{formatter:'{value}万'} },
-    series: [
-      { name:'统筹金额', type:'bar', stack:'total', data:sorted.map(c=>c.pooling_amount||0), itemStyle:{color:'#4361ee'} },
-      { name:'个账金额', type:'bar', stack:'total', data:sorted.map(c=>c.individual_amount||0), itemStyle:{color:'#06d6a0'} },
-      { name:'现金金额', type:'bar', stack:'total', data:sorted.map(c=>c.cash_amount||0), itemStyle:{color:'#f72585'} },
-    ]
-  });
-  window._cityPoolChart = chart;
-}
-
-function renderCityIndividualChart(cities) {
-  const dom = document.getElementById('chart-city-individual');
-  if (!dom || !dom.clientHeight) return;
-  const chart = echarts.init(dom);
-  const noPooling = cities.filter(c => !(c.pooling === true || c.pooling === 'partial'));
-  const sorted = [...noPooling].sort((a,b)=>((b.individual_amount||0)+(b.cash_amount||0))-((a.individual_amount||0)+(a.cash_amount||0)));
-  chart.setOption({
-    tooltip: { trigger:'axis' },
-    legend: { data:['个账金额','现金金额'], top:0 },
-    grid: { left:70, right:20, top:40, bottom:20 },
-    xAxis: { type:'category', data:sorted.map(c=>c.key), axisLabel:{fontSize:11} },
-    yAxis: { type:'value', axisLabel:{formatter:'{value}万'} },
-    series: [
-      { name:'个账金额', type:'bar', stack:'total', data:sorted.map(c=>c.individual_amount||0), itemStyle:{color:'#06d6a0'} },
-      { name:'现金金额', type:'bar', stack:'total', data:sorted.map(c=>c.cash_amount||0), itemStyle:{color:'#f72585'} },
-    ]
-  });
-  window._cityIndivChart = chart;
-}
-
 function renderCityRestrictions(cities) {
   const tbody = document.querySelector('#table-city-restrict tbody');
   tbody.innerHTML = cities.map(c => {
@@ -621,15 +570,23 @@ function renderCityRestrictions(cities) {
     const poolingTag = hasPooling ? '<span class="tag tag-green">是</span>' : '<span class="tag tag-gray">否</span>';
     const iaTag = c.individual_account ? '<span class="tag tag-green">是</span>' : '<span class="tag tag-gray">否</span>';
     const trendTag = c.trend==='收紧' ? '<span class="tag tag-red">收紧</span>' : c.trend==='利好' ? '<span class="tag tag-green">利好</span>' : '<span class="tag tag-blue">不变</span>';
+    const total = (c.pooling_amount||0)+(c.individual_amount||0)+(c.cash_amount||0);
+    const pPct = total>0 ? Math.round((c.pooling_amount||0)/total*100) : 0;
+    const iPct = total>0 ? Math.round((c.individual_amount||0)/total*100) : 0;
+    const cPct = total>0 ? Math.round((c.cash_amount||0)/total*100) : 0;
     return `<tr>
       <td><b>${c.key}</b></td>
       <td>${c.region}</td>
       <td>${poolingTag}</td>
       <td>${iaTag}</td>
       <td class="num">${(c.pooling_amount||0).toLocaleString()}万</td>
+      <td class="num">${pPct}%</td>
       <td class="num">${(c.individual_amount||0).toLocaleString()}万</td>
+      <td class="num">${iPct}%</td>
+      <td class="num">${(c.cash_amount||0).toLocaleString()}万</td>
+      <td class="num">${cPct}%</td>
       <td>${trendTag}</td>
-      <td style="max-width:300px;font-size:12px;color:var(--text2)">${c.restriction_detail || '-'}</td>
+      <td style="max-width:280px;font-size:12px;color:var(--text2)">${c.restriction_detail || '-'}</td>
     </tr>`;
   }).join('');
 }
@@ -666,7 +623,7 @@ function filterTable() {
 
 // Resize handler
 window.addEventListener('resize', () => {
-  ['_regionChart','_prvChart','_trendChart','_pieChart','_topPoolChart','_topIndivChart','_restrictChart','_cityPoolChart','_cityIndivChart'].forEach(k => {
+  ['_regionChart','_prvChart','_trendChart','_pieChart','_topPoolChart','_topIndivChart','_restrictChart'].forEach(k => {
     if (window[k]) window[k].resize();
   });
 });
