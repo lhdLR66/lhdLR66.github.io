@@ -210,14 +210,18 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 
     <div class="grid-2">
       <div class="panel">
-        <div class="panel-header"><h3>中心城市统筹/个账金额对比</h3></div>
-        <div class="chart-container" style="height:520px;" id="chart-city-amounts"></div>
+        <div class="panel-header"><h3>可刷统筹城市 <span class="tag tag-green">14城</span></h3></div>
+        <div class="chart-container" style="height:440px;" id="chart-city-pooling"></div>
       </div>
       <div class="panel">
-        <div class="panel-header"><h3>中心城市限制条件明细</h3></div>
-        <div style="max-height:520px;overflow-y:auto;">
-          <table class="data-table" id="table-city-restrict"><thead><tr><th>城市</th><th>区域</th><th>统筹</th><th>个账</th><th>统筹金额</th><th>个账金额</th><th>趋势</th><th>限制条件</th></tr></thead><tbody></tbody></table>
-        </div>
+        <div class="panel-header"><h3>仅个账城市 <span class="tag tag-gray">5城</span></h3></div>
+        <div class="chart-container" style="height:440px;" id="chart-city-individual"></div>
+      </div>
+    </div>
+    <div class="panel full-width" style="margin-top:20px;">
+      <div class="panel-header"><h3>中心城市限制条件明细</h3></div>
+      <div style="max-height:400px;overflow-y:auto;">
+        <table class="data-table" id="table-city-restrict"><thead><tr><th>城市</th><th>区域</th><th>统筹</th><th>个账</th><th>统筹金额</th><th>个账金额</th><th>趋势</th><th>限制条件</th></tr></thead><tbody></tbody></table>
       </div>
     </div>
   </div>
@@ -550,7 +554,8 @@ function getKeyCities() {
 function renderKeyCities() {
   const cities = getKeyCities();
   renderCityCards(cities);
-  renderCityComparison(cities);
+  renderCityPoolingChart(cities);
+  renderCityIndividualChart(cities);
   renderCityRestrictions(cities);
 }
 
@@ -572,11 +577,12 @@ function renderCityCards(cities) {
   }).join('');
 }
 
-function renderCityComparison(cities) {
-  const dom = document.getElementById('chart-city-amounts');
+function renderCityPoolingChart(cities) {
+  const dom = document.getElementById('chart-city-pooling');
   if (!dom || !dom.clientHeight) return;
   const chart = echarts.init(dom);
-  const sorted = [...cities].sort((a,b)=>((b.pooling_amount||0)+(b.individual_amount||0))-((a.pooling_amount||0)+(a.individual_amount||0)));
+  const hasPooling = cities.filter(c => c.pooling === true || c.pooling === 'partial');
+  const sorted = [...hasPooling].sort((a,b)=>((b.pooling_amount||0)+(b.individual_amount||0)+(b.cash_amount||0))-((a.pooling_amount||0)+(a.individual_amount||0)+(a.cash_amount||0)));
   chart.setOption({
     tooltip: { trigger:'axis' },
     legend: { data:['统筹金额','个账金额','现金金额'], top:0 },
@@ -589,7 +595,27 @@ function renderCityComparison(cities) {
       { name:'现金金额', type:'bar', stack:'total', data:sorted.map(c=>c.cash_amount||0), itemStyle:{color:'#f72585'} },
     ]
   });
-  window._cityCompChart = chart;
+  window._cityPoolChart = chart;
+}
+
+function renderCityIndividualChart(cities) {
+  const dom = document.getElementById('chart-city-individual');
+  if (!dom || !dom.clientHeight) return;
+  const chart = echarts.init(dom);
+  const noPooling = cities.filter(c => !(c.pooling === true || c.pooling === 'partial'));
+  const sorted = [...noPooling].sort((a,b)=>((b.individual_amount||0)+(b.cash_amount||0))-((a.individual_amount||0)+(a.cash_amount||0)));
+  chart.setOption({
+    tooltip: { trigger:'axis' },
+    legend: { data:['个账金额','现金金额'], top:0 },
+    grid: { left:70, right:20, top:40, bottom:20 },
+    xAxis: { type:'category', data:sorted.map(c=>c.key), axisLabel:{fontSize:11} },
+    yAxis: { type:'value', axisLabel:{formatter:'{value}万'} },
+    series: [
+      { name:'个账金额', type:'bar', stack:'total', data:sorted.map(c=>c.individual_amount||0), itemStyle:{color:'#06d6a0'} },
+      { name:'现金金额', type:'bar', stack:'total', data:sorted.map(c=>c.cash_amount||0), itemStyle:{color:'#f72585'} },
+    ]
+  });
+  window._cityIndivChart = chart;
 }
 
 function renderCityRestrictions(cities) {
@@ -644,7 +670,7 @@ function filterTable() {
 
 // Resize handler
 window.addEventListener('resize', () => {
-  ['_regionChart','_prvChart','_trendChart','_pieChart','_topPoolChart','_topIndivChart','_restrictChart','_cityCompChart'].forEach(k => {
+  ['_regionChart','_prvChart','_trendChart','_pieChart','_topPoolChart','_topIndivChart','_restrictChart','_cityPoolChart','_cityIndivChart'].forEach(k => {
     if (window[k]) window[k].resize();
   });
 });
