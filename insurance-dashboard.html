@@ -93,9 +93,8 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .pay-bar-pooling { background:#4361ee; border-radius:4px 0 0 4px; }
 .pay-bar-individual { background:#06d6a0; }
 .pay-bar-cash { background:#f72585; border-radius:0 4px 4px 0; }
-.pay-tip { display:none; position:absolute; bottom:28px; left:50%; transform:translateX(-50%); background:rgba(30,41,59,0.95); color:#e2e8f0; padding:10px 14px; border-radius:8px; font-size:13px; white-space:nowrap; z-index:10; pointer-events:none; line-height:1.8; }
-.pay-tip .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
-.pay-bar-wrap:hover .pay-tip { display:block; }
+.floating-tip { display:none; position:fixed; background:rgba(30,41,59,0.95); color:#e2e8f0; padding:10px 14px; border-radius:8px; font-size:13px; white-space:nowrap; z-index:9999; pointer-events:none; line-height:1.8; }
+.floating-tip .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
 
 @media(max-width:1200px) {
   .stats-row { grid-template-columns:repeat(2,1fr); }
@@ -240,7 +239,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
         <h3>全部城市明细</h3>
         <input type="text" id="search-input" placeholder="🔍 搜索城市、省区..." style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;width:240px;" oninput="filterTable()">
       </div>
-      <div>
+      <div style="max-height:600px;overflow-y:auto;">
         <table class="data-table" id="table-detail">
           <thead><tr>
             <th class="sortable" onclick="sortDetailTable('region')">省区</th><th class="sortable" onclick="sortDetailTable('city')">城市</th><th class="sortable" onclick="sortDetailTable('pooling')">统筹报销</th><th class="sortable" onclick="sortDetailTable('pharmacies')">统筹药店</th><th class="sortable" onclick="sortDetailTable('individual')">个账</th>
@@ -255,6 +254,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
   </div>
 </main>
 </div>
+<div class="floating-tip" id="floating-tip"></div>
 
 <script>
 let DATA = null;
@@ -657,11 +657,10 @@ function renderCityRestrictions(cities) {
     const iW = total>0 ? Math.round(iAmt/total*100) : 0;
     const cW = total>0 ? Math.max(1, 100-pW-iW) : 0;
     const tip = `<span class="dot" style="background:#4361ee"></span>统筹 ${pAmt.toLocaleString()}万 (${pW}%)<br/><span class="dot" style="background:#06d6a0"></span>个账 ${iAmt.toLocaleString()}万 (${iW}%)<br/><span class="dot" style="background:#f72585"></span>现金 ${caAmt.toLocaleString()}万 (${cW}%)`;
-    const bar = `<div class="pay-bar-wrap">
+    const bar = `<div class="pay-bar-wrap" data-tip="${tip.replace(/"/g,'&quot;')}">
       ${pW>0?`<div class="pay-bar-pooling" style="width:${pW}%"></div>`:''}
       ${iW>0?`<div class="pay-bar-individual" style="width:${iW}%"></div>`:''}
       ${cW>0?`<div class="pay-bar-cash" style="width:${cW}%"></div>`:''}
-      <div class="pay-tip">${tip}</div>
     </div>`;
     return `<tr>
       <td><b>${c.key}</b></td>
@@ -712,11 +711,10 @@ function renderDetailTable(filter) {
     const iW = total>0 ? Math.round(iAmt/total*100) : 0;
     const cW = total>0 ? Math.max(1, 100-pW-iW) : 0;
     const tip = `<span class="dot" style="background:#4361ee"></span>统筹 ${pAmt.toLocaleString()}万 (${pW}%)<br/><span class="dot" style="background:#06d6a0"></span>个账 ${iAmt.toLocaleString()}万 (${iW}%)<br/><span class="dot" style="background:#f72585"></span>现金 ${caAmt.toLocaleString()}万 (${cW}%)`;
-    const bar = `<div class="pay-bar-wrap">
+    const bar = `<div class="pay-bar-wrap" data-tip="${tip.replace(/"/g,'&quot;')}">
       ${pW>0?`<div class="pay-bar-pooling" style="width:${pW}%"></div>`:''}
       ${iW>0?`<div class="pay-bar-individual" style="width:${iW}%"></div>`:''}
       ${cW>0?`<div class="pay-bar-cash" style="width:${cW}%"></div>`:''}
-      <div class="pay-tip">${tip}</div>
     </div>`;
     return `<tr>
       <td>${c.region}</td><td><b>${c.city}</b></td>
@@ -756,6 +754,26 @@ window.addEventListener('resize', () => {
 
 // Init
 loadData();
+
+// Floating tooltip for pay-bar-wrap (escapes overflow containers)
+const ft = document.getElementById('floating-tip');
+document.addEventListener('mouseover', e => {
+  const bar = e.target.closest('.pay-bar-wrap');
+  if (bar && bar.dataset.tip) {
+    ft.innerHTML = bar.dataset.tip;
+    ft.style.display = 'block';
+  }
+});
+document.addEventListener('mousemove', e => {
+  if (ft.style.display === 'block') {
+    ft.style.left = (e.clientX + 16) + 'px';
+    ft.style.top = (e.clientY - 50) + 'px';
+  }
+});
+document.addEventListener('mouseout', e => {
+  const bar = e.target.closest('.pay-bar-wrap');
+  if (bar) { ft.style.display = 'none'; }
+});
 </script>
 </body>
 </html>
