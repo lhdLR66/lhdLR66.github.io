@@ -480,8 +480,30 @@ function renderProvinceTrend() {
   const chart = echarts.init(document.getElementById('chart-province-trend'));
   const provinces = (window._effStats||getEffStats()).provinces;
   const sorted = [...provinces].sort((a,b) => b.cities - a.cities);
+  const trendCities = {};
+  DATA.cities_raw.forEach(c => {
+    const r = c.region;
+    if (!trendCities[r]) trendCities[r] = { tighten:[], neutral:[], favorable:[] };
+    if (!hasEffectivePooling(c)) return;
+    if (c.trend==='收紧') trendCities[r].tighten.push(c.city);
+    else if (c.trend==='利好') trendCities[r].favorable.push(c.city);
+    else trendCities[r].neutral.push(c.city);
+  });
   chart.setOption({
-    tooltip: { trigger:'axis' },
+    tooltip: { trigger:'axis', formatter: function(ps) {
+      const prov = ps[0].name;
+      const tc = trendCities[prov] || { tighten:[], neutral:[], favorable:[] };
+      let html = `<b>${prov}</b>`;
+      ps.forEach(s => {
+        if (s.value > 0) {
+          const key = s.seriesName === '收紧' ? 'tighten' : s.seriesName === '利好' ? 'favorable' : 'neutral';
+          const list = tc[key];
+          html += `<br/><span style="color:${s.color}">● ${s.seriesName} ${s.value}城</span>`;
+          if (list.length) html += `<br/><span style="font-size:11px;color:#94a3b8">${list.join('、')}</span>`;
+        }
+      });
+      return html;
+    } },
     legend: { data:['收紧','不变','利好'], top:0 },
     grid: { left:60, right:20, top:40, bottom:60 },
     xAxis: { type:'category', data:sorted.map(p=>p.province), axisLabel:{rotate:45,fontSize:11} },
@@ -609,7 +631,7 @@ function renderRiskTable() {
       <td><b>${c.city}</b></td>
       <td>${c.province}</td>
       <td class="num"><span class="tag tag-red">${c.pooling_pct}%</span></td>
-      <td style="max-width:260px;font-size:12px;color:var(--text2)">${c.restriction || '-'}</td>
+      <td style="font-size:12px;color:var(--text2);word-break:break-word">${c.restriction || '-'}</td>
     </tr>
   `).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text2);padding:20px;">暂无数据</td></tr>';
 }
