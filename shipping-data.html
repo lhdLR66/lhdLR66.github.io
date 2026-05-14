@@ -112,10 +112,23 @@
         .kpi-card {
             background: var(--card);
             border-radius: var(--radius);
-            border-top: 4px solid var(--primary);
+            border-top: none;
             border-left: none;
             padding: 20px;
+            padding-top: 28px;
             box-shadow: var(--shadow);
+            position: relative;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 12px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
         }
         .kpi-card .kpi-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
         .kpi-card .kpi-value { font-size: 28px; font-weight: 700; }
