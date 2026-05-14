@@ -14,28 +14,26 @@
     <script src="region_detailed_data_corrected.js"></script>
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --accent-color: #f72585;
-            --success-color: #4cc9f0;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-card: #ffffff;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --border-color: #e9ecef;
-            --shadow-color: rgba(0, 0, 0, 0.08);
+            --primary: #4361ee;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --over: #f72585;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #212529;
+            --text2: #6c757d;
+            --border: #e9ecef;
+            --shadow: 0 2px 12px rgba(0,0,0,0.06);
+            --radius: 10px;
             --sidebar: #1e293b;
-            --sidebar-text: #e2e8f0;
-            --border-radius: 12px;
-            --transition: all 0.3s ease;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Poppins', sans-serif; 
-            background: var(--bg-secondary); 
-            color: var(--text-primary); 
+            background: var(--bg); 
+            color: var(--text); 
             line-height: 1.6;
             min-height: 100vh;
             display: flex;
@@ -53,41 +51,28 @@
         .container {
             flex: 1;
             margin-left: 200px;
-            padding: 28px;
-            max-width: none;
+            padding: 24px;
+            max-width: 1400px;
         }
         
         .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px;
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 20px var(--shadow-color);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
         }
-        
-        .header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #4361ee, #3a0ca3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .header p {
-            font-size: 16px;
-            color: var(--text-secondary);
+        .header h1 { font-size: 24px; color: var(--text); }
+        .header .meta { font-size: 13px; color: var(--text2); }
+        .header .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: rgba(67,97,238,0.1); color: var(--primary); }
+            color: var(--text2);
             max-width: 800px;
             margin: 0 auto;
         }
         
         .info-box {
-            background: var(--bg-secondary);
+            background: var(--bg);
             padding: 20px;
-            border-radius: var(--border-radius);
+            border-radius: var(--radius);
             margin-bottom: 30px;
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--primary);
         }
         
         .info-box ul {
@@ -103,25 +88,25 @@
             align-items: center;
             gap: 10px;
             font-size: 14px;
-            color: var(--text-secondary);
+            color: var(--text2);
         }
         
         .info-box li i {
-            color: var(--primary-color);
+            color: var(--primary);
             font-size: 16px;
         }
         
         .chart-card {
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 20px var(--shadow-color);
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px var(--shadow);
             overflow: hidden;
             margin-bottom: 30px;
         }
         
         .chart-header {
             padding: 25px 30px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border);
         }
         
         .chart-title {
@@ -134,7 +119,7 @@
         }
         
         .chart-title i {
-            color: var(--primary-color);
+            color: var(--primary);
         }
         
         .product-filter {
@@ -143,7 +128,7 @@
             gap: 15px;
             margin-top: 20px;
             padding: 15px;
-            background: var(--bg-secondary);
+            background: var(--bg);
             border-radius: 8px;
         }
         
@@ -156,14 +141,14 @@
             padding: 6px 12px;
             background: white;
             border-radius: 20px;
-            border: 1px solid var(--border-color);
-            transition: var(--transition);
+            border: 1px solid var(--border);
+            transition: all .2s;
         }
         
         .product-filter label:hover {
-            border-color: var(--primary-color);
+            border-color: var(--primary);
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px var(--shadow-color);
+            box-shadow: 0 4px 10px var(--shadow);
         }
         
         .product-filter input[type="checkbox"] {
@@ -196,8 +181,8 @@
         .data-table-container {
             overflow-x: auto;
             margin-top: 30px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
         }
         
         .data-table {
@@ -207,23 +192,23 @@
         }
         
         .data-table th {
-            background: var(--bg-secondary);
+            background: var(--bg);
             padding: 15px;
             text-align: left;
             font-weight: 600;
             font-size: 14px;
-            border-bottom: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border);
             white-space: nowrap;
         }
         
         .data-table td {
             padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border);
             font-size: 14px;
         }
         
         .data-table tr:hover {
-            background: var(--bg-secondary);
+            background: var(--bg);
         }
         
         .data-table td:first-child {
@@ -240,12 +225,12 @@
             margin-top: 40px;
             padding: 20px;
             font-size: 14px;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-color);
+            color: var(--text2);
+            border-top: 1px solid var(--border);
         }
         
         .footer-note i {
-            color: var(--primary-color);
+            color: var(--primary);
             margin-right: 8px;
         }
         
@@ -253,25 +238,25 @@
         .negative { color: #ef4444; font-weight: 500; }
 
         /* Filter button styles */
-        .filter-section{background:var(--bg-secondary);border-radius:10px;padding:18px;margin-bottom:24px}
+        .filter-section{background:var(--bg);border-radius:10px;padding:18px;margin-bottom:24px}
         .filter-row{margin-bottom:14px}
         .filter-row:last-child{margin-bottom:0}
-        .filter-label{font-size:13px;color:var(--text-secondary);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .filter-label{font-size:13px;color:var(--text2);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
         .filter-label i{font-size:14px}
         .filter-buttons{display:flex;flex-wrap:wrap;gap:6px}
         .filter-btn{padding:6px 16px;border-radius:18px;border:1.5px solid #dee2e6;cursor:pointer;font-size:13px;font-weight:500;background:#fff;color:#495057;transition:all .15s ease;white-space:nowrap}
-        .filter-btn:hover:not(.disabled){border-color:var(--primary-color);color:var(--primary-color);transform:translateY(-1px)}
-        .filter-btn.selected{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+        .filter-btn:hover:not(.disabled){border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+        .filter-btn.selected{background:var(--primary);color:#fff;border-color:var(--primary)}
         .filter-btn.selected:hover{background:#3651d4;border-color:#3651d4}
         .filter-btn.disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
         .filter-btn.all-btn{font-weight:600;border:1.5px solid #adb5bd}
-        .filter-btn.all-btn.selected{border-color:var(--primary-color)}
-        .filter-status{font-size:13px;color:var(--text-secondary);margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color)}
-        .filter-status strong{color:var(--primary-color)}
+        .filter-btn.all-btn.selected{border-color:var(--primary)}
+        .filter-status{font-size:13px;color:var(--text2);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+        .filter-status strong{color:var(--primary)}
         .selection-hint{font-size:11px;color:var(--text-muted, #adb5bd);font-weight:400;margin-left:auto}
         .export-menu{position:absolute;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);padding:4px 0;z-index:1000;min-width:120px;display:none}
         .export-menu a{display:block;padding:8px 16px;text-decoration:none;color:#333;font-size:13px;cursor:pointer}
-        .export-menu a:hover{background:#f0f4ff;color:var(--primary-color)}
+        .export-menu a:hover{background:#f0f4ff;color:var(--primary)}
         .export-menu a i{margin-right:6px;width:14px;text-align:center}
     </style>
 </head>
@@ -286,16 +271,16 @@
   <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> 返回工作看板</a>
 </aside>
     <div class="container">
-        <div class="header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div class="header" style="display:flex;justify-content:space-between;align-items:center;">
             <div>
-                <h1><i class="fas fa-chart-bar"></i> 复方阿胶浆 · 中康数据</h1>
-                <p style="font-size:14px;color:var(--text-secondary);">补气补血品类 · TOP10产品 · 22Q1-25Q4季度序列 · 全国零售渠道</p>
+                <h1 style="margin:0;"><i class="fas fa-chart-bar"></i> 复方阿胶浆 · 中康数据</h1>
+                <div class="meta">补气补血品类 · TOP10产品 · 22Q1-25Q4季度序列 · 全国零售渠道</div>
             </div>
-            <span style="background:var(--primary-color);color:#fff;padding:6px 16px;border-radius:20px;font-size:13px;white-space:nowrap;">2026年3月更新</span>
+            <span class="badge">2026年3月更新</span>
         </div>
         
         <div class="info-box">
-            <div style="font-weight: 500; color: var(--text-primary); margin-bottom: 10px;">
+            <div style="font-weight: 500; color: var(--text); margin-bottom: 10px;">
                 <i class="fas fa-info-circle"></i> 数据说明
             </div>
             <ul>
@@ -317,15 +302,15 @@
             <div class="chart-content">
                 <div class="filter-section" id="filterArea">
                     <div class="filter-row" id="provinceRow">
-                        <div class="filter-label"><i class="fas fa-map" style="color:var(--primary-color)"></i> 省份 <span class="selection-hint">单选，与城市互斥</span></div>
+                        <div class="filter-label"><i class="fas fa-map" style="color:var(--primary)"></i> 省份 <span class="selection-hint">单选，与城市互斥</span></div>
                         <div class="filter-buttons" id="provinceButtons"></div>
                     </div>
                     <div class="filter-row" id="cityRow">
-                        <div class="filter-label"><i class="fas fa-city" style="color:var(--primary-color)"></i> 城市 <span class="selection-hint">单选，与省份互斥</span></div>
+                        <div class="filter-label"><i class="fas fa-city" style="color:var(--primary)"></i> 城市 <span class="selection-hint">单选，与省份互斥</span></div>
                         <div class="filter-buttons" id="cityButtons"></div>
                     </div>
                     <div class="filter-row" id="productRow">
-                        <div class="filter-label"><i class="fas fa-pills" style="color:var(--primary-color)"></i> 产品 <span class="selection-hint">多选，独立过滤</span></div>
+                        <div class="filter-label"><i class="fas fa-pills" style="color:var(--primary)"></i> 产品 <span class="selection-hint">多选，独立过滤</span></div>
                         <div class="filter-buttons" id="productButtons"></div>
                     </div>
                     <div class="filter-status"><i class="fas fa-info-circle" style="margin-right:4px"></i> 当前筛选：<strong id="currentFilterStatus">全国 | 全部产品</strong></div>
@@ -333,10 +318,10 @@
                 
                 <div class="charts-grid">
                     <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
                             <span><i class="fas fa-coins"></i> 季度销售额（百万元）</span>
                             <span style="font-size: 12px;">
-                                <a href="#" onclick="showExportMenu(event, 'sales'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
+                                <a href="#" onclick="showExportMenu(event, 'sales'); return false;" style="color: var(--primary); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
                             </span>
                         </div>
                         <div class="chart-container">
@@ -345,10 +330,10 @@
                     </div>
                     
                     <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
                             <span><i class="fas fa-chart-line"></i> 销售额同比变化（%）</span>
                             <span style="font-size: 12px;">
-                                <a href="#" onclick="showExportMenu(event, 'yoy'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
+                                <a href="#" onclick="showExportMenu(event, 'yoy'); return false;" style="color: var(--primary); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
                             </span>
                         </div>
                         <div class="chart-container">
@@ -359,19 +344,19 @@
                 
                 <!-- 新增：市场份额堆叠条形图（使用真实销售额份额数据） -->
                 <div style="margin-top: 40px; margin-bottom: 40px;">
-                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
-                        <span><i class="fas fa-chart-pie" style="color: var(--primary-color);"></i> TOP10产品销售额份额季度变化（堆叠条形图）</span>
+                    <div style="font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fas fa-chart-pie" style="color: var(--primary);"></i> TOP10产品销售额份额季度变化（堆叠条形图）</span>
                         <span style="font-size: 12px;">
-                            <a href="#" onclick="showExportMenu(event, 'share'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
+                            <a href="#" onclick="showExportMenu(event, 'share'); return false;" style="color: var(--primary); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
                         </span>
                     </div>
                     
 
                     
-                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">
+                    <div style="font-size: 14px; color: var(--text2); margin-bottom: 20px;">
                         <strong>数据来源：</strong>中康数据 - 区域竞争格局子表<br>
                         <strong>数据说明：</strong>展示22Q1-25Q4期间TOP10产品<strong>销售额份额（MS%）</strong>随季度的变化，每个季度的条形图显示各产品在该季度的销售额份额占比<br>
-                        <strong>当前筛选：</strong><span id="currentRegion" style="font-weight: 500; color: var(--primary-color);">全国 | 全部产品</span>
+                        <strong>当前筛选：</strong><span id="currentRegion" style="font-weight: 500; color: var(--primary);">全国 | 全部产品</span>
                     </div>
                     <div class="chart-container" style="height: 450px;">
                         <canvas id="marketShareChart"></canvas>
@@ -379,7 +364,7 @@
                 </div>
                 
                 <div>
-                    <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
+                    <div style="font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 15px;">
                         <i class="fas fa-table"></i> 数据明细表
                     </div>
                     <div class="data-table-container">
