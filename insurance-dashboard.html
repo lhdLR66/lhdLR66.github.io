@@ -447,8 +447,20 @@ function renderProvinceRate() {
   const chart = echarts.init(document.getElementById('chart-province-rate'));
   const provinces = (window._effStats||getEffStats()).provinces;
   const sorted = [...provinces].sort((a,b) => b.pooling_rate - a.pooling_rate);
+  const poolCities = {};
+  DATA.cities_raw.forEach(c => {
+    if (hasEffectivePooling(c)) {
+      if (!poolCities[c.region]) poolCities[c.region] = [];
+      poolCities[c.region].push(c.city);
+    }
+  });
   chart.setOption({
-    tooltip: { trigger: 'axis' },
+    tooltip: { trigger:'axis', formatter: function(ps) {
+      const p = ps[0];
+      const cities = poolCities[p.name] || [];
+      const list = cities.length > 15 ? cities.slice(0,15).join('、') + `…等${cities.length}城` : cities.join('、');
+      return `<b>${p.name}</b><br/>有效统筹率: <b style="color:#4361ee">${p.value}%</b><br/>可统筹城市(${cities.length}): ${list || '无'}`;
+    } },
     grid: { left:60, right:40, top:10, bottom:20 },
     xAxis: { type:'value', max:100, axisLabel:{formatter:'{value}%'} },
     yAxis: { type:'category', data:sorted.map(p=>p.province).reverse(), axisLabel:{fontSize:12} },
