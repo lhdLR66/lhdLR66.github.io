@@ -65,15 +65,13 @@
             padding-top: 10px;
         }
         .sidebar .nav-section { padding:12px 20px 6px; font-size:13px; font-weight:600; letter-spacing:1px; opacity:0.7; border-bottom:1px solid rgba(255,255,255,0.15); margin:0 16px 8px; }
-        .main-wrapper { margin-left: 200px; padding: 24px; overflow-x: auto; }
+        .main { flex:1; margin-left:200px; padding:28px; }
         @media (max-width: 900px) {
             .sidebar { width: 100%; flex-direction: row; padding: 10px; height: auto; overflow-x: auto; position: relative; }
             .sidebar .logo { padding: 0 10px; margin: 0; border: none; border-right: 1px solid rgba(255,255,255,0.2); font-size: 14px; }
             .sidebar a { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
-            .main-wrapper { padding: 12px; margin-left: 0; }
+            .main { padding: 12px; margin-left: 0; }
         }
-
-        .container { max-width: 1400px; margin: 0 auto; }
 
         /* Header */
         .header {
@@ -214,8 +212,7 @@
     <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> 返回工作看板</a>
 </div>
 
-<div class="main-wrapper">
-<div class="container">
+<div class="main">
 
 <div class="header" style="display:flex;justify-content:space-between;align-items:flex-start;">
     <div>
@@ -365,7 +362,6 @@
     </div>
 </div>
 
-</div>
 </div>
 
 <script>
