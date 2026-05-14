@@ -127,8 +127,7 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--primary);
-        }
+            background: var(--dot-color, var(--primary));
         }
         .kpi-card .kpi-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
         .kpi-card .kpi-value { font-size: 28px; font-weight: 700; }
@@ -228,7 +227,7 @@
 <div class="section">
     <div class="section-title"><i class="fas fa-boxes"></i> 产品汇总</div>
     <div class="kpi-row">
-        <div class="kpi-card" style="border-left-color: var(--primary);">
+        <div class="kpi-card" style="--dot-color: var(--primary);">
             <div class="kpi-label">OTC复方阿胶浆</div>
             <div class="kpi-value">51,675.06<span style="font-size:14px;color:#6c757d"> 万</span></div>
             <div class="kpi-sub">全年预算 276,660.00 万</div>
@@ -237,7 +236,7 @@
                 <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:18.7%"></div></div>
             </div>
         </div>
-        <div class="kpi-card" style="border-left-color: var(--over);">
+        <div class="kpi-card" style="--dot-color: var(--over);">
             <div class="kpi-label">R复方阿胶浆</div>
             <div class="kpi-value">9,901.25<span style="font-size:14px;color:#6c757d"> 万</span></div>
             <div class="kpi-sub">全年预算 27,930.00 万</div>
@@ -246,7 +245,7 @@
                 <div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:35.5%"></div></div>
             </div>
         </div>
-        <div class="kpi-card" style="border-left-color: var(--success);">
+        <div class="kpi-card" style="--dot-color: var(--success);">
             <div class="kpi-label">合计</div>
             <div class="kpi-value">61,576.31<span style="font-size:14px;color:#6c757d"> 万</span></div>
             <div class="kpi-sub">全年预算 304,590.00 万</div>
