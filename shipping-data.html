@@ -540,20 +540,6 @@ refresh('4月');
   </div>
 </div>
 
-<!-- 年度进度 & 指标总览 -->
-<div class="section" style="margin-bottom:0;">
-  <div class="two-col">
-    <div class="table-card" style="padding:20px;">
-      <div style="font-weight:600;margin-bottom:12px;">年度进度</div>
-      <div style="height:300px;"><canvas id="otcProgressChart"></canvas></div>
-    </div>
-    <div class="table-card" style="padding:20px;">
-      <div style="font-weight:600;margin-bottom:12px;">指标总览</div>
-      <div style="height:360px;"><canvas id="otcOverviewChart"></canvas></div>
-    </div>
-  </div>
-</div>
-
 </div><!-- end tab-otc -->
 
 </div><!-- close .main -->
@@ -596,12 +582,6 @@ function initOtcCharts() {
       }
     }
   });
-
-  /* 年度进度 横向柱状图 */
-  new Chart(document.getElementById('otcProgressChart'),{type:'bar',data:{labels:['发货\n(目标24.2亿)','终端配送\n(目标22.0亿)','KA50纯销\n(目标9.8亿)'],datasets:[{label:'年度进度',data:[17,12,24],backgroundColor:[blue,pink,green],borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '年度进度: '+c.raw+'%';}}}},scales:{x:{min:0,max:100,grid:{color:'#f1f5f9'},ticks:{callback:function(v){return v+'%';}}},y:{grid:{display:false}}}}});
-
-  /* 指标总览 */
-  new Chart(document.getElementById('otcOverviewChart'),{type:'bar',data:{labels:['年度进度(%)','完成率(%)','同比变化(%)'],datasets:[{label:'发货',data:[17,58,-43],backgroundColor:blue,borderRadius:4},{label:'终端配送',data:[12,43,-40],backgroundColor:pink,borderRadius:4},{label:'KA50纯销',data:[24,81,5],backgroundColor:green,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:20}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.raw+'%';}}}},scales:{y:{grid:{color:'#f1f5f9'},ticks:{callback:function(v){return v+'%';}}},x:{grid:{display:false}}}}});
 }
 </script>
 
