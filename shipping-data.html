@@ -74,37 +74,7 @@
         .tab-content { display:none; }
         .tab-content.active { display:block; }
 
-        /* OTC KPI cards */
-        .otc-container { max-width: 1200px; margin: 0 auto; }
-        .otc-kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
-        .otc-kpi-card { background:var(--card); border-radius:var(--radius); padding:20px 24px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
-        .otc-kpi-card .card-icon { position:absolute; right:16px; top:16px; font-size:28px; opacity:0.12; }
-        .otc-kpi-card .card-label { font-size:13px; color:var(--text2); margin-bottom:8px; font-weight:500; }
-        .otc-kpi-card .card-value { font-size:28px; font-weight:700; margin-bottom:4px; }
-        .otc-kpi-card .card-metrics { display:flex; gap:12px; font-size:12px; color:var(--text2); margin-top:8px; flex-wrap:wrap; }
-        .otc-kpi-card .card-metrics span { display:inline-flex; align-items:center; gap:3px; }
-        .otc-kpi-card .card-metrics .up { color:var(--success); }
-        .otc-kpi-card .card-metrics .down { color:var(--danger); }
-        .otc-kpi-card.shipping .card-value { color:#4361ee; }
-        .otc-kpi-card.delivery .card-value { color:#f72585; }
-        .otc-kpi-card.inventory .card-value { color:#7209b7; }
-        .otc-kpi-card.ka50 .card-value { color:#06d6a0; }
-        .otc-completion-bar { margin-top:10px; background:#f1f5f9; border-radius:6px; height:8px; overflow:hidden; }
-        .otc-completion-fill { height:100%; border-radius:6px; transition:width 0.8s ease; }
-
-        .otc-info-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
-        .otc-info-card { background:var(--card); border-radius:var(--radius); padding:20px 24px; box-shadow:var(--shadow); text-align:center; }
-        .otc-info-card .info-value { font-size:32px; font-weight:700; margin-bottom:4px; }
-        .otc-info-card .info-label { font-size:13px; color:var(--text2); }
-
-        .otc-chart-wrap { width:100%; height:300px; position:relative; }
-        .otc-chart-wrap-lg { height:360px; }
-        .otc-chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-        @media (max-width:900px) {
-            .otc-kpi-row { grid-template-columns:1fr 1fr; }
-            .otc-info-row { grid-template-columns:1fr; }
-            .otc-chart-grid { grid-template-columns:1fr; }
-        }
+        /* OTC tab uses existing section/kpi-card/table-card classes */
 
         @media (max-width: 900px) {
             .sidebar { width: 100%; flex-direction: row; padding: 10px; height: auto; overflow-x: auto; position: relative; }
@@ -519,103 +489,101 @@ refresh('4月');
 
 <!-- Tab: OTC月度 -->
 <div id="tab-otc" class="tab-content">
-<div class="otc-container">
 
-<div class="otc-kpi-row">
-  <div class="otc-kpi-card shipping">
-    <i class="fas fa-box card-icon"></i>
-    <div class="card-label">📦 发货</div>
-    <div class="card-value">42,412<span style="font-size:14px;">万</span></div>
-    <div class="otc-completion-bar"><div class="otc-completion-fill" style="width:58%;background:#4361ee;"></div></div>
-    <div class="card-metrics">
-      <span>完成率 58%</span>
-      <span class="down">同比 ↓43%</span>
-      <span style="color:var(--text2);">年度进度 17%</span>
-    </div>
-  </div>
-  <div class="otc-kpi-card delivery">
-    <i class="fas fa-truck-fast card-icon"></i>
-    <div class="card-label">🚚 终端配送</div>
-    <div class="card-value">26,152<span style="font-size:14px;">万</span></div>
-    <div class="otc-completion-bar"><div class="otc-completion-fill" style="width:43%;background:#f72585;"></div></div>
-    <div class="card-metrics">
-      <span>完成率 43%</span>
-      <span class="down">同比 ↓40%</span>
-      <span style="color:var(--text2);">年度进度 12%</span>
-    </div>
-  </div>
-  <div class="otc-kpi-card inventory">
-    <i class="fas fa-warehouse card-icon"></i>
-    <div class="card-label">🏭 渠道库存</div>
-    <div class="card-value">83,558<span style="font-size:14px;">万</span></div>
-    <div class="otc-completion-bar"><div class="otc-completion-fill" style="width:100%;background:#7209b7;"></div></div>
-    <div class="card-metrics">
-      <span class="up">同比 ↑37%</span>
-      <span style="color:var(--text2);">周转 179天</span>
-    </div>
-  </div>
-  <div class="otc-kpi-card ka50">
-    <i class="fas fa-store card-icon"></i>
-    <div class="card-label">🏪 KA50纯销</div>
-    <div class="card-value">24,109<span style="font-size:14px;">万</span></div>
-    <div class="otc-completion-bar"><div class="otc-completion-fill" style="width:81%;background:#06d6a0;"></div></div>
-    <div class="card-metrics">
-      <span>完成率 81%</span>
-      <span class="up">同比 ↑5%</span>
-      <span style="color:var(--text2);">年度进度 24%</span>
-    </div>
-  </div>
-</div>
-
-<div class="section" style="margin-bottom:0;">
-  <div class="section-title">📅 4月单月数据</div>
-</div>
-<div class="otc-info-row">
-  <div class="otc-info-card">
-    <div class="info-value" style="color:#4361ee;">1,569<span style="font-size:14px;">万</span></div>
-    <div class="info-label">发货</div>
-    <div style="font-size:12px;color:var(--text2);margin-top:4px;"><span style="color:var(--success);">↑38%</span>（vs 去年4月 1,136万）</div>
-  </div>
-  <div class="otc-info-card">
-    <div class="info-value" style="color:#f72585;">3,906<span style="font-size:14px;">万</span></div>
-    <div class="info-label">终端配送</div>
-    <div style="font-size:12px;color:var(--text2);margin-top:4px;"><span style="color:var(--danger);">↓5%</span>（vs 去年4月 4,122万）</div>
-  </div>
-  <div class="otc-info-card">
-    <div class="info-value" style="color:#06d6a0;">4,235<span style="font-size:14px;">万</span></div>
-    <div class="info-label">KA50纯销</div>
-    <div style="font-size:12px;color:var(--text2);margin-top:4px;"><span style="color:var(--danger);">↓15%</span>（vs 去年4月 4,969万）</div>
-  </div>
-</div>
-
+<!-- 核心指标 KPI -->
 <div class="section">
-  <div class="section-title" style="margin-bottom:16px;">📊 完成率 & 同比对比</div>
-  <div class="otc-chart-grid">
+  <div class="section-title"><i class="fas fa-clipboard-check"></i> 复方阿胶浆 · 核心指标（1-4月累计）</div>
+  <div class="kpi-row">
+    <div class="kpi-card" style="--dot-color:#4361ee;">
+      <div class="kpi-label">📦 发货</div>
+      <div class="kpi-value">42,412<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub">年度指标 242,405 万 | 同比 <span style="color:var(--danger);">↓43%</span></div>
+      <div class="kpi-progress">
+        <div class="kpi-progress-label"><span>完成率 58%</span><span class="kpi-annual-rate">年度进度 17%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-primary" style="width:58%"></div></div>
+      </div>
+    </div>
+    <div class="kpi-card" style="--dot-color:#f72585;">
+      <div class="kpi-label">🚚 终端配送</div>
+      <div class="kpi-value">26,152<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub">年度指标 220,448 万 | 同比 <span style="color:var(--danger);">↓40%</span></div>
+      <div class="kpi-progress">
+        <div class="kpi-progress-label"><span>完成率 43%</span><span class="kpi-annual-rate">年度进度 12%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:43%"></div></div>
+      </div>
+    </div>
+    <div class="kpi-card" style="--dot-color:#7209b7;">
+      <div class="kpi-label">🏭 渠道库存</div>
+      <div class="kpi-value">83,558<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub">同比 <span style="color:var(--success);">↑37%</span> | 周转 <b>179天</b></div>
+      <div class="kpi-progress">
+        <div class="kpi-progress-label"><span>库存水位</span><span class="kpi-annual-rate">周转 179天</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:72%"></div></div>
+      </div>
+    </div>
+    <div class="kpi-card" style="--dot-color:#06d6a0;">
+      <div class="kpi-label">🏪 KA50纯销</div>
+      <div class="kpi-value">24,109<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub">年度指标 98,450 万 | 同比 <span style="color:var(--success);">↑5%</span></div>
+      <div class="kpi-progress">
+        <div class="kpi-progress-label"><span>完成率 81%</span><span class="kpi-annual-rate" style="color:var(--success);">年度进度 24%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-success" style="width:81%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4月单月 -->
+<div class="section">
+  <div class="section-title"><i class="fas fa-calendar-alt"></i> 4月单月数据</div>
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);">
+    <div class="kpi-card" style="--dot-color:#4361ee;">
+      <div class="kpi-label">发货</div>
+      <div class="kpi-value">1,569<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub"><span style="color:var(--success);">↑38%</span> vs 去年4月 1,136万</div>
+    </div>
+    <div class="kpi-card" style="--dot-color:#f72585;">
+      <div class="kpi-label">终端配送</div>
+      <div class="kpi-value">3,906<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub"><span style="color:var(--danger);">↓5%</span> vs 去年4月 4,122万</div>
+    </div>
+    <div class="kpi-card" style="--dot-color:#06d6a0;">
+      <div class="kpi-label">KA50纯销</div>
+      <div class="kpi-value">4,235<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub"><span style="color:var(--danger);">↓15%</span> vs 去年4月 4,969万</div>
+    </div>
+  </div>
+</div>
+
+<!-- 完成率 & 同比对比 -->
+<div class="section">
+  <div class="section-title"><i class="fas fa-chart-bar"></i> 完成率 & 同比对比</div>
+  <div class="two-col">
     <div class="table-card" style="padding:20px;">
       <div style="font-weight:600;margin-bottom:12px;">完成率对比（1-4月累计 vs 年度指标）</div>
-      <div class="otc-chart-wrap"><canvas id="otcCompletionChart"></canvas></div>
+      <div style="height:300px;"><canvas id="otcCompletionChart"></canvas></div>
     </div>
     <div class="table-card" style="padding:20px;">
       <div style="font-weight:600;margin-bottom:12px;">同比变化（2026 vs 2025同期）</div>
-      <div class="otc-chart-wrap"><canvas id="otcYoyChart"></canvas></div>
+      <div style="height:300px;"><canvas id="otcYoyChart"></canvas></div>
     </div>
   </div>
 </div>
 
+<!-- 年度进度 & 指标总览 -->
 <div class="section" style="margin-bottom:0;">
-  <div class="otc-chart-grid">
+  <div class="two-col">
     <div class="table-card" style="padding:20px;">
       <div style="font-weight:600;margin-bottom:12px;">年度进度</div>
-      <div class="otc-chart-wrap"><canvas id="otcProgressChart"></canvas></div>
+      <div style="height:300px;"><canvas id="otcProgressChart"></canvas></div>
     </div>
     <div class="table-card" style="padding:20px;">
       <div style="font-weight:600;margin-bottom:12px;">指标总览</div>
-      <div class="otc-chart-wrap-lg"><canvas id="otcOverviewChart"></canvas></div>
+      <div style="height:360px;"><canvas id="otcOverviewChart"></canvas></div>
     </div>
   </div>
 </div>
 
-</div><!-- end otc-container -->
 </div><!-- end tab-otc -->
 
 <script>
