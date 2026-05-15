@@ -75,7 +75,8 @@
         .tab-content.active { display:block; }
 
         /* OTC KPI cards */
-        .otc-kpi-row { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:24px; }
+        #tab-otc.active { max-width: 1200px; margin: 0 auto; }
+        .otc-kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
         .otc-kpi-card { background:var(--card); border-radius:var(--radius); padding:20px 24px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
         .otc-kpi-card .card-icon { position:absolute; right:16px; top:16px; font-size:28px; opacity:0.12; }
         .otc-kpi-card .card-label { font-size:13px; color:var(--text2); margin-bottom:8px; font-weight:500; }
@@ -100,6 +101,7 @@
         .otc-chart-wrap-lg { height:360px; }
         .otc-chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
         @media (max-width:900px) {
+            .otc-kpi-row { grid-template-columns:1fr 1fr; }
             .otc-info-row { grid-template-columns:1fr; }
             .otc-chart-grid { grid-template-columns:1fr; }
         }
