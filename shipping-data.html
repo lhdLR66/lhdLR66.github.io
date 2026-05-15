@@ -498,8 +498,8 @@ refresh('4月');
       <div class="kpi-value">42,412<span style="font-size:14px;color:#6c757d"> 万</span></div>
       <div class="kpi-sub">年度指标 242,405 万 | 同比 <span style="color:var(--danger);">↓43%</span></div>
       <div class="kpi-progress">
-        <div class="kpi-progress-label"><span>完成率 58%</span><span class="kpi-annual-rate">年度进度 17%</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill fill-primary" style="width:58%"></div></div>
+        <div class="kpi-progress-label"><span class="kpi-annual-rate" style="color:var(--danger);">年度进度 17%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:17%"></div></div>
       </div>
     </div>
     <div class="kpi-card" style="--dot-color:#f72585;">
@@ -507,8 +507,8 @@ refresh('4月');
       <div class="kpi-value">26,152<span style="font-size:14px;color:#6c757d"> 万</span></div>
       <div class="kpi-sub">年度指标 220,448 万 | 同比 <span style="color:var(--danger);">↓40%</span></div>
       <div class="kpi-progress">
-        <div class="kpi-progress-label"><span>完成率 43%</span><span class="kpi-annual-rate">年度进度 12%</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:43%"></div></div>
+        <div class="kpi-progress-label"><span class="kpi-annual-rate" style="color:var(--danger);">年度进度 12%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:12%"></div></div>
       </div>
     </div>
     <div class="kpi-card" style="--dot-color:#7209b7;">
@@ -516,7 +516,7 @@ refresh('4月');
       <div class="kpi-value">83,558<span style="font-size:14px;color:#6c757d"> 万</span></div>
       <div class="kpi-sub">同比 <span style="color:var(--success);">↑37%</span> | 周转 <b>179天</b></div>
       <div class="kpi-progress">
-        <div class="kpi-progress-label"><span>库存水位</span><span class="kpi-annual-rate">周转 179天</span></div>
+        <div class="kpi-progress-label"><span class="kpi-annual-rate">库存水位</span></div>
         <div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:72%"></div></div>
       </div>
     </div>
@@ -525,8 +525,8 @@ refresh('4月');
       <div class="kpi-value">24,109<span style="font-size:14px;color:#6c757d"> 万</span></div>
       <div class="kpi-sub">年度指标 98,450 万 | 同比 <span style="color:var(--success);">↑5%</span></div>
       <div class="kpi-progress">
-        <div class="kpi-progress-label"><span>完成率 81%</span><span class="kpi-annual-rate" style="color:var(--success);">年度进度 24%</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill fill-success" style="width:81%"></div></div>
+        <div class="kpi-progress-label"><span class="kpi-annual-rate" style="color:var(--warning);">年度进度 24%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:24%"></div></div>
       </div>
     </div>
   </div>
@@ -535,37 +535,8 @@ refresh('4月');
 <!-- 4月单月 -->
 <div class="section">
   <div class="section-title"><i class="fas fa-calendar-alt"></i> 4月单月数据</div>
-  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);">
-    <div class="kpi-card" style="--dot-color:#4361ee;">
-      <div class="kpi-label">发货</div>
-      <div class="kpi-value">1,569<span style="font-size:14px;color:#6c757d"> 万</span></div>
-      <div class="kpi-sub"><span style="color:var(--success);">↑38%</span> vs 去年4月 1,136万</div>
-    </div>
-    <div class="kpi-card" style="--dot-color:#f72585;">
-      <div class="kpi-label">终端配送</div>
-      <div class="kpi-value">3,906<span style="font-size:14px;color:#6c757d"> 万</span></div>
-      <div class="kpi-sub"><span style="color:var(--danger);">↓5%</span> vs 去年4月 4,122万</div>
-    </div>
-    <div class="kpi-card" style="--dot-color:#06d6a0;">
-      <div class="kpi-label">KA50纯销</div>
-      <div class="kpi-value">4,235<span style="font-size:14px;color:#6c757d"> 万</span></div>
-      <div class="kpi-sub"><span style="color:var(--danger);">↓15%</span> vs 去年4月 4,969万</div>
-    </div>
-  </div>
-</div>
-
-<!-- 完成率 & 同比对比 -->
-<div class="section">
-  <div class="section-title"><i class="fas fa-chart-bar"></i> 完成率 & 同比对比</div>
-  <div class="two-col">
-    <div class="table-card" style="padding:20px;">
-      <div style="font-weight:600;margin-bottom:12px;">完成率对比（1-4月累计 vs 年度指标）</div>
-      <div style="height:300px;"><canvas id="otcCompletionChart"></canvas></div>
-    </div>
-    <div class="table-card" style="padding:20px;">
-      <div style="font-weight:600;margin-bottom:12px;">同比变化（2026 vs 2025同期）</div>
-      <div style="height:300px;"><canvas id="otcYoyChart"></canvas></div>
-    </div>
+  <div class="table-card" style="padding:20px;">
+    <div style="height:320px;"><canvas id="otcMonth4Chart"></canvas></div>
   </div>
 </div>
 
@@ -601,10 +572,36 @@ function initOtcCharts() {
   if (otcChartsReady) return;
   otcChartsReady = true;
   var blue='#4361ee',pink='#f72585',green='#06d6a0';
-  new Chart(document.getElementById('otcCompletionChart'),{type:'bar',data:{labels:['发货','终端配送','KA50纯销'],datasets:[{label:'本期完成(万)',data:[42412,26152,24109],backgroundColor:[blue,pink,green],borderRadius:6},{label:'年度指标(万)',data:[242405,220448,98450],backgroundColor:'rgba(0,0,0,0.06)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:20}}},scales:{y:{beginAtZero:true,grid:{color:'#f1f5f9'},ticks:{callback:function(v){return (v/10000).toFixed(1)+'亿';}}},x:{grid:{display:false}}}}});
-  new Chart(document.getElementById('otcYoyChart'),{type:'bar',data:{labels:['发货','终端配送','KA50纯销'],datasets:[{label:'2026年1-4月',data:[42412,26152,24109],backgroundColor:[blue,pink,green],borderRadius:6},{label:'2025年1-4月',data:[74078,43412,23040],backgroundColor:'rgba(0,0,0,0.08)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:20}}},scales:{y:{beginAtZero:true,grid:{color:'#f1f5f9'},ticks:{callback:function(v){return (v/10000).toFixed(1)+'亿';}}},x:{grid:{display:false}}}}});
+
+  /* 4月单月：柱状图=金额，折线图=同比变化 */
+  new Chart(document.getElementById('otcMonth4Chart'),{
+    type:'bar',
+    data:{
+      labels:['发货','终端配送','KA50纯销'],
+      datasets:[
+        {label:'本月金额(万)',data:[1569,3906,4235],backgroundColor:[blue,pink,green],borderRadius:6,order:2,yAxisID:'y'},
+        {label:'同比变化(%)',data:[38,-5,-15],type:'line',borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,0.1)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#ff6b6b',tension:0.3,order:1,yAxisID:'y1'}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{usePointStyle:true,padding:20}},
+        tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+ (c.dataset.yAxisID==='y1'?(c.raw>0?'+':'')+c.raw+'%':c.raw.toLocaleString()+' 万');}}}
+      },
+      scales:{
+        y:{type:'linear',position:'left',title:{display:true,text:'金额(万元)'},beginAtZero:true,grid:{color:'#f1f5f9'}},
+        y1:{type:'linear',position:'right',title:{display:true,text:'同比变化(%)'},grid:{display:false},ticks:{callback:function(v){return (v>0?'+':'')+v+'%'}}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+
+  /* 年度进度 横向柱状图 */
   new Chart(document.getElementById('otcProgressChart'),{type:'bar',data:{labels:['发货\n(目标24.2亿)','终端配送\n(目标22.0亿)','KA50纯销\n(目标9.8亿)'],datasets:[{label:'年度进度',data:[17,12,24],backgroundColor:[blue,pink,green],borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '年度进度: '+c.raw+'%';}}}},scales:{x:{min:0,max:100,grid:{color:'#f1f5f9'},ticks:{callback:function(v){return v+'%';}}},y:{grid:{display:false}}}}});
-  new Chart(document.getElementById('otcOverviewChart'),{type:'bar',data:{labels:['完成率(%)','同比变化(%)','年度进度(%)'],datasets:[{label:'发货',data:[58,-43,17],backgroundColor:blue,borderRadius:4},{label:'终端配送',data:[43,-40,12],backgroundColor:pink,borderRadius:4},{label:'KA50纯销',data:[81,5,24],backgroundColor:green,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:20}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.raw+'%';}}}},scales:{y:{grid:{color:'#f1f5f9'},ticks:{callback:function(v){return v+'%';}}},x:{grid:{display:false}}}}});
+
+  /* 指标总览 */
+  new Chart(document.getElementById('otcOverviewChart'),{type:'bar',data:{labels:['年度进度(%)','完成率(%)','同比变化(%)'],datasets:[{label:'发货',data:[17,58,-43],backgroundColor:blue,borderRadius:4},{label:'终端配送',data:[12,43,-40],backgroundColor:pink,borderRadius:4},{label:'KA50纯销',data:[24,81,5],backgroundColor:green,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:20}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.raw+'%';}}}},scales:{y:{grid:{color:'#f1f5f9'},ticks:{callback:function(v){return v+'%';}}},x:{grid:{display:false}}}}});
 }
 </script>
 
