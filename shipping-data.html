@@ -75,7 +75,7 @@
         .tab-content.active { display:block; }
 
         /* OTC KPI cards */
-        #tab-otc.active { max-width: 1200px; margin: 0 auto; }
+        .otc-container { max-width: 1200px; margin: 0 auto; }
         .otc-kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
         .otc-kpi-card { background:var(--card); border-radius:var(--radius); padding:20px 24px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
         .otc-kpi-card .card-icon { position:absolute; right:16px; top:16px; font-size:28px; opacity:0.12; }
@@ -519,6 +519,7 @@ refresh('4月');
 
 <!-- Tab: OTC月度 -->
 <div id="tab-otc" class="tab-content">
+<div class="otc-container">
 
 <div class="otc-kpi-row">
   <div class="otc-kpi-card shipping">
@@ -614,6 +615,7 @@ refresh('4月');
   </div>
 </div>
 
+</div><!-- end otc-container -->
 </div><!-- end tab-otc -->
 
 <script>
