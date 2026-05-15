@@ -75,6 +75,7 @@
         .tab-content.active { display:block; }
 
         /* OTC KPI cards */
+        #tab-otc { max-width: 1300px; }
         .otc-kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
         .otc-kpi-card { background:var(--card); border-radius:var(--radius); padding:20px 24px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
         .otc-kpi-card .card-icon { position:absolute; right:16px; top:16px; font-size:28px; opacity:0.12; }
@@ -96,8 +97,14 @@
         .otc-info-card .info-value { font-size:32px; font-weight:700; margin-bottom:4px; }
         .otc-info-card .info-label { font-size:13px; color:var(--text2); }
 
-        .otc-chart-wrap { width:100%; height:320px; position:relative; }
-        .otc-chart-wrap-lg { height:380px; }
+        .otc-chart-wrap { width:100%; height:300px; position:relative; }
+        .otc-chart-wrap-lg { height:360px; }
+        .otc-chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+        @media (max-width:1000px) {
+            .otc-kpi-row { grid-template-columns:1fr 1fr; }
+            .otc-info-row { grid-template-columns:repeat(3,1fr); }
+            .otc-chart-grid { grid-template-columns:1fr; }
+        }
         @media (max-width:900px) {
             .otc-kpi-row { grid-template-columns:1fr 1fr; }
             .otc-info-row { grid-template-columns:1fr; }
@@ -587,7 +594,7 @@ refresh('4月');
 
 <div class="section">
   <div class="section-title" style="margin-bottom:16px;">📊 完成率 & 同比对比</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+  <div class="otc-chart-grid">
     <div class="table-card" style="padding:20px;">
       <div style="font-weight:600;margin-bottom:12px;">完成率对比（1-4月累计 vs 年度指标）</div>
       <div class="otc-chart-wrap"><canvas id="otcCompletionChart"></canvas></div>
@@ -600,7 +607,7 @@ refresh('4月');
 </div>
 
 <div class="section" style="margin-bottom:0;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+  <div class="otc-chart-grid">
     <div class="table-card" style="padding:20px;">
       <div style="font-weight:600;margin-bottom:12px;">年度进度</div>
       <div class="otc-chart-wrap"><canvas id="otcProgressChart"></canvas></div>
