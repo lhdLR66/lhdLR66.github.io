@@ -645,57 +645,78 @@ var ka50Data = [
 var ka50Total = ka50Data.reduce(function(s,d){return s+d.amount;},0);
 
 function initKa50Section() {
-  // 延迟确保DOM完全渲染，tab切换后容器尺寸已计算
   setTimeout(function(){
     var container = document.getElementById('ka50Treemap');
     if (!container) return;
-    var W = container.offsetWidth || container.parentElement.offsetWidth - 32 || 1200;
-    if (W < 300) { console.warn('[KA50] width too small:',W); W = 900; }
+    var W = container.offsetWidth || 1200;
+    if (W < 300) W = 900;
     var H = 540, GAP = 3;
     var items = ka50Data.map(function(d){ return {name:d.name, amount:d.amount, yoy:d.yoy, rate:d.rate, target:d.target, progress:d.progress, area:d.amount}; });
+    items.sort(function(a,b){return b.area - a.area;});
     
-    /* 简单的行式Treemap */
-    function buildRects(data, cw, ch) {
-      if (data.length === 0) return [];
-      var total = data.reduce(function(s,d){return s+d.area;},0);
-      if (total <= 0) return [];
-      var rects = [];
-      var y = 0, remaining = data.slice();
-      // 自适应行数：按面积比例分行
-      var rows = Math.max(3, Math.ceil(Math.sqrt(data.length)));
-      var rowsNeeded = rows;
-      while (remaining.length > 0 && rowsNeeded > 0) {
-        var rowTargetArea = total / rowsNeeded;
-        var rowItems = [];
-        var rowArea = 0;
-        for (var i = 0; i < remaining.length; i++) {
-          if (rowArea + remaining[i].area <= rowTargetArea * 1.5 || rowItems.length === 0) {
-            rowItems.push(remaining[i]);
-            rowArea += remaining[i].area;
-          }
+    /* Squarified Treemap — 递归分割填满整个矩形 */
+    function squarify(items, x, y, w, h) {
+      if (items.length === 0 || w <= 0 || h <= 0) return [];
+      
+      function worstRatio(row, sideLen) {
+        var s = row.reduce(function(a,b){return a+b.area;},0);
+        var worst = 0;
+        for (var i = 0; i < row.length; i++) {
+          var rw = sideLen * (row[i].area / s);
+          var rh = s / sideLen;
+          var ar = Math.max(rw/rh, rh/rw);
+          if (ar > worst) worst = ar;
         }
-        // 去除已选
-        for (var j = 0; j < rowItems.length; j++) {
-          var idx = remaining.indexOf(rowItems[j]);
-          if (idx >= 0) remaining.splice(idx, 1);
-        }
-        total = remaining.reduce(function(s,d){return s+d.area;},0) + rowArea;
-        var rowH = ch * (rowArea / total);
-        var curX = 0;
-        for (var k = 0; k < rowItems.length; k++) {
-          var itemW = cw * (rowItems[k].area / rowArea);
-          rects.push({x:curX, y:y, w:itemW, h:rowH, d:rowItems[k]});
-          curX += itemW;
-        }
-        y += rowH; ch -= rowH;
-        rowsNeeded--;
+        return worst;
       }
-      return rects;
+      
+      var result = [];
+      var totalArea = items.reduce(function(a,b){return a+b.area;},0);
+      if (totalArea <= 0) return [];
+      
+      var horizontal = (w >= h);
+      var sideLen = horizontal ? w : h;
+      var row = [items[0]];
+      var rest = items.slice(1);
+      
+      // 尽可能把更多项放入当前行/列
+      while (rest.length > 0) {
+        var curW = worstRatio(row, sideLen);
+        var test = row.concat(rest[0]);
+        var newW = worstRatio(test, sideLen);
+        if (newW <= curW) { row.push(rest.shift()); }
+        else { break; }
+      }
+      
+      var rowArea = row.reduce(function(a,b){return a+b.area;},0);
+      var restArea = rest.reduce(function(a,b){return a+b.area;},0);
+      var totalRowArea = rowArea + restArea;
+      
+      if (horizontal) {
+        var rowH = h * (rowArea / totalRowArea);
+        var cx = x;
+        for (var i = 0; i < row.length; i++) {
+          var itemW = w * (row[i].area / rowArea);
+          result.push({x: cx, y: y, w: itemW, h: rowH, d: row[i]});
+          cx += itemW;
+        }
+        var sub = squarify(rest, x, y + rowH, w, h - rowH);
+        return result.concat(sub);
+      } else {
+        var colW = w * (rowArea / totalRowArea);
+        var cy = y;
+        for (var i = 0; i < row.length; i++) {
+          var itemH = h * (row[i].area / rowArea);
+          result.push({x: x, y: cy, w: colW, h: itemH, d: row[i]});
+          cy += itemH;
+        }
+        var sub = squarify(rest, x + colW, y, w - colW, h);
+        return result.concat(sub);
+      }
     }
     
-    var rects = buildRects(items, W, H);
+    var rects = squarify(items, 0, 0, W, H);
     if (rects.length === 0) return;
-    
     container.innerHTML = '';
     
     var tip = document.getElementById('ka50Tooltip');
