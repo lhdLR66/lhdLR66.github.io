@@ -546,8 +546,9 @@ refresh('4月');
     <span class="hint">矩形大小 = 纯销额占比 | 红底 = 同比增长 · 绿底 = 同比下滑 | 悬浮查看详情</span>
   </div>
   
+  <!-- Treemap：按面积分两组交错排列，填满空间 -->
   <div class="table-card" style="padding:16px;margin-bottom:16px;">
-    <div id="ka50Treemap" style="width:100%;height:540px;position:relative;overflow:hidden;border-radius:8px;background:#f1f5f9;"></div>
+    <div id="ka50Treemap" style="width:100%;height:680px;position:relative;overflow:hidden;border-radius:8px;background:#f1f5f9;"></div>
   </div>
 
   <!-- 悬浮提示 -->
@@ -650,16 +651,27 @@ function initKa50Section() {
     if (!container) return;
     var W = container.offsetWidth || 1200;
     if (W < 300) W = 900;
-    var H = 540, GAP = 3;
+    var H = 680, GAP = 3;
     var items = ka50Data.map(function(d){ return {name:d.name, amount:d.amount, yoy:d.yoy, rate:d.rate, target:d.target, progress:d.progress, area:d.amount}; });
     items.sort(function(a,b){return b.area - a.area;});
     
-    /* Squarified Treemap — 递归分割填满整个矩形 */
+    /* 把 items 分成 3 组交错排列，使每组面积均衡 */
+    var groups = [[],[],[]];
+    items.forEach(function(item, i){
+      groups[i % 3].push(item);
+    });
+    var totalArea = items.reduce(function(s,d){return s+d.area;},0);
+    var gapCol = 4;
+    var numCols = groups.filter(function(g){return g.length>0;}).length;
+    var totalGap = (numCols - 1) * gapCol;
+    var availW = W - totalGap;
+    
+    /* Squarified 递归 treemap */
     function squarify(items, x, y, w, h) {
       if (items.length === 0 || w <= 0 || h <= 0) return [];
-      
       function worstRatio(row, sideLen) {
         var s = row.reduce(function(a,b){return a+b.area;},0);
+        if (s <= 0) return Infinity;
         var worst = 0;
         for (var i = 0; i < row.length; i++) {
           var rw = sideLen * (row[i].area / s);
@@ -669,54 +681,57 @@ function initKa50Section() {
         }
         return worst;
       }
-      
       var result = [];
-      var totalArea = items.reduce(function(a,b){return a+b.area;},0);
-      if (totalArea <= 0) return [];
-      
+      var total = items.reduce(function(a,b){return a+b.area;},0);
+      if (total <= 0) return [];
       var horizontal = (w >= h);
       var sideLen = horizontal ? w : h;
       var row = [items[0]];
       var rest = items.slice(1);
-      
-      // 尽可能把更多项放入当前行/列
       while (rest.length > 0) {
         var curW = worstRatio(row, sideLen);
         var test = row.concat(rest[0]);
         var newW = worstRatio(test, sideLen);
         if (newW <= curW) { row.push(rest.shift()); }
-        else { break; }
+        else break;
       }
-      
       var rowArea = row.reduce(function(a,b){return a+b.area;},0);
       var restArea = rest.reduce(function(a,b){return a+b.area;},0);
-      var totalRowArea = rowArea + restArea;
-      
+      var totalRow = rowArea + restArea;
       if (horizontal) {
-        var rowH = h * (rowArea / totalRowArea);
+        var rowH = h * (rowArea / totalRow);
         var cx = x;
         for (var i = 0; i < row.length; i++) {
-          var itemW = w * (row[i].area / rowArea);
-          result.push({x: cx, y: y, w: itemW, h: rowH, d: row[i]});
-          cx += itemW;
+          var iw = w * (row[i].area / rowArea);
+          result.push({x: cx, y: y, w: iw, h: rowH, d: row[i]});
+          cx += iw;
         }
-        var sub = squarify(rest, x, y + rowH, w, h - rowH);
-        return result.concat(sub);
+        return result.concat(squarify(rest, x, y + rowH, w, h - rowH));
       } else {
-        var colW = w * (rowArea / totalRowArea);
+        var colW = w * (rowArea / totalRow);
         var cy = y;
         for (var i = 0; i < row.length; i++) {
-          var itemH = h * (row[i].area / rowArea);
-          result.push({x: x, y: cy, w: colW, h: itemH, d: row[i]});
-          cy += itemH;
+          var ih = h * (row[i].area / rowArea);
+          result.push({x: x, y: cy, w: colW, h: ih, d: row[i]});
+          cy += ih;
         }
-        var sub = squarify(rest, x + colW, y, w - colW, h);
-        return result.concat(sub);
+        return result.concat(squarify(rest, x + colW, y, w - colW, h));
       }
     }
     
-    var rects = squarify(items, 0, 0, W, H);
-    if (rects.length === 0) return;
+    /* 在各列内独立运行 squarify */
+    var allRects = [];
+    var colX = 0;
+    groups.forEach(function(group){
+      if (group.length === 0) return;
+      var groupArea = group.reduce(function(s,d){return s+d.area;},0);
+      var colW = availW * (groupArea / totalArea);
+      var rects = squarify(group, colX, 0, colW, H);
+      allRects = allRects.concat(rects);
+      colX += colW + gapCol;
+    });
+    
+    if (allRects.length === 0) return;
     container.innerHTML = '';
     
     var tip = document.getElementById('ka50Tooltip');
@@ -728,7 +743,7 @@ function initKa50Section() {
     var tipPct = document.getElementById('ka50TtProgressPct');
     var tipBar = document.getElementById('ka50TtBar');
     
-    rects.forEach(function(r){
+    allRects.forEach(function(r){
       var boxW = r.w - GAP, boxH = r.h - GAP;
       if (boxW < 4 || boxH < 4) return;
       var d = r.d;
