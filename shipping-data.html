@@ -646,31 +646,21 @@ function initKa50Section() {
     if (W < 300) W = 900;
     var H = 680, GAP = 1;
     var items = ka50Data.map(function(d){ return {name:d.name, amount:d.amount, yoy:d.yoy, rate:d.rate, target:d.target, progress:d.progress, area:d.amount}; });
-    // 随机打乱，避免按销售额单调排列
-    for (var i2 = items.length - 1; i2 > 0; i2--) {
-      var j2 = Math.floor(Math.random() * (i2 + 1));
-      var tmp = items[i2]; items[i2] = items[j2]; items[j2] = tmp;
+    // Fisher-Yates 随机打乱
+    for (var i = items.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = items[i]; items[i] = items[j]; items[j] = tmp;
     }
     
-    /* 交错分3组 */
-    var groups = [[],[],[]];
-    items.forEach(function(item, i){
-      groups[i % 3].push(item);
-    });
-    var totalArea = items.reduce(function(s,d){return s+d.area;},0);
-    var gapCol = 2;
-    var numCols = groups.filter(function(g){return g.length>0;}).length;
-    var totalGap = (numCols - 1) * gapCol;
-    var availW = W - totalGap;
-    
+    /* Squarified treemap — 全量递归，不分组，自然填满 */
     function squarify(items, x, y, w, h) {
       if (items.length === 0 || w <= 0 || h <= 0) return [];
       function worstRatio(row, sideLen) {
         var s = row.reduce(function(a,b){return a+b.area;},0);
         if (s <= 0) return Infinity;
         var worst = 0;
-        for (var i3 = 0; i3 < row.length; i3++) {
-          var rw = sideLen * (row[i3].area / s);
+        for (var k = 0; k < row.length; k++) {
+          var rw = sideLen * (row[k].area / s);
           var rh = s / sideLen;
           var ar = Math.max(rw/rh, rh/rw);
           if (ar > worst) worst = ar;
@@ -697,36 +687,26 @@ function initKa50Section() {
       if (horizontal) {
         var rowH = h * (rowArea / totalRow);
         var cx = x;
-        for (var i4 = 0; i4 < row.length; i4++) {
-          var iw = w * (row[i4].area / rowArea);
-          result.push({x: cx, y: y, w: iw, h: rowH, d: row[i4]});
+        for (var m = 0; m < row.length; m++) {
+          var iw = w * (row[m].area / rowArea);
+          result.push({x: cx, y: y, w: iw, h: rowH, d: row[m]});
           cx += iw;
         }
         return result.concat(squarify(rest, x, y + rowH, w, h - rowH));
       } else {
         var colW = w * (rowArea / totalRow);
         var cy = y;
-        for (var i5 = 0; i5 < row.length; i5++) {
-          var ih = h * (row[i5].area / rowArea);
-          result.push({x: x, y: cy, w: colW, h: ih, d: row[i5]});
+        for (var n = 0; n < row.length; n++) {
+          var ih = h * (row[n].area / rowArea);
+          result.push({x: x, y: cy, w: colW, h: ih, d: row[n]});
           cy += ih;
         }
         return result.concat(squarify(rest, x + colW, y, w - colW, h));
       }
     }
     
-    var allRects = [];
-    var colX = 0;
-    groups.forEach(function(group){
-      if (group.length === 0) return;
-      var groupArea = group.reduce(function(s,d){return s+d.area;},0);
-      var colW = availW * (groupArea / totalArea);
-      var rects = squarify(group, colX, 0, colW, H);
-      allRects = allRects.concat(rects);
-      colX += colW + gapCol;
-    });
-    
-    if (allRects.length === 0) return;
+    var rects = squarify(items, 0, 0, W, H);
+    if (rects.length === 0) return;
     container.innerHTML = '';
     
     var tip = document.getElementById('ka50Tooltip');
@@ -736,26 +716,26 @@ function initKa50Section() {
     var tipPct = document.getElementById('ka50TtProgressPct');
     var tipBar = document.getElementById('ka50TtBar');
     
-    allRects.forEach(function(r){
+    rects.forEach(function(r){
       var boxW = r.w - GAP, boxH = r.h - GAP;
       if (boxW < 4 || boxH < 4) return;
       var d = r.d;
-      var absYoy = Math.abs(d.yoy), bg, text, border;
+      var absYoy = Math.abs(d.yoy), bg, text;
       if (d.yoy >= 0) {
-        if (absYoy >= 50) { bg='#f87171'; text='#7f1d1d'; border='#ef4444'; }
-        else if (absYoy >= 20) { bg='#fca5a5'; text='#7f1d1d'; border='#f87171'; }
-        else { bg='#fecaca'; text='#991b1b'; border='#fca5a5'; }
+        if (absYoy >= 50)      { bg='#ff6b6b'; text='#fff'; }
+        else if (absYoy >= 20) { bg='#ff9999'; text='#333'; }
+        else                   { bg='#ffcccc'; text='#333'; }
       } else {
-        if (absYoy >= 50) { bg='#4ade80'; text='#052e16'; border='#22c55e'; }
-        else if (absYoy >= 20) { bg='#6ee7b7'; text='#064e3b'; border='#34d399'; }
-        else { bg='#86efac'; text='#14532d'; border='#4ade80'; }
+        if (absYoy >= 50)      { bg='#51e9c4'; text='#333'; }
+        else if (absYoy >= 20) { bg='#77e7b7'; text='#333'; }
+        else                   { bg='#a0f0d4'; text='#333'; }
       }
       
       var div = document.createElement('div');
       div.style.cssText = 'position:absolute;left:'+r.x+'px;top:'+r.y+'px;width:'+boxW+'px;height:'+boxH+'px;'+
-        'background:'+bg+';border:1px solid '+border+';border-radius:4px;cursor:pointer;'+
+        'background:'+bg+';border:1px solid #fff;border-radius:3px;cursor:pointer;'+
         'overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;'+
-        'transition:filter 0.15s;font-family:Poppins,"Microsoft YaHei",sans-serif;';
+        'transition:filter 0.15s;font-family:"Microsoft YaHei",Poppins,sans-serif;';
       
       var fz = Math.min(boxW,boxH) > 60 ? 15 : (Math.min(boxW,boxH) > 40 ? 13 : 11);
       var yoyLabel = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
