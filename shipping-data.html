@@ -551,25 +551,17 @@ refresh('4月');
     <div id="ka50Treemap" style="width:100%;height:680px;position:relative;overflow:hidden;border-radius:8px;background:#f1f5f9;"></div>
   </div>
 
-  <!-- 悬浮提示 -->
-  <div id="ka50Tooltip" style="display:none;position:fixed;z-index:1000;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:18px 20px;min-width:260px;pointer-events:none;border:1px solid var(--border);">
+  <!-- 悬浮提示（精简：仅当月进度 + 年度指标 + 年度进度条） -->
+  <div id="ka50Tooltip" style="display:none;position:fixed;z-index:1000;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:18px 20px;min-width:240px;pointer-events:none;border:1px solid var(--border);">
     <div id="ka50TtName" style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text);"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:10px;">
       <div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">1-4月纯销额</div>
-        <div id="ka50TtAmount" style="font-size:18px;font-weight:700;"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">同比变化</div>
-        <div id="ka50TtYoy" style="font-size:18px;font-weight:700;"></div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">当期指标进度</div>
+        <div id="ka50TtRate" style="font-size:20px;font-weight:700;"></div>
       </div>
       <div>
         <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">年度指标</div>
-        <div id="ka50TtTarget" style="font-size:16px;font-weight:600;"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">完成率</div>
-        <div id="ka50TtRate" style="font-size:16px;font-weight:600;"></div>
+        <div id="ka50TtTarget" style="font-size:20px;font-weight:700;"></div>
       </div>
     </div>
     <div style="font-size:11px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between;">
@@ -577,6 +569,7 @@ refresh('4月');
       <span id="ka50TtProgressPct" style="font-weight:600;"></span>
     </div>
     <div class="progress-bar-bg" style="height:8px;"><div id="ka50TtBar" class="progress-bar-fill fill-warning" style="height:100%;border-radius:4px;"></div></div>
+  </div>
   </div>
 
   <!-- 可折叠完整明细表 -->
@@ -651,30 +644,33 @@ function initKa50Section() {
     if (!container) return;
     var W = container.offsetWidth || 1200;
     if (W < 300) W = 900;
-    var H = 680, GAP = 3;
+    var H = 680, GAP = 1;
     var items = ka50Data.map(function(d){ return {name:d.name, amount:d.amount, yoy:d.yoy, rate:d.rate, target:d.target, progress:d.progress, area:d.amount}; });
-    items.sort(function(a,b){return b.area - a.area;});
+    // 随机打乱，避免按销售额单调排列
+    for (var i2 = items.length - 1; i2 > 0; i2--) {
+      var j2 = Math.floor(Math.random() * (i2 + 1));
+      var tmp = items[i2]; items[i2] = items[j2]; items[j2] = tmp;
+    }
     
-    /* 把 items 分成 3 组交错排列，使每组面积均衡 */
+    /* 交错分3组 */
     var groups = [[],[],[]];
     items.forEach(function(item, i){
       groups[i % 3].push(item);
     });
     var totalArea = items.reduce(function(s,d){return s+d.area;},0);
-    var gapCol = 4;
+    var gapCol = 2;
     var numCols = groups.filter(function(g){return g.length>0;}).length;
     var totalGap = (numCols - 1) * gapCol;
     var availW = W - totalGap;
     
-    /* Squarified 递归 treemap */
     function squarify(items, x, y, w, h) {
       if (items.length === 0 || w <= 0 || h <= 0) return [];
       function worstRatio(row, sideLen) {
         var s = row.reduce(function(a,b){return a+b.area;},0);
         if (s <= 0) return Infinity;
         var worst = 0;
-        for (var i = 0; i < row.length; i++) {
-          var rw = sideLen * (row[i].area / s);
+        for (var i3 = 0; i3 < row.length; i3++) {
+          var rw = sideLen * (row[i3].area / s);
           var rh = s / sideLen;
           var ar = Math.max(rw/rh, rh/rw);
           if (ar > worst) worst = ar;
@@ -701,25 +697,24 @@ function initKa50Section() {
       if (horizontal) {
         var rowH = h * (rowArea / totalRow);
         var cx = x;
-        for (var i = 0; i < row.length; i++) {
-          var iw = w * (row[i].area / rowArea);
-          result.push({x: cx, y: y, w: iw, h: rowH, d: row[i]});
+        for (var i4 = 0; i4 < row.length; i4++) {
+          var iw = w * (row[i4].area / rowArea);
+          result.push({x: cx, y: y, w: iw, h: rowH, d: row[i4]});
           cx += iw;
         }
         return result.concat(squarify(rest, x, y + rowH, w, h - rowH));
       } else {
         var colW = w * (rowArea / totalRow);
         var cy = y;
-        for (var i = 0; i < row.length; i++) {
-          var ih = h * (row[i].area / rowArea);
-          result.push({x: x, y: cy, w: colW, h: ih, d: row[i]});
+        for (var i5 = 0; i5 < row.length; i5++) {
+          var ih = h * (row[i5].area / rowArea);
+          result.push({x: x, y: cy, w: colW, h: ih, d: row[i5]});
           cy += ih;
         }
         return result.concat(squarify(rest, x + colW, y, w - colW, h));
       }
     }
     
-    /* 在各列内独立运行 squarify */
     var allRects = [];
     var colX = 0;
     groups.forEach(function(group){
@@ -736,10 +731,8 @@ function initKa50Section() {
     
     var tip = document.getElementById('ka50Tooltip');
     var tipName = document.getElementById('ka50TtName');
-    var tipAmount = document.getElementById('ka50TtAmount');
-    var tipYoy = document.getElementById('ka50TtYoy');
-    var tipTarget = document.getElementById('ka50TtTarget');
     var tipRate = document.getElementById('ka50TtRate');
+    var tipTarget = document.getElementById('ka50TtTarget');
     var tipPct = document.getElementById('ka50TtProgressPct');
     var tipBar = document.getElementById('ka50TtBar');
     
@@ -747,59 +740,54 @@ function initKa50Section() {
       var boxW = r.w - GAP, boxH = r.h - GAP;
       if (boxW < 4 || boxH < 4) return;
       var d = r.d;
-      // 颜色
       var absYoy = Math.abs(d.yoy), bg, text, border;
       if (d.yoy >= 0) {
-        if (absYoy >= 50) { bg='#fca5a5'; text='#7f1d1d'; border='#f87171'; }
-        else if (absYoy >= 20) { bg='#fecaca'; text='#991b1b'; border='#fca5a5'; }
-        else { bg='#fee2e2'; text='#b91c1c'; border='#fecaca'; }
+        if (absYoy >= 50) { bg='#f87171'; text='#7f1d1d'; border='#ef4444'; }
+        else if (absYoy >= 20) { bg='#fca5a5'; text='#7f1d1d'; border='#f87171'; }
+        else { bg='#fecaca'; text='#991b1b'; border='#fca5a5'; }
       } else {
-        if (absYoy >= 50) { bg='#6ee7b7'; text='#064e3b'; border='#34d399'; }
-        else if (absYoy >= 20) { bg='#86efac'; text='#065f46'; border='#4ade80'; }
-        else { bg='#bbf7d0'; text='#15803d'; border='#86efac'; }
+        if (absYoy >= 50) { bg='#4ade80'; text='#052e16'; border='#22c55e'; }
+        else if (absYoy >= 20) { bg='#6ee7b7'; text='#064e3b'; border='#34d399'; }
+        else { bg='#86efac'; text='#14532d'; border='#4ade80'; }
       }
       
       var div = document.createElement('div');
       div.style.cssText = 'position:absolute;left:'+r.x+'px;top:'+r.y+'px;width:'+boxW+'px;height:'+boxH+'px;'+
-        'background:'+bg+';border:1px solid '+border+';border-radius:5px;cursor:pointer;'+
+        'background:'+bg+';border:1px solid '+border+';border-radius:4px;cursor:pointer;'+
         'overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;'+
         'transition:filter 0.15s;font-family:Poppins,"Microsoft YaHei",sans-serif;';
       
-      var fz = Math.min(boxW,boxH) > 60 ? 13 : (Math.min(boxW,boxH) > 40 ? 11 : 10);
+      var fz = Math.min(boxW,boxH) > 60 ? 15 : (Math.min(boxW,boxH) > 40 ? 13 : 11);
+      var yoyLabel = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
       var inner = '<div style="text-align:center;color:'+text+';line-height:1.25;padding:2px;">';
       if (boxW > 55 && boxH > 35) {
         inner += '<div style="font-weight:700;font-size:'+fz+'px;">'+d.name+'</div>';
         inner += '<div style="font-size:'+(fz-1)+'px;font-weight:600;">'+d.amount+'万</div>';
-        inner += '<div style="font-size:'+(fz-2)+'px;font-weight:500;opacity:0.85;">'+(d.yoy>=0?'↑':'↓')+Math.abs(d.yoy)+'%</div>';
+        inner += '<div style="font-size:'+(fz-2)+'px;font-weight:500;opacity:0.9;">'+yoyLabel+'</div>';
       } else if (boxW > 35 && boxH > 22) {
         inner += '<div style="font-weight:700;font-size:'+fz+'px;">'+d.name+'</div>';
-        inner += '<div style="font-size:'+(fz-2)+'px;">'+(d.yoy>=0?'↑':'↓')+Math.abs(d.yoy)+'%</div>';
+        inner += '<div style="font-size:'+(fz-2)+'px;opacity:0.9;">'+yoyLabel+'</div>';
       } else {
-        inner += '<div style="font-weight:600;font-size:9px;">'+d.name+'</div>';
+        inner += '<div style="font-weight:600;font-size:10px;">'+d.name+'</div>';
       }
       inner += '</div>';
       div.innerHTML = inner;
       
       div.addEventListener('mouseenter',function(e){
         tipName.textContent = d.name;
-        tipAmount.textContent = d.amount.toLocaleString('zh-CN',{minimumFractionDigits:1})+' 万';
-        tipAmount.style.color = text;
-        var yoyT = (d.yoy>=0?'+':'')+d.yoy+'%';
-        tipYoy.textContent = yoyT;
-        tipYoy.style.color = d.yoy>=0?'#dc2626':'#16a34a';
-        tipTarget.textContent = d.target.toLocaleString()+' 万';
-        tipRate.textContent = d.rate+'%';
-        tipRate.style.color = d.rate>=100?'var(--success)':(d.rate>=80?'#b38a00':'var(--danger)');
-        tipPct.textContent = d.progress+'%';
-        tipBar.style.width = Math.min(d.progress,100)+'%';
-        tipBar.style.backgroundColor = d.progress>=80?'var(--success)':(d.progress>=50?'var(--warning)':'var(--danger)');
+        tipRate.textContent = d.rate + '%';
+        tipRate.style.color = d.rate >= 100 ? 'var(--success)' : (d.rate >= 80 ? '#b38a00' : 'var(--danger)');
+        tipTarget.textContent = d.target.toLocaleString() + ' 万';
+        tipPct.textContent = d.progress + '%';
+        tipBar.style.width = Math.min(d.progress, 100) + '%';
+        tipBar.style.backgroundColor = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? 'var(--warning)' : 'var(--danger)');
         tip.style.display = 'block';
       });
       div.addEventListener('mouseleave',function(){ tip.style.display='none'; });
       div.addEventListener('mousemove',function(e){
         var tx=e.clientX+16,ty=e.clientY+16;
-        if(tx+280>window.innerWidth) tx=e.clientX-280;
-        if(ty+200>window.innerHeight) ty=e.clientY-210;
+        if(tx+260>window.innerWidth) tx=e.clientX-260;
+        if(ty+180>window.innerHeight) ty=e.clientY-190;
         tip.style.left=tx+'px'; tip.style.top=ty+'px';
       });
       container.appendChild(div);
