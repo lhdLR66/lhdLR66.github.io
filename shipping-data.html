@@ -645,170 +645,132 @@ var ka50Data = [
 var ka50Total = ka50Data.reduce(function(s,d){return s+d.amount;},0);
 
 function initKa50Section() {
-  var container = document.getElementById('ka50Treemap');
-  var W = container.clientWidth, H = 540, GAP = 3;
-  
-  // 每个省区的颜色：增长→红色系，下滑→绿色系
-  function cellColor(d) {
-    var abs = Math.abs(d.yoy);
-    if (d.yoy >= 0) {
-      // 红色系：增长越大越深
-      if (abs >= 50) return {bg:'#fecaca', text:'#991b1b', border:'#fca5a5'};
-      if (abs >= 20) return {bg:'#fed7d7', text:'#b91c1c', border:'#fca5a5'};
-      return {bg:'#fee2e2', text:'#dc2626', border:'#fecaca'};
-    } else {
-      // 绿色系：下滑越大越深
-      if (abs >= 50) return {bg:'#a7f3d0', text:'#065f46', border:'#6ee7b7'};
-      if (abs >= 20) return {bg:'#bbf7d0', text:'#15803d', border:'#86efac'};
-      return {bg:'#d1fae5', text:'#16a34a', border:'#a7f3d0'};
-    }
-  }
-
-  /* Squarified Treemap */
-  function squarify(items, x, y, w, h) {
-    if (items.length === 0) return [];
-    var result = [];
-    var sorted = items.slice().sort(function(a,b){return b.area - a.area;});
-    var totalArea = sorted.reduce(function(s,d){return s + d.area;}, 0);
-    if (totalArea <= 0) return [];
+  // 延迟确保DOM完全渲染，tab切换后容器尺寸已计算
+  setTimeout(function(){
+    var container = document.getElementById('ka50Treemap');
+    if (!container) return;
+    var W = container.offsetWidth || container.parentElement.offsetWidth - 32 || 1200;
+    if (W < 300) { console.warn('[KA50] width too small:',W); W = 900; }
+    var H = 540, GAP = 3;
+    var items = ka50Data.map(function(d){ return {name:d.name, amount:d.amount, yoy:d.yoy, rate:d.rate, target:d.target, progress:d.progress, area:d.amount}; });
     
-    function worstRatio(rowItems, sideLen) {
-      var rowTotal = rowItems.reduce(function(s,d){return s + d.area;}, 0);
-      if (rowTotal <= 0) return Infinity;
-      var worst = 0;
-      for (var i = 0; i < rowItems.length; i++) {
-        var frac = rowItems[i].area / rowTotal;
-        var dim = frac * sideLen;
-        var other = rowTotal / sideLen;
-        var ar = Math.max(dim / other, other / dim);
-        if (ar > worst) worst = ar;
-      }
-      return worst;
-    }
-    
-    var remaining = sorted.slice();
-    while (remaining.length > 0) {
-      var remainingArea = remaining.reduce(function(s,d){return s + d.area;}, 0);
-      if (remainingArea <= 0) break;
-      var isHorizontal = (w >= h);
-      var sideLen = isHorizontal ? w : h;
-      
-      var row = [remaining[0]];
-      remaining.splice(0, 1);
-      
-      while (remaining.length > 0) {
-        var currentW = worstRatio(row, sideLen);
-        var testRow = row.concat(remaining[0]);
-        var newW = worstRatio(testRow, sideLen);
-        if (newW <= currentW || currentW === Infinity) {
-          row.push(remaining.shift());
-        } else {
-          break;
+    /* 简单的行式Treemap */
+    function buildRects(data, cw, ch) {
+      if (data.length === 0) return [];
+      var total = data.reduce(function(s,d){return s+d.area;},0);
+      if (total <= 0) return [];
+      var rects = [];
+      var y = 0, remaining = data.slice();
+      // 自适应行数：按面积比例分行
+      var rows = Math.max(3, Math.ceil(Math.sqrt(data.length)));
+      var rowsNeeded = rows;
+      while (remaining.length > 0 && rowsNeeded > 0) {
+        var rowTargetArea = total / rowsNeeded;
+        var rowItems = [];
+        var rowArea = 0;
+        for (var i = 0; i < remaining.length; i++) {
+          if (rowArea + remaining[i].area <= rowTargetArea * 1.5 || rowItems.length === 0) {
+            rowItems.push(remaining[i]);
+            rowArea += remaining[i].area;
+          }
         }
-      }
-      
-      var rowArea = row.reduce(function(s,d){return s + d.area;}, 0);
-      var rowFrac = rowArea / (rowArea + remaining.reduce(function(s,d){return s + d.area;}, 0));
-      if (isHorizontal) {
-        var rowH = h * rowFrac;
-        var curX = x;
-        for (var r = 0; r < row.length; r++) {
-          var itemW = w * (row[r].area / rowArea);
-          result.push({x: curX, y: y, w: itemW, h: rowH, d: row[r]});
+        // 去除已选
+        for (var j = 0; j < rowItems.length; j++) {
+          var idx = remaining.indexOf(rowItems[j]);
+          if (idx >= 0) remaining.splice(idx, 1);
+        }
+        total = remaining.reduce(function(s,d){return s+d.area;},0) + rowArea;
+        var rowH = ch * (rowArea / total);
+        var curX = 0;
+        for (var k = 0; k < rowItems.length; k++) {
+          var itemW = cw * (rowItems[k].area / rowArea);
+          rects.push({x:curX, y:y, w:itemW, h:rowH, d:rowItems[k]});
           curX += itemW;
         }
-        y += rowH; h -= rowH;
-      } else {
-        var rowW = w * rowFrac;
-        var curY = y;
-        for (var r2 = 0; r2 < row.length; r2++) {
-          var itemH2 = h * (row[r2].area / rowArea);
-          result.push({x: x, y: curY, w: rowW, h: itemH2, d: row[r2]});
-          curY += itemH2;
-        }
-        x += rowW; w -= rowW;
+        y += rowH; ch -= rowH;
+        rowsNeeded--;
       }
+      return rects;
     }
-    return result;
-  }
-
-  // Build items with area
-  var items = ka50Data.map(function(d){ return {name:d.name, amount:d.amount, yoy:d.yoy, rate:d.rate, target:d.target, progress:d.progress, area:d.amount}; });
-  var rects = squarify(items, 0, 0, W, H);
-  
-  container.innerHTML = '';
-  
-  // Tooltip elements
-  var tip = document.getElementById('ka50Tooltip');
-  var tipName = document.getElementById('ka50TtName');
-  var tipAmount = document.getElementById('ka50TtAmount');
-  var tipYoy = document.getElementById('ka50TtYoy');
-  var tipTarget = document.getElementById('ka50TtTarget');
-  var tipRate = document.getElementById('ka50TtRate');
-  var tipPct = document.getElementById('ka50TtProgressPct');
-  var tipBar = document.getElementById('ka50TtBar');
-
-  rects.forEach(function(r) {
-    var col = cellColor(r.d);
-    var boxW = r.w - GAP, boxH = r.h - GAP;
-    if (boxW < 4 || boxH < 4) return;
     
-    var div = document.createElement('div');
-    div.style.cssText = 'position:absolute;left:'+r.x+'px;top:'+r.y+'px;width:'+boxW+'px;height:'+boxH+'px;'+
-      'background:'+col.bg+';border:1px solid '+col.border+';border-radius:5px;cursor:pointer;'+
-      'overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;'+
-      'transition:filter 0.15s;font-family:Poppins,"Microsoft YaHei",sans-serif;';
+    var rects = buildRects(items, W, H);
+    if (rects.length === 0) return;
     
-    // Text: name + amount on line1, yoy on line2
-    var fontSize = Math.min(boxW, boxH) > 60 ? 13 : (Math.min(boxW, boxH) > 40 ? 11 : 10);
-    var showFull = boxW > 55 && boxH > 35;
+    container.innerHTML = '';
     
-    var html = '<div style="text-align:center;color:'+col.text+';line-height:1.3;padding:2px;">';
-    if (showFull) {
-      html += '<div style="font-weight:700;font-size:'+fontSize+'px;">'+r.d.name+'</div>';
-      html += '<div style="font-size:'+(fontSize-2)+'px;font-weight:600;">'+r.d.amount+'万</div>';
-      var yoyStr = (r.d.yoy >= 0 ? '↑' : '↓') + Math.abs(r.d.yoy) + '%';
-      html += '<div style="font-size:'+(fontSize-3)+'px;font-weight:500;opacity:0.85;">'+yoyStr+'</div>';
-    } else if (boxW > 35 && boxH > 22) {
-      html += '<div style="font-weight:700;font-size:'+fontSize+'px;">'+r.d.name+'</div>';
-    } else {
-      html += '<div style="font-weight:600;font-size:9px;">'+r.d.name+'</div>';
-    }
-    html += '</div>';
-    div.innerHTML = html;
+    var tip = document.getElementById('ka50Tooltip');
+    var tipName = document.getElementById('ka50TtName');
+    var tipAmount = document.getElementById('ka50TtAmount');
+    var tipYoy = document.getElementById('ka50TtYoy');
+    var tipTarget = document.getElementById('ka50TtTarget');
+    var tipRate = document.getElementById('ka50TtRate');
+    var tipPct = document.getElementById('ka50TtProgressPct');
+    var tipBar = document.getElementById('ka50TtBar');
     
-    div.addEventListener('mouseenter', function(e) {
+    rects.forEach(function(r){
+      var boxW = r.w - GAP, boxH = r.h - GAP;
+      if (boxW < 4 || boxH < 4) return;
       var d = r.d;
-      tipName.textContent = d.name;
-      tipAmount.textContent = d.amount.toLocaleString('zh-CN',{minimumFractionDigits:1}) + ' 万';
-      tipAmount.style.color = col.text;
-      var yoyT = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
-      tipYoy.textContent = yoyT;
-      tipYoy.style.color = d.yoy >= 0 ? '#dc2626' : '#16a34a';
-      tipTarget.textContent = d.target.toLocaleString() + ' 万';
-      tipRate.textContent = d.rate + '%';
-      tipRate.style.color = d.rate >= 100 ? 'var(--success)' : (d.rate >= 80 ? '#b38a00' : 'var(--danger)');
-      tipPct.textContent = d.progress + '%';
-      tipBar.style.width = Math.min(d.progress, 100) + '%';
-      tipBar.style.backgroundColor = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? 'var(--warning)' : 'var(--danger)');
-      tip.style.display = 'block';
+      // 颜色
+      var absYoy = Math.abs(d.yoy), bg, text, border;
+      if (d.yoy >= 0) {
+        if (absYoy >= 50) { bg='#fca5a5'; text='#7f1d1d'; border='#f87171'; }
+        else if (absYoy >= 20) { bg='#fecaca'; text='#991b1b'; border='#fca5a5'; }
+        else { bg='#fee2e2'; text='#b91c1c'; border='#fecaca'; }
+      } else {
+        if (absYoy >= 50) { bg='#6ee7b7'; text='#064e3b'; border='#34d399'; }
+        else if (absYoy >= 20) { bg='#86efac'; text='#065f46'; border='#4ade80'; }
+        else { bg='#bbf7d0'; text='#15803d'; border='#86efac'; }
+      }
+      
+      var div = document.createElement('div');
+      div.style.cssText = 'position:absolute;left:'+r.x+'px;top:'+r.y+'px;width:'+boxW+'px;height:'+boxH+'px;'+
+        'background:'+bg+';border:1px solid '+border+';border-radius:5px;cursor:pointer;'+
+        'overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;'+
+        'transition:filter 0.15s;font-family:Poppins,"Microsoft YaHei",sans-serif;';
+      
+      var fz = Math.min(boxW,boxH) > 60 ? 13 : (Math.min(boxW,boxH) > 40 ? 11 : 10);
+      var inner = '<div style="text-align:center;color:'+text+';line-height:1.25;padding:2px;">';
+      if (boxW > 55 && boxH > 35) {
+        inner += '<div style="font-weight:700;font-size:'+fz+'px;">'+d.name+'</div>';
+        inner += '<div style="font-size:'+(fz-1)+'px;font-weight:600;">'+d.amount+'万</div>';
+        inner += '<div style="font-size:'+(fz-2)+'px;font-weight:500;opacity:0.85;">'+(d.yoy>=0?'↑':'↓')+Math.abs(d.yoy)+'%</div>';
+      } else if (boxW > 35 && boxH > 22) {
+        inner += '<div style="font-weight:700;font-size:'+fz+'px;">'+d.name+'</div>';
+        inner += '<div style="font-size:'+(fz-2)+'px;">'+(d.yoy>=0?'↑':'↓')+Math.abs(d.yoy)+'%</div>';
+      } else {
+        inner += '<div style="font-weight:600;font-size:9px;">'+d.name+'</div>';
+      }
+      inner += '</div>';
+      div.innerHTML = inner;
+      
+      div.addEventListener('mouseenter',function(e){
+        tipName.textContent = d.name;
+        tipAmount.textContent = d.amount.toLocaleString('zh-CN',{minimumFractionDigits:1})+' 万';
+        tipAmount.style.color = text;
+        var yoyT = (d.yoy>=0?'+':'')+d.yoy+'%';
+        tipYoy.textContent = yoyT;
+        tipYoy.style.color = d.yoy>=0?'#dc2626':'#16a34a';
+        tipTarget.textContent = d.target.toLocaleString()+' 万';
+        tipRate.textContent = d.rate+'%';
+        tipRate.style.color = d.rate>=100?'var(--success)':(d.rate>=80?'#b38a00':'var(--danger)');
+        tipPct.textContent = d.progress+'%';
+        tipBar.style.width = Math.min(d.progress,100)+'%';
+        tipBar.style.backgroundColor = d.progress>=80?'var(--success)':(d.progress>=50?'var(--warning)':'var(--danger)');
+        tip.style.display = 'block';
+      });
+      div.addEventListener('mouseleave',function(){ tip.style.display='none'; });
+      div.addEventListener('mousemove',function(e){
+        var tx=e.clientX+16,ty=e.clientY+16;
+        if(tx+280>window.innerWidth) tx=e.clientX-280;
+        if(ty+200>window.innerHeight) ty=e.clientY-210;
+        tip.style.left=tx+'px'; tip.style.top=ty+'px';
+      });
+      container.appendChild(div);
     });
     
-    div.addEventListener('mouseleave', function() { tip.style.display = 'none'; });
-    
-    // Track mouse for tooltip positioning
-    div.addEventListener('mousemove', function(e) {
-      var tx = e.clientX + 16, ty = e.clientY + 16;
-      if (tx + 280 > window.innerWidth) tx = e.clientX - 280;
-      if (ty + 200 > window.innerHeight) ty = e.clientY - 210;
-      tip.style.left = tx + 'px';
-      tip.style.top = ty + 'px';
-    });
-    
-    container.appendChild(div);
-  });
-
-  renderKa50Table();
+    renderKa50Table();
+  }, 50);
 }
 
 function renderKa50Table() {
