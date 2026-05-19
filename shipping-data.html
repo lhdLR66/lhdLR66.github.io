@@ -580,11 +580,11 @@ refresh('4月');
   <!-- 三张可折叠明细表 -->
   <div class="three-col" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
     <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('shipTableBody','shipToggleIcon')">📦 发货明细（23省）<span id="shipToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
-      <div id="shipTableBody"><table id="shipDetailTable" style="font-size:12px;"><thead><tr><th>省区</th><th class="num">完成</th><th class="num">同比</th><th class="num">进度</th></tr></thead><tbody></tbody></table></div></div>
+      <div id="shipTableBody"><table id="shipDetailTable" style="font-size:12px;"><thead><tr><th onclick="sortTable('shipDetailTable',shipData,shipTotal,0)" style="cursor:pointer;user-select:none;">省区 <span class="sa"></span></th><th class="num" onclick="sortTable('shipDetailTable',shipData,shipTotal,1)" style="cursor:pointer;user-select:none;">完成 <span class="sa"></span></th><th class="num" onclick="sortTable('shipDetailTable',shipData,shipTotal,2)" style="cursor:pointer;user-select:none;">同比 <span class="sa"></span></th><th class="num" onclick="sortTable('shipDetailTable',shipData,shipTotal,3)" style="cursor:pointer;user-select:none;">进度 <span class="sa"></span></th></tr></thead><tbody></tbody></table></div></div>
     <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('deliveryTableBody','deliveryToggleIcon')">🚚 终端配送明细（23省）<span id="deliveryToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
-      <div id="deliveryTableBody"><table id="deliveryDetailTable" style="font-size:12px;"><thead><tr><th>省区</th><th class="num">完成</th><th class="num">同比</th><th class="num">进度</th></tr></thead><tbody></tbody></table></div></div>
+      <div id="deliveryTableBody"><table id="deliveryDetailTable" style="font-size:12px;"><thead><tr><th onclick="sortTable('deliveryDetailTable',deliveryData,deliveryTotal,0)" style="cursor:pointer;user-select:none;">省区 <span class="sa"></span></th><th class="num" onclick="sortTable('deliveryDetailTable',deliveryData,deliveryTotal,1)" style="cursor:pointer;user-select:none;">完成 <span class="sa"></span></th><th class="num" onclick="sortTable('deliveryDetailTable',deliveryData,deliveryTotal,2)" style="cursor:pointer;user-select:none;">同比 <span class="sa"></span></th><th class="num" onclick="sortTable('deliveryDetailTable',deliveryData,deliveryTotal,3)" style="cursor:pointer;user-select:none;">进度 <span class="sa"></span></th></tr></thead><tbody></tbody></table></div></div>
     <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('ka50TableBody','ka50ToggleIcon')">🏪 KA50纯销明细（23省）<span id="ka50ToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
-      <div id="ka50TableBody"><table id="ka50DetailTable" style="font-size:12px;"><thead><tr><th>省区</th><th class="num">完成</th><th class="num">同比</th><th class="num">进度</th></tr></thead><tbody></tbody></table></div></div>
+      <div id="ka50TableBody"><table id="ka50DetailTable" style="font-size:12px;"><thead><tr><th onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,0)" style="cursor:pointer;user-select:none;">省区 <span class="sa"></span></th><th class="num" onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,1)" style="cursor:pointer;user-select:none;">完成 <span class="sa"></span></th><th class="num" onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,2)" style="cursor:pointer;user-select:none;">同比 <span class="sa"></span></th><th class="num" onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,3)" style="cursor:pointer;user-select:none;">进度 <span class="sa"></span></th></tr></thead><tbody></tbody></table></div></div>
   </div>
 </div>
 
@@ -765,10 +765,39 @@ function renderMiniTable(tableId, dataArr, total) {
   dataArr.forEach(function(d){
     var yoyT = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
     var yoyC = d.yoy >= 0 ? 'var(--danger)' : 'var(--success)';
-    html += '<tr><td>'+d.name+'</td><td class="num">'+d.amount.toFixed(1)+'</td><td class="num" style="color:'+yoyC+';">'+yoyT+'</td><td class="num">'+d.progress+'%</td></tr>';
+    var pBarC = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? 'var(--warning)' : 'var(--danger)');
+    html += '<tr><td>'+d.name+'</td><td class="num">'+d.amount.toFixed(1)+'</td><td class="num" style="color:'+yoyC+';">'+yoyT+'</td><td class="num" style="padding:4px 8px;"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="progress-bar-bg" style="width:56px;height:6px;border-radius:3px;"><div style="height:100%;width:'+d.progress+'%;border-radius:3px;background:'+pBarC+';"></div></div><span style="font-size:11px;white-space:nowrap;">'+d.progress+'%</span></div></td></tr>';
   });
   html += '<tr class="total"><td>合计（23省）</td><td class="num">'+total.toFixed(1)+'</td><td class="num">—</td><td class="num">—</td></tr>';
   document.querySelector('#'+tableId+' tbody').innerHTML = html;
+}
+
+/* ====== 表格排序 ====== */
+var tableSort = {};
+function sortTable(tableId, dataArr, total, col) {
+  var s = tableSort[tableId] || {col:-1,asc:true};
+  if (s.col === col) { s.asc = !s.asc; }
+  else { s.col = col; s.asc = true; }
+  tableSort[tableId] = s;
+  var sorted = dataArr.slice().sort(function(a,b){
+    var va, vb;
+    if (col === 0) { va = a.name; vb = b.name; return s.asc ? va.localeCompare(vb,'zh') : vb.localeCompare(va,'zh'); }
+    if (col === 1) { va = a.amount; vb = b.amount; }
+    else if (col === 2) { va = a.yoy; vb = b.yoy; }
+    else { va = a.progress; vb = b.progress; }
+    return s.asc ? va - vb : vb - va;
+  });
+  renderMiniTable(tableId, sorted, total);
+  // 更新排序箭头
+  var thead = document.querySelector('#'+tableId+' thead');
+  if (!thead) return;
+  var ths = thead.querySelectorAll('th');
+  ths.forEach(function(th,i){
+    var sp = th.querySelector('.sa');
+    if (!sp) return;
+    if (i === s.col) { sp.textContent = s.asc ? ' ▲' : ' ▼'; sp.style.color='var(--primary)'; }
+    else { sp.textContent = ''; }
+  });
 }
 
 function toggleTable(bodyId, iconId) {
