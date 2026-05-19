@@ -652,8 +652,9 @@ function initKa50Section() {
       var tmp = items[i]; items[i] = items[j]; items[j] = tmp;
     }
     
-    /* Squarified treemap — 全量递归，不分组，自然填满 */
-    function squarify(items, x, y, w, h) {
+    /* 强制交替方向：偶数层横切、奇数层竖切，层层嵌套形成交错效果 */
+    function squarify(items, x, y, w, h, depth) {
+      depth = depth || 0;
       if (items.length === 0 || w <= 0 || h <= 0) return [];
       function worstRatio(row, sideLen) {
         var s = row.reduce(function(a,b){return a+b.area;},0);
@@ -670,7 +671,7 @@ function initKa50Section() {
       var result = [];
       var total = items.reduce(function(a,b){return a+b.area;},0);
       if (total <= 0) return [];
-      var horizontal = (w >= h);
+      var horizontal = (depth % 2 === 0); // 强制交替
       var sideLen = horizontal ? w : h;
       var row = [items[0]];
       var rest = items.slice(1);
@@ -692,7 +693,7 @@ function initKa50Section() {
           result.push({x: cx, y: y, w: iw, h: rowH, d: row[m]});
           cx += iw;
         }
-        return result.concat(squarify(rest, x, y + rowH, w, h - rowH));
+        return result.concat(squarify(rest, x, y + rowH, w, h - rowH, depth + 1));
       } else {
         var colW = w * (rowArea / totalRow);
         var cy = y;
@@ -701,11 +702,11 @@ function initKa50Section() {
           result.push({x: x, y: cy, w: colW, h: ih, d: row[n]});
           cy += ih;
         }
-        return result.concat(squarify(rest, x + colW, y, w - colW, h));
+        return result.concat(squarify(rest, x + colW, y, w - colW, h, depth + 1));
       }
     }
     
-    var rects = squarify(items, 0, 0, W, H);
+    var rects = squarify(items, 0, 0, W, H, 0);
     if (rects.length === 0) return;
     container.innerHTML = '';
     
@@ -722,13 +723,13 @@ function initKa50Section() {
       var d = r.d;
       var absYoy = Math.abs(d.yoy), bg, text;
       if (d.yoy >= 0) {
-        if (absYoy >= 50)      { bg='#ff6b6b'; text='#fff'; }
-        else if (absYoy >= 20) { bg='#ff9999'; text='#333'; }
-        else                   { bg='#ffcccc'; text='#333'; }
+        if (absYoy >= 50)      { bg='#ef4444'; text='#fff'; }
+        else if (absYoy >= 20) { bg='#f87171'; text='#fff'; }
+        else                   { bg='#fca5a5'; text='#333'; }
       } else {
-        if (absYoy >= 50)      { bg='#51e9c4'; text='#333'; }
-        else if (absYoy >= 20) { bg='#77e7b7'; text='#333'; }
-        else                   { bg='#a0f0d4'; text='#333'; }
+        if (absYoy >= 50)      { bg='#2dd4a8'; text='#333'; }
+        else if (absYoy >= 20) { bg='#5ee8b4'; text='#333'; }
+        else                   { bg='#8cf0d0'; text='#333'; }
       }
       
       var div = document.createElement('div');
