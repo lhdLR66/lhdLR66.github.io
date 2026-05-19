@@ -546,9 +546,8 @@ refresh('4月');
     <span class="hint">矩形大小 = 纯销额占比 | 红底 = 同比增长 · 绿底 = 同比下滑 | 悬浮查看详情</span>
   </div>
   
-  <!-- Treemap：按面积分两组交错排列，填满空间 -->
   <div class="table-card" style="padding:16px;margin-bottom:16px;">
-    <div id="ka50Treemap" style="width:100%;height:680px;position:relative;overflow:hidden;border-radius:8px;background:#f1f5f9;"></div>
+    <div style="height:640px;"><canvas id="ka50Chart"></canvas></div>
   </div>
 
   <!-- 悬浮提示（精简：仅当月进度 + 年度指标 + 年度进度条） -->
@@ -639,143 +638,81 @@ var ka50Data = [
 var ka50Total = ka50Data.reduce(function(s,d){return s+d.amount;},0);
 
 function initKa50Section() {
-  setTimeout(function(){
-    var container = document.getElementById('ka50Treemap');
-    if (!container) return;
-    var W = container.offsetWidth || 1200;
-    if (W < 300) W = 900;
-    var H = 680, GAP = 1;
-    var items = ka50Data.map(function(d){ return {name:d.name, amount:d.amount, yoy:d.yoy, rate:d.rate, target:d.target, progress:d.progress, area:d.amount}; });
-    // Fisher-Yates 随机打乱
-    for (var i = items.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = items[i]; items[i] = items[j]; items[j] = tmp;
+  var canvas = document.getElementById('ka50Chart');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  // 按销售额降序
+  var sorted = ka50Data.slice().sort(function(a,b){return b.amount - a.amount;});
+  var labels = sorted.map(function(d){return d.name;});
+  var values = sorted.map(function(d){return d.amount;});
+  
+  var tip = document.getElementById('ka50Tooltip');
+  var tipName = document.getElementById('ka50TtName');
+  var tipRate = document.getElementById('ka50TtRate');
+  var tipTarget = document.getElementById('ka50TtTarget');
+  var tipPct = document.getElementById('ka50TtProgressPct');
+  var tipBar = document.getElementById('ka50TtBar');
+  
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: sorted.map(function(d){
+          var a = Math.abs(d.yoy);
+          if (d.yoy >= 0) return a >= 50 ? '#e74c3c' : (a >= 20 ? '#f1948a' : '#fadbd8');
+          else            return a >= 50 ? '#27ae60' : (a >= 20 ? '#82e0aa' : '#d5f5e3');
+        }),
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { right: 110 } },
+      scales: {
+        x: { grid: { color: '#e8ecf1' }, ticks: { callback: function(v){return v+'万';}, font:{size:11} } },
+        y: { grid: { display: false }, ticks: { font: { size: 13, weight: 'bold' } } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+        datalabels: {
+          anchor: 'end', align: 'end', offset: 4,
+          color: '#333', font: { size: 11, weight: '600' },
+          formatter: function(v, ctx){
+            var d = sorted[ctx.dataIndex];
+            var sign = d.yoy >= 0 ? '+' : '';
+            return d.amount+'万  '+sign+d.yoy+'%';
+          }
+        }
+      },
+      onHover: function(e, els){
+        if (els && els.length > 0) {
+          var d = sorted[els[0].index];
+          tipName.textContent = d.name;
+          tipRate.textContent = d.rate + '%';
+          tipRate.style.color = d.rate >= 100 ? 'var(--success)' : (d.rate >= 80 ? '#b38a00' : 'var(--danger)');
+          tipTarget.textContent = d.target.toLocaleString() + ' 万';
+          tipPct.textContent = d.progress + '%';
+          tipBar.style.width = Math.min(d.progress, 100) + '%';
+          tipBar.style.backgroundColor = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? 'var(--warning)' : 'var(--danger)');
+          tip.style.display = 'block';
+          var tx = e.x + 16, ty = e.y + 16;
+          if (tx + 260 > window.innerWidth) tx = e.x - 260;
+          if (ty + 180 > window.innerHeight) ty = e.y - 190;
+          tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+        } else {
+          tip.style.display = 'none';
+        }
+      }
     }
-    
-    /* 强制交替方向：偶数层横切、奇数层竖切，层层嵌套形成交错效果 */
-    function squarify(items, x, y, w, h, depth) {
-      depth = depth || 0;
-      if (items.length === 0 || w <= 0 || h <= 0) return [];
-      function worstRatio(row, sideLen) {
-        var s = row.reduce(function(a,b){return a+b.area;},0);
-        if (s <= 0) return Infinity;
-        var worst = 0;
-        for (var k = 0; k < row.length; k++) {
-          var rw = sideLen * (row[k].area / s);
-          var rh = s / sideLen;
-          var ar = Math.max(rw/rh, rh/rw);
-          if (ar > worst) worst = ar;
-        }
-        return worst;
-      }
-      var result = [];
-      var total = items.reduce(function(a,b){return a+b.area;},0);
-      if (total <= 0) return [];
-      var horizontal = (depth % 2 === 0); // 强制交替
-      var sideLen = horizontal ? w : h;
-      var row = [items[0]];
-      var rest = items.slice(1);
-      while (rest.length > 0) {
-        var curW = worstRatio(row, sideLen);
-        var test = row.concat(rest[0]);
-        var newW = worstRatio(test, sideLen);
-        if (newW <= curW) { row.push(rest.shift()); }
-        else break;
-      }
-      var rowArea = row.reduce(function(a,b){return a+b.area;},0);
-      var restArea = rest.reduce(function(a,b){return a+b.area;},0);
-      var totalRow = rowArea + restArea;
-      if (horizontal) {
-        var rowH = h * (rowArea / totalRow);
-        var cx = x;
-        for (var m = 0; m < row.length; m++) {
-          var iw = w * (row[m].area / rowArea);
-          result.push({x: cx, y: y, w: iw, h: rowH, d: row[m]});
-          cx += iw;
-        }
-        return result.concat(squarify(rest, x, y + rowH, w, h - rowH, depth + 1));
-      } else {
-        var colW = w * (rowArea / totalRow);
-        var cy = y;
-        for (var n = 0; n < row.length; n++) {
-          var ih = h * (row[n].area / rowArea);
-          result.push({x: x, y: cy, w: colW, h: ih, d: row[n]});
-          cy += ih;
-        }
-        return result.concat(squarify(rest, x + colW, y, w - colW, h, depth + 1));
-      }
-    }
-    
-    var rects = squarify(items, 0, 0, W, H, 0);
-    if (rects.length === 0) return;
-    container.innerHTML = '';
-    
-    var tip = document.getElementById('ka50Tooltip');
-    var tipName = document.getElementById('ka50TtName');
-    var tipRate = document.getElementById('ka50TtRate');
-    var tipTarget = document.getElementById('ka50TtTarget');
-    var tipPct = document.getElementById('ka50TtProgressPct');
-    var tipBar = document.getElementById('ka50TtBar');
-    
-    rects.forEach(function(r){
-      var boxW = r.w - GAP, boxH = r.h - GAP;
-      if (boxW < 4 || boxH < 4) return;
-      var d = r.d;
-      var absYoy = Math.abs(d.yoy), bg, text;
-      if (d.yoy >= 0) {
-        if (absYoy >= 50)      { bg='#ef4444'; text='#fff'; }
-        else if (absYoy >= 20) { bg='#f87171'; text='#fff'; }
-        else                   { bg='#fca5a5'; text='#333'; }
-      } else {
-        if (absYoy >= 50)      { bg='#2dd4a8'; text='#333'; }
-        else if (absYoy >= 20) { bg='#5ee8b4'; text='#333'; }
-        else                   { bg='#8cf0d0'; text='#333'; }
-      }
-      
-      var div = document.createElement('div');
-      div.style.cssText = 'position:absolute;left:'+r.x+'px;top:'+r.y+'px;width:'+boxW+'px;height:'+boxH+'px;'+
-        'background:'+bg+';border:1px solid #fff;border-radius:3px;cursor:pointer;'+
-        'overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;'+
-        'transition:filter 0.15s;font-family:"Microsoft YaHei",Poppins,sans-serif;';
-      
-      var fz = Math.min(boxW,boxH) > 60 ? 15 : (Math.min(boxW,boxH) > 40 ? 13 : 11);
-      var yoyLabel = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
-      var inner = '<div style="text-align:center;color:'+text+';line-height:1.25;padding:2px;">';
-      if (boxW > 55 && boxH > 35) {
-        inner += '<div style="font-weight:700;font-size:'+fz+'px;">'+d.name+'</div>';
-        inner += '<div style="font-size:'+(fz-1)+'px;font-weight:600;">'+d.amount+'万</div>';
-        inner += '<div style="font-size:'+(fz-2)+'px;font-weight:500;opacity:0.9;">'+yoyLabel+'</div>';
-      } else if (boxW > 35 && boxH > 22) {
-        inner += '<div style="font-weight:700;font-size:'+fz+'px;">'+d.name+'</div>';
-        inner += '<div style="font-size:'+(fz-2)+'px;opacity:0.9;">'+yoyLabel+'</div>';
-      } else {
-        inner += '<div style="font-weight:600;font-size:10px;">'+d.name+'</div>';
-      }
-      inner += '</div>';
-      div.innerHTML = inner;
-      
-      div.addEventListener('mouseenter',function(e){
-        tipName.textContent = d.name;
-        tipRate.textContent = d.rate + '%';
-        tipRate.style.color = d.rate >= 100 ? 'var(--success)' : (d.rate >= 80 ? '#b38a00' : 'var(--danger)');
-        tipTarget.textContent = d.target.toLocaleString() + ' 万';
-        tipPct.textContent = d.progress + '%';
-        tipBar.style.width = Math.min(d.progress, 100) + '%';
-        tipBar.style.backgroundColor = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? 'var(--warning)' : 'var(--danger)');
-        tip.style.display = 'block';
-      });
-      div.addEventListener('mouseleave',function(){ tip.style.display='none'; });
-      div.addEventListener('mousemove',function(e){
-        var tx=e.clientX+16,ty=e.clientY+16;
-        if(tx+260>window.innerWidth) tx=e.clientX-260;
-        if(ty+180>window.innerHeight) ty=e.clientY-190;
-        tip.style.left=tx+'px'; tip.style.top=ty+'px';
-      });
-      container.appendChild(div);
-    });
-    
-    renderKa50Table();
-  }, 50);
+  });
+  
+  renderKa50Table();
 }
 
 function renderKa50Table() {
@@ -844,7 +781,7 @@ function initOtcCharts() {
   });
 
   /* KA50纯销 · 省区明细 */
-  if(document.getElementById('ka50Treemap')) initKa50Section();
+  if(document.getElementById('ka50Chart')) initKa50Section();
 }
 </script>
 
