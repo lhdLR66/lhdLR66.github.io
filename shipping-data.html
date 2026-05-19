@@ -790,6 +790,57 @@ function initAllProvinceCharts() {
   renderMiniTable('deliveryDetailTable', deliveryData, deliveryTotal);
   renderMiniTable('ka50DetailTable', ka50Data, ka50Total);
 }
+
+/* ====== 4月单月图表数据（发货 vs 终端配送） ====== */
+var otcMonth4Data = {
+  ship: 2079.79,    // OTC 4月发货
+  delivery: 926.28  // OTC 4月终端配送
+};
+
+function initOtcMonth4Chart() {
+  var canvas = document.getElementById('otcMonth4Chart');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['📦 发货', '🚚 终端配送'],
+      datasets: [{
+        label: '完成（万元）',
+        data: [otcMonth4Data.ship, otcMonth4Data.delivery],
+        backgroundColor: ['#4361ee', '#f72585'],
+        borderRadius: 4
+      }, {
+        label: '预算（万元）',
+        data: [17266.43, 8996.87],
+        backgroundColor: ['rgba(67,97,238,0.25)', 'rgba(247,37,133,0.25)'],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: function(v){ return v + '万'; } } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx2){ return ctx2.dataset.label + ': ' + ctx2.raw.toFixed(2) + ' 万'; } } },
+        datalabels: {
+          anchor: 'end', align: 'end', offset: 3,
+          formatter: function(v){ return v.toFixed(1) + '万'; },
+          font: { size: 11, weight: '600' },
+          color: '#333'
+        }
+      }
+    }
+  });
+}
+
+function initOtcCharts() {
+  if (otcChartsReady) return;
+  initAllProvinceCharts();
+  initOtcMonth4Chart();
+  otcChartsReady = true;
 }
 </script>
 
