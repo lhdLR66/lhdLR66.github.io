@@ -66,7 +66,7 @@
             padding-top: 10px;
         }
         .sidebar .nav-section { padding:12px 20px 6px; font-size:13px; font-weight:600; letter-spacing:1px; opacity:0.7; border-bottom:1px solid rgba(255,255,255,0.15); margin:0 16px 8px; }
-        .main { margin-left:200px; padding:28px; max-width: 1300px; }
+        .main { flex:1; margin-left:200px; padding:28px; }
 
         /* Tabs */
         .tabs { display:flex; gap:6px; margin-bottom:24px; background:var(--card); border-radius:var(--radius); padding:6px; box-shadow:var(--shadow); }
@@ -550,17 +550,21 @@ refresh('4月');
     <div style="height:640px;"><canvas id="ka50Chart"></canvas></div>
   </div>
 
-  <!-- 悬浮提示（精简：仅当月进度 + 年度指标 + 年度进度条） -->
+  <!-- 悬浮提示 -->
   <div id="ka50Tooltip" style="display:none;position:fixed;z-index:1000;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:18px 20px;min-width:240px;pointer-events:none;border:1px solid var(--border);">
     <div id="ka50TtName" style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text);"></div>
-    <div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:10px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 16px;margin-bottom:10px;">
       <div>
         <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">当期指标进度</div>
-        <div id="ka50TtRate" style="font-size:20px;font-weight:700;"></div>
+        <div id="ka50TtRate" style="font-size:16px;font-weight:700;"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">同比增长率</div>
+        <div id="ka50TtYoy" style="font-size:16px;font-weight:700;"></div>
       </div>
       <div>
         <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">年度指标</div>
-        <div id="ka50TtTarget" style="font-size:20px;font-weight:700;"></div>
+        <div id="ka50TtTarget" style="font-size:16px;font-weight:700;"></div>
       </div>
     </div>
     <div style="font-size:11px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between;">
@@ -649,6 +653,7 @@ function initKa50Section() {
   var tip = document.getElementById('ka50Tooltip');
   var tipName = document.getElementById('ka50TtName');
   var tipRate = document.getElementById('ka50TtRate');
+  var tipYoy = document.getElementById('ka50TtYoy');
   var tipTarget = document.getElementById('ka50TtTarget');
   var tipPct = document.getElementById('ka50TtProgressPct');
   var tipBar = document.getElementById('ka50TtBar');
@@ -696,6 +701,9 @@ function initKa50Section() {
           tipName.textContent = d.name;
           tipRate.textContent = d.rate + '%';
           tipRate.style.color = d.rate >= 100 ? 'var(--success)' : (d.rate >= 80 ? '#b38a00' : 'var(--danger)');
+          var yoyT = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
+          tipYoy.textContent = yoyT;
+          tipYoy.style.color = d.yoy >= 0 ? 'var(--danger)' : 'var(--success)';
           tipTarget.textContent = d.target.toLocaleString() + ' 万';
           tipPct.textContent = d.progress + '%';
           tipBar.style.width = Math.min(d.progress, 100) + '%';
