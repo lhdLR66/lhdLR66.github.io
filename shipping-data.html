@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -540,63 +541,54 @@ refresh('4月');
   </div>
 </div>
 
-<!-- KA50纯销 · 省区明细（Treemap） -->
+<!-- 省区明细三图：发货 | 终端配送 | KA50纯销 -->
 <div class="section">
-  <div class="section-title"><i class="fas fa-store-alt"></i> KA50纯销 · 省区明细（1-4月累计）
-    <span class="hint">矩形大小 = 纯销额占比 | 红底 = 同比增长 · 绿底 = 同比下滑 | 悬浮查看详情</span>
-  </div>
-  
-  <div class="table-card" style="padding:16px;margin-bottom:16px;">
-    <div style="height:640px;"><canvas id="ka50Chart"></canvas></div>
+  <div class="section-title"><i class="fas fa-chart-bar"></i> 复方阿胶浆 · 省区明细（1-4月累计）
+    <span class="hint">按完成金额降序 | 红柱 = 同比增长 · 绿柱 = 同比下滑 | 悬浮查看详情</span>
   </div>
 
-  <!-- 悬浮提示 -->
+  <div class="three-col" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;">
+    <!-- 发货 -->
+    <div class="table-card" style="padding:12px;">
+      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">📦 发货</div>
+      <div style="height:520px;"><canvas id="shipChart"></canvas></div>
+    </div>
+    <!-- 终端配送 -->
+    <div class="table-card" style="padding:12px;">
+      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">🚚 终端配送</div>
+      <div style="height:520px;"><canvas id="deliveryChart"></canvas></div>
+    </div>
+    <!-- KA50纯销 -->
+    <div class="table-card" style="padding:12px;">
+      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">🏪 KA50纯销</div>
+      <div style="height:520px;"><canvas id="ka50Chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 共享悬浮提示 -->
   <div id="ka50Tooltip" style="display:none;position:fixed;z-index:1000;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:18px 20px;min-width:240px;pointer-events:none;border:1px solid var(--border);">
     <div id="ka50TtName" style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text);"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 16px;margin-bottom:10px;">
-      <div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">当期指标进度</div>
-        <div id="ka50TtRate" style="font-size:16px;font-weight:700;"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">同比增长率</div>
-        <div id="ka50TtYoy" style="font-size:16px;font-weight:700;"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">年度指标</div>
-        <div id="ka50TtTarget" style="font-size:16px;font-weight:700;"></div>
-      </div>
+      <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px;">当期指标进度</div>
+        <div id="ka50TtRate" style="font-size:16px;font-weight:700;"></div></div>
+      <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px;">同比增长率</div>
+        <div id="ka50TtYoy" style="font-size:16px;font-weight:700;"></div></div>
+      <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px;">年度指标</div>
+        <div id="ka50TtTarget" style="font-size:16px;font-weight:700;"></div></div>
     </div>
     <div style="font-size:11px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between;">
-      <span>年度进度</span>
-      <span id="ka50TtProgressPct" style="font-weight:600;"></span>
-    </div>
+      <span>年度进度</span><span id="ka50TtProgressPct" style="font-weight:600;"></span></div>
     <div class="progress-bar-bg" style="height:8px;"><div id="ka50TtBar" class="progress-bar-fill fill-warning" style="height:100%;border-radius:4px;"></div></div>
   </div>
-  </div>
 
-  <!-- 可折叠完整明细表 -->
-  <div class="table-card">
-    <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleKa50Table()">
-      <span style="font-weight:600;font-size:14px;"><i class="fas fa-table" style="color:var(--primary);margin-right:6px;"></i>完整省区明细表（共21省区）</span>
-      <span id="ka50ToggleIcon" style="color:var(--text2);transition:transform 0.3s;"><i class="fas fa-chevron-down"></i></span>
-    </div>
-    <div id="ka50TableBody">
-      <table id="ka50DetailTable">
-        <thead>
-          <tr>
-            <th>排名</th>
-            <th>省区</th>
-            <th class="num">1-4月完成（万元）</th>
-            <th class="num">完成率</th>
-            <th class="num">同比变化</th>
-            <th class="num">年度指标（万元）</th>
-            <th class="num">年度进度</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+  <!-- 三张可折叠明细表 -->
+  <div class="three-col" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+    <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('shipTableBody','shipToggleIcon')">📦 发货明细（23省）<span id="shipToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
+      <div id="shipTableBody"><table id="shipDetailTable" style="font-size:12px;"><thead><tr><th>省区</th><th class="num">完成</th><th class="num">同比</th><th class="num">进度</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('deliveryTableBody','deliveryToggleIcon')">🚚 终端配送明细（23省）<span id="deliveryToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
+      <div id="deliveryTableBody"><table id="deliveryDetailTable" style="font-size:12px;"><thead><tr><th>省区</th><th class="num">完成</th><th class="num">同比</th><th class="num">进度</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('ka50TableBody','ka50ToggleIcon')">🏪 KA50纯销明细（23省）<span id="ka50ToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
+      <div id="ka50TableBody"><table id="ka50DetailTable" style="font-size:12px;"><thead><tr><th>省区</th><th class="num">完成</th><th class="num">同比</th><th class="num">进度</th></tr></thead><tbody></tbody></table></div></div>
   </div>
 </div>
 
@@ -615,181 +607,189 @@ function switchTab(name) {
 
 var otcChartsReady = false;
 
-/* KA50纯销省区数据（1-4月累计） */
-var ka50Data = [
-  {name:'江苏', amount:3362.6, rate:103, yoy:50, target:10716, progress:31},
-  {name:'山东', amount:3067.1, rate:68, yoy:-1, target:14954, progress:20},
-  {name:'广东', amount:2882.7, rate:103, yoy:37, target:9266, progress:31},
-  {name:'浙沪', amount:2580.7, rate:125, yoy:4, target:6826, progress:38},
-  {name:'安徽', amount:2353.3, rate:99, yoy:-29, target:7851, progress:30},
-  {name:'冀晋', amount:1365.6, rate:71, yoy:-9, target:6310, progress:22},
-  {name:'湖北', amount:1021.6, rate:62, yoy:24, target:5456, progress:19},
-  {name:'甘青宁', amount:991.5, rate:133, yoy:123, target:2450, progress:40},
-  {name:'湖南', amount:885.4, rate:64, yoy:79, target:4584, progress:19},
-  {name:'四川', amount:830.1, rate:59, yoy:-10, target:4609, progress:18},
-  {name:'陕西', amount:794.4, rate:48, yoy:-16, target:5395, progress:15},
-  {name:'贵州', amount:662.0, rate:138, yoy:9, target:1586, progress:42},
-  {name:'河南', amount:627.7, rate:71, yoy:-34, target:2898, progress:22},
-  {name:'东北', amount:511.0, rate:63, yoy:-51, target:2666, progress:19},
-  {name:'京津', amount:499.7, rate:65, yoy:-20, target:2534, progress:20},
-  {name:'新疆', amount:448.6, rate:101, yoy:37, target:1465, progress:31},
-  {name:'云南', amount:416.2, rate:41, yoy:-31, target:3362, progress:12},
-  {name:'广西', amount:235.5, rate:45, yoy:-50, target:1736, progress:14},
-  {name:'江西', amount:199.8, rate:40, yoy:-22, target:1638, progress:12},
-  {name:'福建', amount:190.6, rate:68, yoy:1, target:917, progress:21},
-  {name:'重庆', amount:182.6, rate:49, yoy:-37, target:1231, progress:15}
+/* ====== 省区数据（复方阿胶浆 1-4月累计，23省） ====== */
+var shipData = [
+  {name:"广东", amount:4799.1, yoy:-22.6, target:20205.2, progress:23.8},
+  {name:"陕西", amount:4565.3, yoy:-30.5, target:11310.1, progress:40.4},
+  {name:"湖北", amount:4094.8, yoy:-16.6, target:12521.9, progress:32.7},
+  {name:"冀晋", amount:3013.7, yoy:-28.7, target:12582.9, progress:23.9},
+  {name:"湖南", amount:2820.7, yoy:1439.7, target:6209.1, progress:45.4},
+  {name:"江苏", amount:2728.2, yoy:-67.0, target:17504.0, progress:15.6},
+  {name:"甘青宁", amount:2680.8, yoy:3.8, target:5316.7, progress:50.4},
+  {name:"安徽", amount:2333.2, yoy:-61.7, target:17511.9, progress:13.3},
+  {name:"山东", amount:2224.2, yoy:-82.7, target:32545.3, progress:6.8},
+  {name:"东北", amount:1759.6, yoy:-46.5, target:11565.3, progress:15.2},
+  {name:"京津", amount:1603.1, yoy:122.6, target:7877.4, progress:20.3},
+  {name:"浙江", amount:1546.0, yoy:-38.4, target:10000.4, progress:15.5},
+  {name:"上海", amount:1318.3, yoy:320.4, target:11528.7, progress:11.4},
+  {name:"重庆", amount:1274.5, yoy:-50.1, target:10961.7, progress:11.6},
+  {name:"四川", amount:1196.4, yoy:-70.8, target:20864.4, progress:5.7},
+  {name:"贵州", amount:1060.9, yoy:-15.6, target:5340.5, progress:19.9},
+  {name:"江西", amount:921.1, yoy:-63.6, target:6392.0, progress:14.4},
+  {name:"新疆", amount:739.0, yoy:-56.2, target:3874.4, progress:19.1},
+  {name:"福建", amount:710.7, yoy:-35.5, target:5372.7, progress:13.2},
+  {name:"河南", amount:650.2, yoy:-44.3, target:3483.9, progress:18.7},
+  {name:"云南", amount:346.0, yoy:-51.3, target:4636.3, progress:7.5},
+  {name:"广西", amount:26.7, yoy:-96.0, target:3843.8, progress:0.7},
+  {name:"海南", amount:0.0, yoy:0, target:954.1, progress:0.0}
 ];
-var ka50Total = ka50Data.reduce(function(s,d){return s+d.amount;},0);
+var shipTotal = 42412.5;
 
-function initKa50Section() {
-  var canvas = document.getElementById('ka50Chart');
+var deliveryData = [
+  {name:"山东", amount:4528.3, yoy:-44.0, target:32535.0, progress:13.9},
+  {name:"湖南", amount:2467.0, yoy:794.3, target:4739.0, progress:52.1},
+  {name:"江苏", amount:2318.3, yoy:148.0, target:17759.0, progress:13.1},
+  {name:"冀晋", amount:2263.1, yoy:17.0, target:11878.0, progress:19.1},
+  {name:"京津", amount:2243.3, yoy:63.9, target:6035.0, progress:37.2},
+  {name:"广东", amount:2017.0, yoy:-23.6, target:16522.0, progress:12.2},
+  {name:"陕西", amount:1693.2, yoy:-51.7, target:10921.0, progress:15.5},
+  {name:"重庆", amount:1502.6, yoy:21.0, target:9794.0, progress:15.3},
+  {name:"甘青宁", amount:1496.9, yoy:14.8, target:5498.0, progress:27.2},
+  {name:"浙江", amount:1146.4, yoy:-35.9, target:10202.0, progress:11.2},
+  {name:"新疆", amount:767.5, yoy:-35.6, target:3698.0, progress:20.8},
+  {name:"上海", amount:661.8, yoy:-43.8, target:7485.0, progress:8.8},
+  {name:"东北", amount:621.7, yoy:-55.1, target:9259.0, progress:6.7},
+  {name:"广西", amount:538.1, yoy:72.2, target:3631.0, progress:14.8},
+  {name:"湖北", amount:479.3, yoy:-78.3, target:13619.0, progress:3.5},
+  {name:"云南", amount:357.3, yoy:-9.2, target:4459.0, progress:8.0},
+  {name:"河南", amount:163.8, yoy:-74.1, target:4193.0, progress:3.9},
+  {name:"贵州", amount:143.2, yoy:-65.0, target:4288.0, progress:3.3},
+  {name:"福建", amount:131.7, yoy:-75.2, target:3938.0, progress:3.3},
+  {name:"安徽", amount:57.9, yoy:-98.7, target:16570.0, progress:0.4},
+  {name:"海南", amount:50.2, yoy:-77.8, target:954.0, progress:5.3},
+  {name:"江西", amount:-12.8, yoy:-100.6, target:5051.0, progress:-0.2},
+  {name:"四川", amount:516.8, yoy:-83.4, target:17420.0, progress:3.0}
+];
+var deliveryTotal = 26152.6;
+
+var ka50Data = [
+  {name:"江苏", amount:3362.6, yoy:50.0, target:10716.0, progress:31.4},
+  {name:"山东", amount:3067.1, yoy:-0.8, target:14954.0, progress:20.5},
+  {name:"广东", amount:2792.9, yoy:41.2, target:9072.0, progress:30.8},
+  {name:"安徽", amount:2353.3, yoy:-28.9, target:7851.0, progress:30.0},
+  {name:"上海", amount:1706.8, yoy:-13.4, target:4661.0, progress:36.6},
+  {name:"冀晋", amount:1365.6, yoy:-8.6, target:6310.0, progress:21.6},
+  {name:"湖北", amount:1021.6, yoy:24.3, target:5456.0, progress:18.7},
+  {name:"甘青宁", amount:991.5, yoy:122.6, target:2450.0, progress:40.5},
+  {name:"湖南", amount:885.4, yoy:78.5, target:4584.0, progress:19.3},
+  {name:"浙江", amount:873.9, yoy:67.5, target:2165.0, progress:40.4},
+  {name:"四川", amount:830.1, yoy:-10.0, target:4609.0, progress:18.0},
+  {name:"陕西", amount:794.4, yoy:-15.7, target:5395.0, progress:14.7},
+  {name:"贵州", amount:662.0, yoy:9.1, target:1586.0, progress:41.7},
+  {name:"河南", amount:627.7, yoy:-33.7, target:2898.0, progress:21.7},
+  {name:"东北", amount:511.0, yoy:-51.1, target:2666.0, progress:19.2},
+  {name:"京津", amount:499.7, yoy:-20.2, target:2534.0, progress:19.7},
+  {name:"新疆", amount:448.6, yoy:36.5, target:1465.0, progress:30.6},
+  {name:"云南", amount:416.2, yoy:-31.0, target:3362.0, progress:12.4},
+  {name:"广西", amount:235.5, yoy:-50.0, target:1736.0, progress:13.6},
+  {name:"江西", amount:199.8, yoy:-21.6, target:1638.0, progress:12.2},
+  {name:"福建", amount:190.6, yoy:0.9, target:917.0, progress:20.8},
+  {name:"重庆", amount:182.6, yoy:-37.4, target:1231.0, progress:14.8},
+  {name:"海南", amount:89.8, yoy:-25.6, target:194.0, progress:46.3}
+];
+var ka50Total = 24108.6;
+
+Chart.register(ChartDataLabels);
+
+/* ====== 通用条形图创建 + 通用明细表渲染 ====== */
+function barColor(yoy) {
+  var a = Math.abs(yoy);
+  if (yoy >= 0) return a >= 50 ? '#e74c3c' : (a >= 20 ? '#f1948a' : '#fadbd8');
+  else          return a >= 50 ? '#27ae60' : (a >= 20 ? '#82e0aa' : '#d5f5e3');
+}
+
+function initBarChart(canvasId, dataArr, tip) {
+  var canvas = document.getElementById(canvasId);
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  // 按销售额降序
-  var sorted = ka50Data.slice().sort(function(a,b){return b.amount - a.amount;});
+  var sorted = dataArr.slice().sort(function(a,b){return b.amount - a.amount;});
   var labels = sorted.map(function(d){return d.name;});
   var values = sorted.map(function(d){return d.amount;});
-  
-  var tip = document.getElementById('ka50Tooltip');
-  var tipName = document.getElementById('ka50TtName');
-  var tipRate = document.getElementById('ka50TtRate');
-  var tipYoy = document.getElementById('ka50TtYoy');
-  var tipTarget = document.getElementById('ka50TtTarget');
-  var tipPct = document.getElementById('ka50TtProgressPct');
-  var tipBar = document.getElementById('ka50TtBar');
-  
+
   new Chart(ctx, {
     type: 'bar',
     data: {
       labels: labels,
       datasets: [{
         data: values,
-        backgroundColor: sorted.map(function(d){
-          var a = Math.abs(d.yoy);
-          if (d.yoy >= 0) return a >= 50 ? '#e74c3c' : (a >= 20 ? '#f1948a' : '#fadbd8');
-          else            return a >= 50 ? '#27ae60' : (a >= 20 ? '#82e0aa' : '#d5f5e3');
-        }),
-        borderRadius: 4,
-        borderSkipped: false
+        backgroundColor: sorted.map(function(d){return barColor(d.yoy);}),
+        borderRadius: 3, borderSkipped: false
       }]
     },
     options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: { padding: { right: 110 } },
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      layout: { padding: { right: 100 } },
       scales: {
-        x: { grid: { color: '#e8ecf1' }, ticks: { callback: function(v){return v+'万';}, font:{size:11} } },
-        y: { grid: { display: false }, ticks: { font: { size: 13, weight: 'bold' } } }
+        x: { grid: { color: '#e8ecf1' }, ticks: { callback: function(v){return v+'万';}, font:{size:10} } },
+        y: { grid: { display: false }, ticks: { font: { size: 11, weight: 'bold' } } }
       },
       plugins: {
-        legend: { display: false },
-        tooltip: { enabled: false },
-        datalabels: {
-          anchor: 'end', align: 'end', offset: 4,
-          color: '#333', font: { size: 11, weight: '600' },
-          formatter: function(v, ctx){
-            var d = sorted[ctx.dataIndex];
-            var sign = d.yoy >= 0 ? '+' : '';
-            return d.amount+'万  '+sign+d.yoy+'%';
+        legend: { display: false }, tooltip: { enabled: false },
+        datalabels: { anchor: 'end', align: 'end', offset: 3,
+          color: '#333', font: { size: 10, weight: '600' },
+          formatter: function(v, ctx2){
+            var d = sorted[ctx2.dataIndex];
+            return d.amount+'万 '+(d.yoy>=0?'+':'')+d.yoy+'%';
           }
         }
       },
       onHover: function(e, els){
+        if (!tip) return;
         if (els && els.length > 0) {
           var d = sorted[els[0].index];
-          tipName.textContent = d.name;
-          tipRate.textContent = d.rate + '%';
-          tipRate.style.color = d.rate >= 100 ? 'var(--success)' : (d.rate >= 80 ? '#b38a00' : 'var(--danger)');
-          var yoyT = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
-          tipYoy.textContent = yoyT;
-          tipYoy.style.color = d.yoy >= 0 ? 'var(--danger)' : 'var(--success)';
-          tipTarget.textContent = d.target.toLocaleString() + ' 万';
-          tipPct.textContent = d.progress + '%';
-          tipBar.style.width = Math.min(d.progress, 100) + '%';
-          tipBar.style.backgroundColor = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? 'var(--warning)' : 'var(--danger)');
-          tip.style.display = 'block';
+          document.getElementById('ka50TtName').textContent = d.name;
+          var rateEl = document.getElementById('ka50TtRate');
+          rateEl.textContent = d.progress + '%';
+          rateEl.style.color = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? '#b38a00' : 'var(--danger)');
+          var yoyEl = document.getElementById('ka50TtYoy');
+          yoyEl.textContent = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
+          yoyEl.style.color = d.yoy >= 0 ? 'var(--danger)' : 'var(--success)';
+          document.getElementById('ka50TtTarget').textContent = d.target.toLocaleString() + ' 万';
+          document.getElementById('ka50TtProgressPct').textContent = d.progress + '%';
+          var bar = document.getElementById('ka50TtBar');
+          bar.style.width = Math.min(Math.max(d.progress,0), 100) + '%';
+          bar.style.backgroundColor = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? 'var(--warning)' : 'var(--danger)');
+          var tipEl = document.getElementById('ka50Tooltip');
+          tipEl.style.display = 'block';
           var tx = e.x + 16, ty = e.y + 16;
           if (tx + 260 > window.innerWidth) tx = e.x - 260;
           if (ty + 180 > window.innerHeight) ty = e.y - 190;
-          tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+          tipEl.style.left = tx + 'px'; tipEl.style.top = ty + 'px';
         } else {
-          tip.style.display = 'none';
+          document.getElementById('ka50Tooltip').style.display = 'none';
         }
       }
     }
   });
-  
-  renderKa50Table();
 }
 
-function renderKa50Table() {
+function renderMiniTable(tableId, dataArr, total) {
   var html = '';
-  ka50Data.forEach(function(d,i){
-    var yoyClass = d.yoy >= 0 ? 'rate-success' : 'rate-danger';
-    var yoyText = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
-    var rateClass = d.rate >= 100 ? 'rate-success' : (d.rate >= 80 ? 'rate-warning' : 'rate-danger');
-    html += '<tr>' +
-      '<td>' + (i+1) + '</td>' +
-      '<td>' + d.name + '</td>' +
-      '<td class="num">' + d.amount.toLocaleString('zh-CN',{minimumFractionDigits:1}) + '</td>' +
-      '<td class="num"><span class="rate-tag ' + rateClass + '">' + d.rate + '%</span></td>' +
-      '<td class="num" style="color:' + (d.yoy>=0?'var(--success)':'var(--danger)') + ';">' + yoyText + '</td>' +
-      '<td class="num">' + d.target.toLocaleString() + '</td>' +
-      '<td class="num">' + d.progress + '%</td>' +
-      '</tr>';
+  dataArr.forEach(function(d){
+    var yoyT = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
+    var yoyC = d.yoy >= 0 ? 'var(--danger)' : 'var(--success)';
+    html += '<tr><td>'+d.name+'</td><td class="num">'+d.amount.toFixed(1)+'</td><td class="num" style="color:'+yoyC+';">'+yoyT+'</td><td class="num">'+d.progress+'%</td></tr>';
   });
-  // total row
-  html += '<tr class="total"><td></td><td>合计（21省区）</td>' +
-    '<td class="num">' + ka50Total.toLocaleString('zh-CN',{minimumFractionDigits:1}) + '</td>' +
-    '<td class="num">—</td><td class="num">—</td><td class="num">98,450</td>' +
-    '<td class="num">24%</td></tr>';
-  document.querySelector('#ka50DetailTable tbody').innerHTML = html;
+  html += '<tr class="total"><td>合计（23省）</td><td class="num">'+total.toFixed(1)+'</td><td class="num">—</td><td class="num">—</td></tr>';
+  document.querySelector('#'+tableId+' tbody').innerHTML = html;
 }
 
-function toggleKa50Table() {
-  var body = document.getElementById('ka50TableBody');
-  var icon = document.getElementById('ka50ToggleIcon');
-  if (body.style.display === 'none') {
-    body.style.display = '';
-    icon.style.transform = 'rotate(0deg)';
-  } else {
-    body.style.display = 'none';
-    icon.style.transform = 'rotate(-90deg)';
-  }
+function toggleTable(bodyId, iconId) {
+  var body = document.getElementById(bodyId);
+  var icon = document.getElementById(iconId);
+  if (body.style.display === 'none') { body.style.display = ''; icon.textContent = '▾'; }
+  else { body.style.display = 'none'; icon.textContent = '▸'; }
 }
 
-function initOtcCharts() {
-  if (otcChartsReady) return;
-  otcChartsReady = true;
-  var blue='#4361ee',pink='#f72585',green='#06d6a0';
-
-  /* 4月单月：柱状图=金额，折线图=同比变化 — 仅发货、终端配送 */
-  new Chart(document.getElementById('otcMonth4Chart'),{
-    type:'bar',
-    data:{
-      labels:['发货','终端配送'],
-      datasets:[
-        {label:'本月金额(万)',data:[1569,3906],backgroundColor:[blue,pink],borderRadius:6,order:2,yAxisID:'y'},
-        {label:'同比变化(%)',data:[38,-5],type:'line',borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,0.1)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#ff6b6b',tension:0.3,order:1,yAxisID:'y1'}
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{position:'bottom',labels:{usePointStyle:true,padding:20}},
-        tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+ (c.dataset.yAxisID==='y1'?(c.raw>0?'+':'')+c.raw+'%':c.raw.toLocaleString()+' 万');}}}
-      },
-      scales:{
-        y:{type:'linear',position:'left',title:{display:true,text:'金额(万元)'},beginAtZero:true,grid:{color:'#f1f5f9'}},
-        y1:{type:'linear',position:'right',title:{display:true,text:'同比变化(%)'},grid:{display:false},ticks:{callback:function(v){return (v>0?'+':'')+v+'%'}}},
-        x:{grid:{display:false}}
-      }
-    }
-  });
-
-  /* KA50纯销 · 省区明细 */
-  if(document.getElementById('ka50Chart')) initKa50Section();
+function initAllProvinceCharts() {
+  var tip = document.getElementById('ka50Tooltip');
+  initBarChart('shipChart', shipData, tip);
+  initBarChart('deliveryChart', deliveryData, tip);
+  initBarChart('ka50Chart', ka50Data, tip);
+  renderMiniTable('shipDetailTable', shipData, shipTotal);
+  renderMiniTable('deliveryDetailTable', deliveryData, deliveryTotal);
+  renderMiniTable('ka50DetailTable', ka50Data, ka50Total);
+}
 }
 </script>
 
