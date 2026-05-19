@@ -201,6 +201,11 @@
         .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
 
+        /* Three-column layout */
+        .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        @media (max-width: 1200px) { .three-col { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px)  { .three-col { grid-template-columns: 1fr; } }
+
         .note-bar {
             background: rgba(67,97,238,0.06);
             border: 1px solid rgba(67,97,238,0.12);
@@ -543,21 +548,21 @@ refresh('4月');
     <span class="hint">按完成金额降序 | 红柱 = 同比增长 · 绿柱 = 同比下滑 | 悬浮查看详情</span>
   </div>
 
-  <div class="three-col" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;">
+  <div class="three-col" style="margin-bottom:16px;">
     <!-- 发货 -->
     <div class="table-card" style="padding:12px;">
-      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">📦 发货</div>
-      <div style="height:520px;"><canvas id="shipChart"></canvas></div>
+      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">📦 发货 · 省区明细</div>
+      <div style="height:580px;"><canvas id="shipChart"></canvas></div>
     </div>
     <!-- 终端配送 -->
     <div class="table-card" style="padding:12px;">
-      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">🚚 终端配送</div>
-      <div style="height:520px;"><canvas id="deliveryChart"></canvas></div>
+      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">🚚 终端配送 · 省区明细</div>
+      <div style="height:580px;"><canvas id="deliveryChart"></canvas></div>
     </div>
     <!-- KA50纯销 -->
     <div class="table-card" style="padding:12px;">
-      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">🏪 KA50纯销</div>
-      <div style="height:520px;"><canvas id="ka50Chart"></canvas></div>
+      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">🏪 KA50纯销 · 省区明细</div>
+      <div style="height:580px;"><canvas id="ka50Chart"></canvas></div>
     </div>
   </div>
 
@@ -578,7 +583,7 @@ refresh('4月');
   </div>
 
   <!-- 三张可折叠明细表 -->
-  <div class="three-col" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+  <div class="three-col">
     <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('shipTableBody','shipToggleIcon')">📦 发货明细（23省）<span id="shipToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
       <div id="shipTableBody"><table id="shipDetailTable" style="font-size:12px;"><thead><tr><th onclick="sortTable('shipDetailTable',shipData,shipTotal,0)" style="cursor:pointer;user-select:none;">省区 <span class="sa"></span></th><th class="num" onclick="sortTable('shipDetailTable',shipData,shipTotal,1)" style="cursor:pointer;user-select:none;">完成 <span class="sa"></span></th><th class="num" onclick="sortTable('shipDetailTable',shipData,shipTotal,2)" style="cursor:pointer;user-select:none;">同比 <span class="sa"></span></th><th class="num" onclick="sortTable('shipDetailTable',shipData,shipTotal,3)" style="cursor:pointer;user-select:none;">进度 <span class="sa"></span></th></tr></thead><tbody></tbody></table></div></div>
     <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('deliveryTableBody','deliveryToggleIcon')">🚚 终端配送明细（23省）<span id="deliveryToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
@@ -656,7 +661,7 @@ var deliveryData = [
   {name:"江西", amount:-12.8, yoy:-100.6, target:5051.0, progress:-0.2},
   {name:"四川", amount:516.8, yoy:-83.4, target:17420.0, progress:3.0}
 ];
-var deliveryTotal = 26152.6;
+var deliveryTotal = 26240.1;
 
 var ka50Data = [
   {name:"江苏", amount:3362.6, yoy:50.0, target:10716.0, progress:31.4},
@@ -725,7 +730,8 @@ function initBarChart(canvasId, dataArr, tip) {
           color: '#333', font: { size: 10, weight: '600' },
           formatter: function(v, ctx2){
             var d = sorted[ctx2.dataIndex];
-            return d.amount+'万';
+            var sign = d.yoy >= 0 ? '+' : '';
+            return d.amount+'万  '+sign+d.yoy+'%';
           }
         }
       },
