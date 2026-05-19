@@ -537,7 +537,7 @@ refresh('4月');
 <div class="section">
   <div class="section-title"><i class="fas fa-calendar-alt"></i> 4月单月数据</div>
   <div class="table-card" style="padding:20px;">
-    <div style="height:320px;"><canvas id="otcMonth4Chart"></canvas></div>
+    <div style="height:400px;"><canvas id="otcMonth4Chart"></canvas></div>
   </div>
 </div>
 
@@ -792,45 +792,67 @@ function initAllProvinceCharts() {
   renderMiniTable('ka50DetailTable', ka50Data, ka50Total);
 }
 
-/* ====== 4月单月图表数据（发货 vs 终端配送） ====== */
+/* ====== 4月单月数据（复方阿胶浆：发货 / 终端配送 / KA50纯销） ====== */
+// 后续添加月份时，往 labels 和对应 data 数组 push 即可
 var otcMonth4Data = {
-  ship: 2079.79,    // OTC 4月发货
-  delivery: 926.28  // OTC 4月终端配送
+  labels: ['4月'],
+  ship:     { amount: 1569.37, yoy: 38 },
+  delivery: { amount: 3906,    yoy: -5 },
+  ka50:     { amount: 4235,    yoy: -15 }
 };
 
 function initOtcMonth4Chart() {
   var canvas = document.getElementById('otcMonth4Chart');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
+  var d = otcMonth4Data;
   new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['📦 发货', '🚚 终端配送'],
-      datasets: [{
-        label: '完成（万元）',
-        data: [otcMonth4Data.ship, otcMonth4Data.delivery],
-        backgroundColor: ['#4361ee', '#f72585'],
-        borderRadius: 4
-      }, {
-        label: '预算（万元）',
-        data: [17266.43, 8996.87],
-        backgroundColor: ['rgba(67,97,238,0.25)', 'rgba(247,37,133,0.25)'],
-        borderRadius: 4
-      }]
+      labels: d.labels,
+      datasets: [
+        { type:'bar',  label:'📦 发货',       data:[d.ship.amount],     yAxisID:'y',  backgroundColor:'#4361ee', borderRadius:4, order:1 },
+        { type:'bar',  label:'🚚 终端配送',   data:[d.delivery.amount],  yAxisID:'y',  backgroundColor:'#06d6a0', borderRadius:4, order:1 },
+        { type:'bar',  label:'🏥 KA50纯销',   data:[d.ka50.amount],      yAxisID:'y',  backgroundColor:'#f72585', borderRadius:4, order:1 },
+        { type:'line', label:'发货同比',       data:[d.ship.yoy],         yAxisID:'y1', borderColor:'#4361ee', backgroundColor:'transparent', borderWidth:2.5, pointRadius:7, pointBackgroundColor:'#4361ee', pointBorderColor:'#fff', pointBorderWidth:2, tension:0, order:0, datalabels:{align:'top', offset:6} },
+        { type:'line', label:'终端配送同比',   data:[d.delivery.yoy],     yAxisID:'y1', borderColor:'#06d6a0', backgroundColor:'transparent', borderWidth:2.5, pointRadius:7, pointBackgroundColor:'#06d6a0', pointBorderColor:'#fff', pointBorderWidth:2, tension:0, order:0, datalabels:{align:'top', offset:6} },
+        { type:'line', label:'KA50同比',       data:[d.ka50.yoy],         yAxisID:'y1', borderColor:'#f72585', backgroundColor:'transparent', borderWidth:2.5, pointRadius:7, pointBackgroundColor:'#f72585', pointBorderColor:'#fff', pointBorderWidth:2, tension:0, order:0, datalabels:{align:'top', offset:6} },
+      ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
+      interaction: { mode:'index', intersect:false },
       scales: {
-        y: { beginAtZero: true, ticks: { callback: function(v){ return v + '万'; } } }
+        y: {
+          type:'linear', position:'left', beginAtZero:true,
+          title: { display:true, text:'金额（万元）', font:{size:12} },
+          ticks: { callback:function(v){ return v+'万'; }, font:{size:10} },
+          grid: { color:'#e8ecf1' }
+        },
+        y1: {
+          type:'linear', position:'right',
+          title: { display:true, text:'同比变化（%）', font:{size:12} },
+          ticks: { callback:function(v){ return (v>=0?'+':'')+v+'%'; }, font:{size:10} },
+          grid: { drawOnChartArea:false }
+        }
       },
       plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: function(ctx2){ return ctx2.dataset.label + ': ' + ctx2.raw.toFixed(2) + ' 万'; } } },
+        legend: { position:'bottom', labels:{usePointStyle:true, pointStyle:'circle', padding:20, font:{size:11}} },
+        tooltip: {
+          callbacks: {
+            label: function(ctx2){
+              var ds = ctx2.dataset;
+              if (ds.type === 'line') return ds.label + ': ' + (ctx2.raw>=0?'+':'') + ctx2.raw + '%';
+              return ds.label + ': ' + ctx2.raw.toFixed(2) + ' 万';
+            }
+          }
+        },
         datalabels: {
-          anchor: 'end', align: 'end', offset: 3,
-          formatter: function(v){ return v.toFixed(1) + '万'; },
-          font: { size: 11, weight: '600' },
-          color: '#333'
+          color: '#333', font: { size:11, weight:'600' },
+          formatter: function(v, ctx2){
+            if (ctx2.dataset.type === 'line') return (v>=0?'+':'') + v + '%';
+            return v.toFixed(1) + '万';
+          }
         }
       }
     }
