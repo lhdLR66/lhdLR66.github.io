@@ -729,11 +729,11 @@ function initBarChart(canvasId, dataArr, tip) {
           color: '#333', font: { size: 10, weight: '600' },
           formatter: function(v, ctx2){
             var d = sorted[ctx2.dataIndex];
-            return d.amount+'万 '+(d.yoy>=0?'+':'')+d.yoy+'%';
+            return d.amount+'万';
           }
         }
       },
-      onHover: function(e, els){
+      onHover: function(e, els, chart){
         if (!tip) return;
         if (els && els.length > 0) {
           var d = sorted[els[0].index];
@@ -751,9 +751,10 @@ function initBarChart(canvasId, dataArr, tip) {
           bar.style.backgroundColor = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? 'var(--warning)' : 'var(--danger)');
           var tipEl = document.getElementById('ka50Tooltip');
           tipEl.style.display = 'block';
-          var tx = e.x + 16, ty = e.y + 16;
-          if (tx + 260 > window.innerWidth) tx = e.x - 260;
-          if (ty + 180 > window.innerHeight) ty = e.y - 190;
+          var r = chart.canvas.getBoundingClientRect();
+          var tx = r.left + e.x + 16, ty = r.top + e.y + 16;
+          if (tx + 260 > window.innerWidth) tx = r.left + e.x - 260;
+          if (ty + 180 > window.innerHeight) ty = r.top + e.y - 190;
           tipEl.style.left = tx + 'px'; tipEl.style.top = ty + 'px';
         } else {
           document.getElementById('ka50Tooltip').style.display = 'none';
