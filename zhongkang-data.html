@@ -14,151 +14,114 @@
     <script src="region_detailed_data_corrected.js"></script>
     <style>
         :root {
-            --primary: #4361ee;
-            --success: #06d6a0;
-            --warning: #ffd166;
-            --danger: #ef476f;
-            --over: #f72585;
-            --bg: #f8f9fa;
-            --card: #ffffff;
-            --text: #212529;
-            --text2: #6c757d;
-            --border: #e9ecef;
-            --shadow: 0 2px 12px rgba(0,0,0,0.06);
-            --radius: 10px;
-            --sidebar: #1e293b;
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --success-color: #4cc9f0;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #e9ecef;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Poppins', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
+            background: var(--bg-primary); 
+            color: var(--text-primary); 
             line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-        }
-        
-        /* Sidebar */
-        .sidebar { width:200px; background:linear-gradient(180deg, #667eea 0%, #764ba2 100%); color:#fff; flex-shrink:0; display:flex; flex-direction:column; padding:20px 0; position:fixed; top:0; left:0; height:100vh; z-index:100; }
-        .sidebar .logo { padding:0 20px 20px; font-size:18px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.2); margin-bottom:10px; }
-        .sidebar a { display:block; padding:10px 20px; color:rgba(255,255,255,0.75); text-decoration:none; font-size:14px; transition:all .2s; }
-        .sidebar a:hover, .sidebar a.active { color:#fff; background:rgba(255,255,255,0.15); font-weight:600; }
-        .sidebar a i { width:20px; margin-right:8px; }
-        .sidebar .back-link { margin-top:auto; border-top:1px solid rgba(255,255,255,0.2); padding-top:10px; }
-        .sidebar .nav-section { padding:12px 20px 6px; font-size:13px; font-weight:600; letter-spacing:1px; opacity:0.7; border-bottom:1px solid rgba(255,255,255,0.15); margin:0 16px 8px; }
-        
-        .main { flex:1; margin-left:200px; padding:28px; }
-        @media (max-width: 900px) {
-            .sidebar { width: 100%; flex-direction: row; padding: 10px; height: auto; overflow-x: auto; position: relative; }
-            .sidebar .logo { padding: 0 10px; margin: 0; border: none; border-right: 1px solid rgba(255,255,255,0.2); font-size: 14px; }
-            .sidebar a { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
-            .main { padding: 12px; margin-left: 0; }
-        }
-
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
-        }
-        .header h1 { font-size: 24px; color: var(--text); }
-        .header .meta { font-size: 13px; color: var(--text2); }
-        .header .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: rgba(67,97,238,0.1); color: var(--primary); }
-
-        /* Section */
-        .section { margin-bottom: 24px; }
-        .section-title {
-            font-size: 16px; font-weight: 600; margin-bottom: 14px;
-            display: flex; align-items: center; gap: 8px;
-            padding: 8px 0 8px 14px;
-            border-left: 4px solid var(--primary);
-            background: linear-gradient(90deg, rgba(67,97,238,0.06) 0%, transparent 100%);
-            border-radius: 0 8px 8px 0;
-        }
-        .section-title i { color: var(--primary); }
-        .section-title .hint {
-            font-size: 12px; font-weight: 400; color: var(--text2); margin-left: 6px;
-        }
-
-        /* KPI Row */
-        .kpi-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        .kpi-card {
-            background: var(--card);
-            border-radius: var(--radius);
             padding: 20px;
-            padding-top: 28px;
-            box-shadow: var(--shadow);
-            position: relative;
+            min-height: 100vh;
         }
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 10px; left: 12px;
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--dot-color, var(--primary));
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        .kpi-card .kpi-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .kpi-card .kpi-value { font-size: 28px; font-weight: 700; }
-        .kpi-card .kpi-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
-
-        /* Table card */
-        .table-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
         }
         
         .info-box {
-            background: var(--card);
-            padding: 14px 18px;
-            border-radius: var(--radius);
-            margin-bottom: 24px;
-            border-left: 4px solid var(--primary);
-            box-shadow: var(--shadow);
-            font-size: 13px;
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary-color);
         }
-        .info-box > div:first-child { font-weight: 600; color: var(--text); margin-bottom: 8px; font-size: 14px; }
         
         .info-box ul {
             list-style: none;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 6px 15px;
-            margin-top: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
         }
         
         .info-box li {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--text2);
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
         }
         
         .info-box li i {
-            color: var(--primary);
+            color: var(--primary-color);
             font-size: 16px;
         }
         
         .chart-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px var(--shadow-color);
             overflow: hidden;
-            margin-bottom: 24px;
+            margin-bottom: 30px;
         }
-        .chart-card .section-title { margin: 0; padding: 18px 24px; border-bottom: 1px solid var(--border); border-left: none; background: none; border-radius: 0; }
+        
+        .chart-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .chart-title {
+            font-size: 24px;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 15px;
+        }
+        
+        .chart-title i {
+            color: var(--primary-color);
         }
         
         .product-filter {
@@ -167,7 +130,7 @@
             gap: 15px;
             margin-top: 20px;
             padding: 15px;
-            background: var(--bg);
+            background: var(--bg-secondary);
             border-radius: 8px;
         }
         
@@ -180,14 +143,14 @@
             padding: 6px 12px;
             background: white;
             border-radius: 20px;
-            border: 1px solid var(--border);
-            transition: all .2s;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
         }
         
         .product-filter label:hover {
-            border-color: var(--primary);
+            border-color: var(--primary-color);
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px var(--shadow);
+            box-shadow: 0 4px 10px var(--shadow-color);
         }
         
         .product-filter input[type="checkbox"] {
@@ -220,8 +183,8 @@
         .data-table-container {
             overflow-x: auto;
             margin-top: 30px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
         }
         
         .data-table {
@@ -231,23 +194,23 @@
         }
         
         .data-table th {
-            background: var(--bg);
+            background: var(--bg-secondary);
             padding: 15px;
             text-align: left;
             font-weight: 600;
             font-size: 14px;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 2px solid var(--border-color);
             white-space: nowrap;
         }
         
         .data-table td {
             padding: 12px 15px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-color);
             font-size: 14px;
         }
         
         .data-table tr:hover {
-            background: var(--bg);
+            background: var(--bg-secondary);
         }
         
         .data-table td:first-child {
@@ -264,12 +227,12 @@
             margin-top: 40px;
             padding: 20px;
             font-size: 14px;
-            color: var(--text2);
-            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
         }
         
         .footer-note i {
-            color: var(--primary);
+            color: var(--primary-color);
             margin-right: 8px;
         }
         
@@ -277,49 +240,37 @@
         .negative { color: #ef4444; font-weight: 500; }
 
         /* Filter button styles */
-        .filter-section{background:var(--bg);border-radius:10px;padding:18px;margin-bottom:24px}
+        .filter-section{background:var(--bg-secondary);border-radius:10px;padding:18px;margin-bottom:24px}
         .filter-row{margin-bottom:14px}
         .filter-row:last-child{margin-bottom:0}
-        .filter-label{font-size:13px;color:var(--text2);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .filter-label{font-size:13px;color:var(--text-secondary);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
         .filter-label i{font-size:14px}
         .filter-buttons{display:flex;flex-wrap:wrap;gap:6px}
         .filter-btn{padding:6px 16px;border-radius:18px;border:1.5px solid #dee2e6;cursor:pointer;font-size:13px;font-weight:500;background:#fff;color:#495057;transition:all .15s ease;white-space:nowrap}
-        .filter-btn:hover:not(.disabled){border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
-        .filter-btn.selected{background:var(--primary);color:#fff;border-color:var(--primary)}
+        .filter-btn:hover:not(.disabled){border-color:var(--primary-color);color:var(--primary-color);transform:translateY(-1px)}
+        .filter-btn.selected{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
         .filter-btn.selected:hover{background:#3651d4;border-color:#3651d4}
         .filter-btn.disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
         .filter-btn.all-btn{font-weight:600;border:1.5px solid #adb5bd}
-        .filter-btn.all-btn.selected{border-color:var(--primary)}
-        .filter-status{font-size:13px;color:var(--text2);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-        .filter-status strong{color:var(--primary)}
+        .filter-btn.all-btn.selected{border-color:var(--primary-color)}
+        .filter-status{font-size:13px;color:var(--text-secondary);margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color)}
+        .filter-status strong{color:var(--primary-color)}
         .selection-hint{font-size:11px;color:var(--text-muted, #adb5bd);font-weight:400;margin-left:auto}
         .export-menu{position:absolute;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);padding:4px 0;z-index:1000;min-width:120px;display:none}
         .export-menu a{display:block;padding:8px 16px;text-decoration:none;color:#333;font-size:13px;cursor:pointer}
-        .export-menu a:hover{background:#f0f4ff;color:var(--primary)}
+        .export-menu a:hover{background:#f0f4ff;color:var(--primary-color)}
         .export-menu a i{margin-right:6px;width:14px;text-align:center}
     </style>
 </head>
 <body>
-<aside class="sidebar">
-  <div class="logo"><i class="fas fa-chart-pie"></i> 数据看板</div>
-  <div class="nav-section">线下数据</div>
-  <a href="ejiao-dashboard.html"><i class="fas fa-city"></i> 中心城市数据</a>
-  <a href="zhongkang-data.html" class="active"><i class="fas fa-chart-bar"></i> 中康数据</a>
-  <a href="shipping-data.html"><i class="fas fa-truck"></i> 发货数据</a>
-  <a href="insurance-dashboard.html"><i class="fas fa-shield-halved"></i> 医保政策</a>
-  <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> 返回工作看板</a>
-</aside>
-    <div class="main">
-        <div class="header" style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-                <h1 style="margin:0;"><i class="fas fa-chart-bar"></i> 复方阿胶浆 · 中康数据</h1>
-                <div class="meta">补气补血品类 · TOP10产品 · 22Q1-25Q4季度序列 · 全国零售渠道</div>
-            </div>
-            <span class="badge">2026年3月更新</span>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-bar"></i> 补气补血TOP10产品季度数据</h1>
+            <p>22Q1-25Q4 完整季度序列分析 | 10个TOP产品销售额与同比变化</p>
         </div>
         
         <div class="info-box">
-            <div style="font-weight: 500; color: var(--text); margin-bottom: 10px;">
+            <div style="font-weight: 500; color: var(--text-primary); margin-bottom: 10px;">
                 <i class="fas fa-info-circle"></i> 数据说明
             </div>
             <ul>
@@ -333,42 +284,23 @@
             </ul>
         </div>
         
-        <div class="section">
-            <div class="section-title"><i class="fas fa-chart-pie"></i> 品类概览 <span class="hint">25Q4 最新季度</span></div>
-            <div class="kpi-row" id="kpiRow">
-                <div class="kpi-card" style="--dot-color: var(--primary);">
-                    <div class="kpi-label">TOP10品类总销售额</div>
-                    <div class="kpi-value" id="kpiTotal">--</div>
-                    <div class="kpi-sub">25Q4 · 百万元</div>
-                </div>
-                <div class="kpi-card" style="--dot-color: #f72585;">
-                    <div class="kpi-label">复方阿胶浆销售额</div>
-                    <div class="kpi-value" id="kpiEjiao">--</div>
-                    <div class="kpi-sub">25Q4 · 百万元</div>
-                </div>
-                <div class="kpi-card" style="--dot-color: var(--success);">
-                    <div class="kpi-label">品类同比增长</div>
-                    <div class="kpi-value" id="kpiYoy">--</div>
-                    <div class="kpi-sub">25Q4 vs 24Q4</div>
-                </div>
-            </div>
-        </div>
-        
         <div class="chart-card">
-            <div class="section-title">补气补血TOP10产品季度表现分析</div>
+            <div class="chart-header">
+                <div class="chart-title">补气补血TOP10产品季度表现分析</div>
+            </div>
             
             <div class="chart-content">
                 <div class="filter-section" id="filterArea">
                     <div class="filter-row" id="provinceRow">
-                        <div class="filter-label"><i class="fas fa-map" style="color:var(--primary)"></i> 省份 <span class="selection-hint">单选，与城市互斥</span></div>
+                        <div class="filter-label"><i class="fas fa-map" style="color:var(--primary-color)"></i> 省份 <span class="selection-hint">单选，与城市互斥</span></div>
                         <div class="filter-buttons" id="provinceButtons"></div>
                     </div>
                     <div class="filter-row" id="cityRow">
-                        <div class="filter-label"><i class="fas fa-city" style="color:var(--primary)"></i> 城市 <span class="selection-hint">单选，与省份互斥</span></div>
+                        <div class="filter-label"><i class="fas fa-city" style="color:var(--primary-color)"></i> 城市 <span class="selection-hint">单选，与省份互斥</span></div>
                         <div class="filter-buttons" id="cityButtons"></div>
                     </div>
                     <div class="filter-row" id="productRow">
-                        <div class="filter-label"><i class="fas fa-pills" style="color:var(--primary)"></i> 产品 <span class="selection-hint">多选，独立过滤</span></div>
+                        <div class="filter-label"><i class="fas fa-pills" style="color:var(--primary-color)"></i> 产品 <span class="selection-hint">多选，独立过滤</span></div>
                         <div class="filter-buttons" id="productButtons"></div>
                     </div>
                     <div class="filter-status"><i class="fas fa-info-circle" style="margin-right:4px"></i> 当前筛选：<strong id="currentFilterStatus">全国 | 全部产品</strong></div>
@@ -376,10 +308,10 @@
                 
                 <div class="charts-grid">
                     <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
                             <span><i class="fas fa-coins"></i> 季度销售额（百万元）</span>
                             <span style="font-size: 12px;">
-                                <a href="#" onclick="showExportMenu(event, 'sales'); return false;" style="color: var(--primary); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
+                                <a href="#" onclick="showExportMenu(event, 'sales'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
                             </span>
                         </div>
                         <div class="chart-container">
@@ -388,10 +320,10 @@
                     </div>
                     
                     <div>
-                        <div style="font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
                             <span><i class="fas fa-chart-line"></i> 销售额同比变化（%）</span>
                             <span style="font-size: 12px;">
-                                <a href="#" onclick="showExportMenu(event, 'yoy'); return false;" style="color: var(--primary); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
+                                <a href="#" onclick="showExportMenu(event, 'yoy'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
                             </span>
                         </div>
                         <div class="chart-container">
@@ -402,19 +334,19 @@
                 
                 <!-- 新增：市场份额堆叠条形图（使用真实销售额份额数据） -->
                 <div style="margin-top: 40px; margin-bottom: 40px;">
-                    <div style="font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
-                        <span><i class="fas fa-chart-pie" style="color: var(--primary);"></i> TOP10产品销售额份额季度变化（堆叠条形图）</span>
+                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fas fa-chart-pie" style="color: var(--primary-color);"></i> TOP10产品销售额份额季度变化（堆叠条形图）</span>
                         <span style="font-size: 12px;">
-                            <a href="#" onclick="showExportMenu(event, 'share'); return false;" style="color: var(--primary); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
+                            <a href="#" onclick="showExportMenu(event, 'share'); return false;" style="color: var(--primary-color); text-decoration: none; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> 导出</a>
                         </span>
                     </div>
                     
 
                     
-                    <div style="font-size: 14px; color: var(--text2); margin-bottom: 20px;">
+                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">
                         <strong>数据来源：</strong>中康数据 - 区域竞争格局子表<br>
                         <strong>数据说明：</strong>展示22Q1-25Q4期间TOP10产品<strong>销售额份额（MS%）</strong>随季度的变化，每个季度的条形图显示各产品在该季度的销售额份额占比<br>
-                        <strong>当前筛选：</strong><span id="currentRegion" style="font-weight: 500; color: var(--primary);">全国 | 全部产品</span>
+                        <strong>当前筛选：</strong><span id="currentRegion" style="font-weight: 500; color: var(--primary-color);">全国 | 全部产品</span>
                     </div>
                     <div class="chart-container" style="height: 450px;">
                         <canvas id="marketShareChart"></canvas>
@@ -422,7 +354,7 @@
                 </div>
                 
                 <div>
-                    <div style="font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 15px;">
+                    <div style="font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 15px;">
                         <i class="fas fa-table"></i> 数据明细表
                     </div>
                     <div class="data-table-container">
@@ -1372,26 +1304,7 @@
             }
         }
 
-        function initKpiCards() {
-            const products = productData.products;
-            const lastQ = productData.total_quarters - 1;
-            // TOP10 total sales (产品10 - 合计)
-            const total = products.find(p => p.name === '合计');
-            const ejiao = products.find(p => p.name === '复方阿胶浆');
-            if (total) {
-                const totalVal = total.sales[lastQ];
-                const totalYoy = total.yoy_changes[lastQ];
-                document.getElementById('kpiTotal').textContent = totalVal.toFixed(2);
-                document.getElementById('kpiYoy').textContent = totalYoy.toFixed(1) + '%';
-                document.getElementById('kpiYoy').style.color = totalYoy >= 0 ? 'var(--success)' : 'var(--danger)';
-            }
-            if (ejiao) {
-                document.getElementById('kpiEjiao').textContent = ejiao.sales[lastQ].toFixed(2);
-            }
-        }
-
         function init() {
-            initKpiCards();
             initSalesChart();
             initYoyChart();
             initMarketShareChart();
