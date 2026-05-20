@@ -731,7 +731,7 @@ function initBarChart(canvasId, dataArr, tip) {
           formatter: function(v, ctx2){
             var d = sorted[ctx2.dataIndex];
             var sign = d.yoy >= 0 ? '+' : '';
-            return d.amount+'万  '+sign+d.yoy+'%';
+            return d.amount+'万';
           }
         }
       },
