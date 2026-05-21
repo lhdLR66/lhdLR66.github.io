@@ -772,8 +772,9 @@ function renderMiniTable(tableId, dataArr, total) {
   dataArr.forEach(function(d){
     var yoyT = (d.yoy >= 0 ? '+' : '') + d.yoy + '%';
     var yoyC = d.yoy >= 0 ? 'var(--danger)' : 'var(--success)';
-    var pBarC = d.progress >= 80 ? 'var(--success)' : (d.progress >= 50 ? 'var(--warning)' : 'var(--danger)');
-    html += '<tr><td>'+d.name+'</td><td class="num">'+d.amount.toFixed(1)+'</td><td class="num" style="color:'+yoyC+';">'+yoyT+'</td><td class="num" style="padding:4px 8px;"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="progress-bar-bg" style="width:56px;height:6px;border-radius:3px;"><div style="height:100%;width:'+d.progress+'%;border-radius:3px;background:'+pBarC+';"></div></div><span style="font-size:11px;white-space:nowrap;">'+d.progress+'%</span></div></td></tr>';
+    var ap = d.annualProgress || 0;
+    var pBarC = ap >= 80 ? 'var(--success)' : (ap >= 50 ? 'var(--warning)' : 'var(--danger)');
+    html += '<tr><td>'+d.name+'</td><td class="num">'+d.amount.toFixed(1)+'</td><td class="num" style="color:'+yoyC+';">'+yoyT+'</td><td class="num" style="padding:4px 8px;"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="progress-bar-bg" style="width:56px;height:6px;border-radius:3px;"><div style="height:100%;width:'+ap+'%;border-radius:3px;background:'+pBarC+';"></div></div><span style="font-size:11px;white-space:nowrap;">'+ap+'%</span></div></td></tr>';
   });
   html += '<tr class="total"><td>合计（23省）</td><td class="num">'+total.toFixed(1)+'</td><td class="num">—</td><td class="num">—</td></tr>';
   document.querySelector('#'+tableId+' tbody').innerHTML = html;
@@ -791,7 +792,7 @@ function sortTable(tableId, dataArr, total, col) {
     if (col === 0) { va = a.name; vb = b.name; return s.asc ? va.localeCompare(vb,'zh') : vb.localeCompare(va,'zh'); }
     if (col === 1) { va = a.amount; vb = b.amount; }
     else if (col === 2) { va = a.yoy; vb = b.yoy; }
-    else { va = a.progress; vb = b.progress; }
+    else { va = a.annualProgress || 0; vb = b.annualProgress || 0; }
     return s.asc ? va - vb : vb - va;
   });
   renderMiniTable(tableId, sorted, total);
