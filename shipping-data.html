@@ -234,7 +234,7 @@
 <div class="header" style="display:flex;justify-content:space-between;align-items:flex-start;">
     <div>
         <h1><i class="fas fa-truck"></i> 复方阿胶浆 · 发货数据</h1>
-        <div class="meta">东阿阿胶各板块 · OTC/数字营销/海外/滋补生活/文旅 · 1-4月累计 · 单位：万元（含税）</div>
+        <div class="meta">东阿阿胶各板块 · OTC/数字营销/海外/滋补生活/文旅 · 1-5月累计 · 单位：万元（含税）</div>
     </div>
     <span class="badge">2026年4月更新</span>
 </div>
@@ -301,14 +301,15 @@
         <!-- 右：分渠道明细表 -->
         <div class="table-card">
             <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:space-between;">
-                <span><i class="fas fa-sitemap" style="color:var(--primary);margin-right:6px;"></i>OTC复方阿胶浆 分渠道明细</span>
+                <span><i class="fas fa-sitemap" style="color:var(--primary);margin-right:6px;"></i>OTC复方阿胶浆 分渠道明细 <span style="font-size:11px;color:var(--text2);">| 占月合计比 = 该渠道÷当月全渠道合计</span></span>
                 <select id="monthSelect" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--card);color:var(--text);cursor:pointer;">
                     <option value="4月">4月</option>
+                    <option value="5月" selected>5月</option>
                 </select>
             </div>
             <table id="channelTable">
                 <thead>
-                    <tr><th>渠道/部门</th><th class="num">月完成（万元）</th><th class="num">完成占比</th></tr>
+                    <tr><th>渠道/部门</th><th class="num">月完成（万元）</th><th class="num">环比上月</th><th class="num">占月合计比</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -319,69 +320,69 @@
 <!-- ====== 累计看板 + 全年完成进度 ====== -->
 <div class="section">
     <div class="section-title">
-        <i class="fas fa-chart-line"></i> 累计看板 — 1-4月
-        <span class="hint">全年完成进度 = 累计完成 / 全年预算</span>
+        <i class="fas fa-chart-line"></i> 累计看板 — 1-5月
+        <span class="hint">全年完成进度 = 累计完成 / 全年预算 | <span style="background:#fde8e8;padding:1px 4px;border-radius:2px;">红底=完成率&lt;60%</span> <span style="background:#fff3e0;padding:1px 4px;border-radius:2px;">橙底=完成率≥100%</span> <span style="color:#e74c3c;">红字=同比&lt;-20%</span> <span style="color:#e67e22;">橙字=同比&gt;+50%</span></span>
     </div>
     <div class="table-card">
         <table>
             <thead>
                 <tr>
                     <th>渠道/部门</th>
-                    <th class="num">1-4月完成（万元）</th>
-                    <th class="num">1-4月预算（万元）</th>
+                    <th class="num">1-5月完成（万元）</th>
+                    <th class="num">1-5月预算（万元）</th>
                     <th class="num">同比变化</th>
                     <th class="num">累计完成率</th>
                     <th class="progress-cell">全年完成进度</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <tr style="background:#fde8e8">
                     <td>OTC事业部（药品）</td>
-                    <td class="num">42,412.47</td>
-                    <td class="num">73,529.40</td>
-                    <td class="num" style="color:var(--danger);">-43%</td>
-                    <td class="num"><span class="rate-tag rate-danger">57.7%</span></td>
-                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:17.5%"></div></div><span class="progress-pct" style="color:var(--danger)">17.5%</span></div></td>
+                    <td class="num">46,053.83</td>
+                    <td class="num">91,305.74</td>
+                    <td class="num" style="color:#e74c3c;">-40.0%</td>
+                    <td class="num"><span class="rate-tag rate-danger">50.4%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:19.0%"></div></div><span class="progress-pct" style="color:var(--danger)">19.0%</span></div></td>
                 </tr>
-                <tr>
+                <tr style="background:#fde8e8">
                     <td>数字营销事业部 <span style="font-size:12px;color:var(--success);">← 平台经销+自营店铺合并</span></td>
-                    <td class="num">8,216.03</td>
-                    <td class="num">8,544.26</td>
-                    <td class="num" style="color:var(--success);">+12.1%</td>
-                    <td class="num"><span class="rate-tag rate-warning">96.2%</span></td>
-                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:26.9%"></div></div><span class="progress-pct" style="color:var(--danger)">26.9%</span></div></td>
+                    <td class="num">9,534.80</td>
+                    <td class="num">10,451.05</td>
+                    <td class="num" style="color:#e74c3;">-24.5%</td>
+                    <td class="num"><span class="rate-tag rate-warning">91.2%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:31.4%"></div></div><span class="progress-pct" style="color:var(--danger)">31.4%</span></div></td>
                 </tr>
-                <tr>
+                <tr style="background:#fde8e8">
                     <td>海外事业部</td>
-                    <td class="num">512.10</td>
-                    <td class="num">689.47</td>
-                    <td class="num" style="color:var(--danger);">-54%</td>
-                    <td class="num"><span class="rate-tag rate-danger">74.3%</span></td>
-                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:18.2%"></div></div><span class="progress-pct" style="color:var(--danger)">18.2%</span></div></td>
+                    <td class="num">636.34</td>
+                    <td class="num">836.18</td>
+                    <td class="num" style="color:#e74c3;">-48.7%</td>
+                    <td class="num"><span class="rate-tag rate-danger">76.1%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:22.6%"></div></div><span class="progress-pct" style="color:var(--danger)">22.6%</span></div></td>
                 </tr>
                 <tr>
                     <td>滋补生活事业部 零售</td>
-                    <td class="num">137.50</td>
-                    <td class="num">144.78</td>
-                    <td class="num" style="color:var(--success);">+16%</td>
-                    <td class="num"><span class="rate-tag rate-warning">95.0%</span></td>
-                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:25.7%"></div></div><span class="progress-pct" style="color:var(--danger)">25.7%</span></div></td>
+                    <td class="num">179.62</td>
+                    <td class="num">161.03</td>
+                    <td class="num" style="color:#e67e22;">+53.1%</td>
+                    <td class="num"><span class="rate-tag rate-success">111.5%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:27.9%"></div></div><span class="progress-pct" style="color:var(--danger)">27.9%</span></div></td>
                 </tr>
-                <tr>
+                <tr style="background:#fff3e0">
                     <td>文旅事业部 零售</td>
-                    <td class="num">396.97</td>
-                    <td class="num">129.69</td>
-                    <td class="num" style="color:var(--success);">+287%</td>
-                    <td class="num"><span class="rate-tag rate-success">306.1%</span></td>
-                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-success" style="width:100%"></div></div><span class="progress-pct" style="color:var(--success)">102.3%</span></div></td>
+                    <td class="num">545.89</td>
+                    <td class="num">148.52</td>
+                    <td class="num" style="color:#e67e22;">+145.2%</td>
+                    <td class="num"><span class="rate-tag rate-success">367.6%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-success" style="width:100%"></div></div><span class="progress-pct" style="color:var(--success)">103.0%</span></div></td>
                 </tr>
                 <tr class="total">
                     <td>合计</td>
-                    <td class="num">51,675.06</td>
-                    <td class="num">83,037.59</td>
-                    <td class="num" style="color:var(--danger);">-38%</td>
-                    <td class="num"><span class="rate-tag rate-danger">62.2%</span></td>
-                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:18.7%"></div></div><span class="progress-pct" style="color:var(--danger)">18.7%</span></div></td>
+                    <td class="num">56,950.48</td>
+                    <td class="num">102,902.52</td>
+                    <td class="num" style="color:var(--danger);">-38.5%</td>
+                    <td class="num"><span class="rate-tag rate-danger">55.3%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:20.6%"></div></div><span class="progress-pct" style="color:var(--danger)">20.6%</span></div></td>
                 </tr>
             </tbody>
         </table>
@@ -392,34 +393,26 @@
 // Data store: monthly data per product per channel
 const data = {
   OTC: {
-    '4月': { complete: 2079.79, budget: 20759.40, channels: [
-      { name: 'OTC事业部（药品）', complete: 1569.37, budget: 18382.35 },
-      { name: '数字营销事业部', complete: 435.55, budget: 2136.07, note: '← 平台经销+自营店铺合并' },
-      { name: '海外事业部', complete: 17.06, budget: 172.37 },
-      { name: '滋补生活事业部 零售', complete: 23.41, budget: 36.20 },
-      { name: '文旅事业部 零售', complete: 34.39, budget: 32.42 }
+    "4月": { complete: 2079.79, budget: 20759.40, channels: [
+      { name: "OTC事业部（药品）", complete: 1569.37, budget: 18382.35 },
+      { name: "数字营销事业部", complete: 435.55, budget: 2136.07, note: "← 平台经销+自营店铺合并" },
+      { name: "海外事业部", complete: 17.06, budget: 172.37 },
+      { name: "滋补生活事业部 零售", complete: 23.41, budget: 36.20 },
+      { name: "文旅事业部 零售", complete: 34.39, budget: 32.42 }
+    ]},
+    "5月": { complete: 4252.18, budget: 20551.14, channels: [
+      { name: "OTC事业部（药品）", complete: 3641.36, budget: 18264.00 },
+      { name: "数字营销事业部", complete: 505.20, budget: 2090.21, note: "← 平台经销+自营店铺合并" },
+      { name: "海外事业部", complete: 35.42, budget: 167.18 },
+      { name: "滋补生活事业部 零售", complete: 38.91, budget: 16.93 },
+      { name: "文旅事业部 零售", complete: 31.29, budget: 12.83 }
     ]},
   },
   R: {
-    '4月': { complete: 1440.73, budget: 2094.75 },
+    "4月": { complete: 1440.73, budget: 2094.75 },
+    "5月": { complete: 1655.85, budget: 1673.10 },
   }
 };
-
-function rateColor(v) {
-  if (v >= 100) return 'var(--success)';
-  if (v >= 80) return '#b38a00';
-  if (v >= 60) return '#ffa500';
-  return 'var(--danger)';
-}
-function rateClass(v) {
-  if (v > 100) return 'rate-success';
-  if (v >= 90) return 'rate-warning';
-  return 'rate-danger';
-}
-function fmt(n) { return n.toLocaleString('zh-CN', { minimumFractionDigits: 2 }); }
-function pct(a,b) { return b === 0 ? '-' : (a / b * 100).toFixed(1) + '%'; }
-function numPct(a,b) { return b === 0 ? 0 : (a / b * 100); }
-
 const ANNUAL_BUDGET = 276660; // OTC复方阿胶浆全年预算（万元）
 let chart;
 
@@ -459,20 +452,38 @@ function renderTable(month) {
   const channels = data.OTC[month].channels;
   let totalC = 0;
   let html = '';
-  channels.forEach(ch => {
-    const share = (ch.complete / ANNUAL_BUDGET * 100);
-    const note = ch.note ? ' <span style="font-size:12px;color:var(--success);">' + ch.note + '</span>' : '';
+  var prevData = null;
+  // Get previous month data for 环比
+  var months = ["1月","2月","3月","4月","5月"];
+  var mi = months.indexOf(month);
+  if (mi > 0) { prevData = data.OTC[months[mi-1]]; }
+  channels.forEach(function(ch, i) {
+    var share = (ch.complete / ANNUAL_BUDGET * 100);
+    var note = ch.note ? ' <span style="font-size:12px;color:var(--success);">' + ch.note + '</span>' : '';
+    var mom = '';
+    var momClass = '';
+    if (prevData && prevData.channels[i]) {
+      var prev = prevData.channels[i].complete;
+      if (prev === 0) { mom = '—'; }
+      else {
+        var chg = ((ch.complete - prev) / prev * 100);
+        var arrow = chg >= 0 ? '🟢' : '🔴';
+        mom = arrow + ' ' + (chg >= 0 ? '+' : '') + chg.toFixed(1) + '%';
+      }
+    } else { mom = '—'; }
     html += '<tr>' +
       '<td>' + ch.name + note + '</td>' +
       '<td class="num">' + fmt(ch.complete) + '</td>' +
+      '<td class="num" style="font-size:12px;">' + mom + '</td>' +
       '<td class="num"><span class="rate-tag ' + rateClass(share) + '">' + share.toFixed(2) + '%</span></td>' +
       '</tr>';
     totalC += ch.complete;
   });
-  const totalShare = (totalC / ANNUAL_BUDGET * 100);
+  var totalShare = (totalC / ANNUAL_BUDGET * 100);
   html += '<tr class="total">' +
     '<td>合计</td>' +
     '<td class="num">' + fmt(totalC) + '</td>' +
+    '<td class="num">—</td>' +
     '<td class="num"><span class="rate-tag ' + rateClass(totalShare) + '">' + totalShare.toFixed(2) + '%</span></td>' +
     '</tr>';
   document.querySelector('#channelTable tbody').innerHTML = html;
@@ -487,7 +498,48 @@ document.getElementById('monthSelect').addEventListener('change', function() {
   refresh(this.value);
 });
 
-refresh('4月');
+refresh('5月');
+
+/* ====== 月度趋势折线图 ====== */
+(function initTrendChart() {
+  var ctx = document.getElementById("trendChart");
+  if (!ctx) return;
+  ctx = ctx.getContext("2d");
+  var labels = ["1月","2月","3月","4月","5月"];
+  var colors = ["#4361ee","#f72585","#06d6a0","#ffd166","#7209b7"];
+  var datasets = [
+    {label:"OTC事业部", data:[43355,43355,43355,7294,6835]},
+    {label:"数字营销", data:[15440,15440,15440,4379,6446]},
+    {label:"海外", data:[193,193,193,215,274]},
+    {label:"滋补生活", data:[999,999,999,779,827]},
+    {label:"文旅", data:[1223,1223,1223,470,862]}
+  ];
+  var chartDatasets = datasets.map(function(d, i) {
+    return {
+      label: d.label, data: d.data,
+      borderColor: colors[i], backgroundColor: colors[i] + "20",
+      borderWidth: 2.5, pointRadius: 4, pointHoverRadius: 7,
+      tension: 0.3, fill: false
+    };
+  });
+  new Chart(ctx, {
+    type: "line",
+    data: { labels: labels, datasets: chartDatasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { position: "top", labels: { usePointStyle: true, padding: 20, font: {size:12} } },
+        tooltip: { callbacks: { label: function(c) { return c.dataset.label + ": " + c.raw.toLocaleString() + " 万元"; } } }
+      },
+      scales: {
+        y: { beginAtZero: false, title: { display: true, text: "发货金额（万元）" }, ticks: { callback: function(v) { return (v/10000).toFixed(1)+"亿"; } } },
+        x: { title: { display: true, text: "2026年" } }
+      }
+    }
+  });
+})();
+
 </script>
 
 </div><!-- end tab-overview -->
@@ -497,46 +549,46 @@ refresh('4月');
 
 <!-- 核心指标 KPI -->
 <div class="section">
-  <div class="section-title"><i class="fas fa-clipboard-check"></i> 复方阿胶浆 · 核心指标（1-4月累计）</div>
+  <div class="section-title"><i class="fas fa-clipboard-check"></i> 复方阿胶浆 · 核心指标（1-5月累计）</div>
   <div class="kpi-row">
     <div class="kpi-card" style="--dot-color:#4361ee;">
       <div class="kpi-label">📦 发货</div>
-      <div class="kpi-value">42,412<span style="font-size:14px;color:#6c757d"> 万</span></div>
-      <div class="kpi-sub">年度指标 242,405 万 | 同比 <span style="color:var(--success);">↓43%</span></div>
+      <div class="kpi-value">46,054<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub">年度指标 242,405 万 | 同比 <span style="color:var(--success);">↓40.0%</span></div>
       <div class="kpi-progress">
-        <div class="kpi-progress-label"><span class="kpi-annual-rate" style="color:var(--danger);">年度进度 17%</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:17%"></div></div>
+        <div class="kpi-progress-label"><span class="kpi-annual-rate" style="color:var(--danger);">年度进度 19%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:19%"></div></div>
       </div>
     </div>
     <div class="kpi-card" style="--dot-color:#f72585;">
       <div class="kpi-label">🚚 终端配送</div>
-      <div class="kpi-value">26,152<span style="font-size:14px;color:#6c757d"> 万</span></div>
-      <div class="kpi-sub">年度指标 220,448 万 | 同比 <span style="color:var(--success);">↓40%</span></div>
+      <div class="kpi-value">32,032<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub">年度指标 220,448 万 | 同比 <span style="color:var(--success);">↓41.7%</span></div>
       <div class="kpi-progress">
-        <div class="kpi-progress-label"><span class="kpi-annual-rate" style="color:var(--danger);">年度进度 12%</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:12%"></div></div>
+        <div class="kpi-progress-label"><span class="kpi-annual-rate" style="color:var(--danger);">年度进度 15%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:15%"></div></div>
       </div>
     </div>
     <div class="kpi-card" style="--dot-color:#06d6a0;">
       <div class="kpi-label">🏪 KA50纯销</div>
-      <div class="kpi-value">24,109<span style="font-size:14px;color:#6c757d"> 万</span></div>
-      <div class="kpi-sub">年度指标 98,450 万 | 同比 <span style="color:var(--danger);">↑1.7%</span></div>
+      <div class="kpi-value">30,192<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub">年度指标 98,450 万 | 同比 <span style="color:var(--danger);">↑2.9%</span></div>
       <div class="kpi-progress">
         <div class="kpi-progress-label"><span class="kpi-annual-rate" style="color:var(--warning);">年度进度 24%</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:24%"></div></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:31%"></div></div>
       </div>
     </div>
     <div class="kpi-card" style="--dot-color:#7209b7;">
       <div class="kpi-label">🏭 渠道库存</div>
-      <div class="kpi-value">83,558<span style="font-size:14px;color:#6c757d"> 万</span></div>
-      <div class="kpi-sub">同比 <span style="color:var(--danger);">↑37%</span> | 周转 <b>179天</b></div>
+      <div class="kpi-value">81,236<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub">同比 <span style="color:var(--danger);">↑40.6%</span> | 周转 <b>176天</b></div>
     </div>
   </div>
 </div>
 
-<!-- 4月单月 -->
+<!-- 5月单月 -->
 <div class="section">
-  <div class="section-title"><i class="fas fa-calendar-alt"></i> 4月单月数据</div>
+  <div class="section-title"><i class="fas fa-calendar-alt"></i> 5月单月数据</div>
   <div class="table-card" style="padding:20px;">
     <div style="height:400px;"><canvas id="otcMonth4Chart"></canvas></div>
   </div>
@@ -544,7 +596,7 @@ refresh('4月');
 
 <!-- 省区明细三图：发货 | 终端配送 | KA50纯销 -->
 <div class="section">
-  <div class="section-title"><i class="fas fa-chart-bar"></i> 复方阿胶浆 · 省区明细（1-4月累计）
+  <div class="section-title"><i class="fas fa-chart-bar"></i> 复方阿胶浆 · 省区明细（1-5月累计）
     <span class="hint">按完成金额降序 | 红柱 = 同比增长 · 绿柱 = 同比下滑 | 悬浮查看详情</span>
   </div>
 
@@ -610,86 +662,86 @@ var otcChartsReady = false;
 
 /* ====== 省区数据（复方阿胶浆 1-4月累计，23省） ====== */
 var shipData = [
-  {name:"广东", amount:4799.1, yoy:-22.6, target:20205.2, progress:78.3, annualProgress:23.8},
-  {name:"陕西", amount:4565.3, yoy:-30.5, target:11310.1, progress:133.1, annualProgress:40.4},
-  {name:"湖北", amount:4094.8, yoy:-16.6, target:12521.9, progress:107.8, annualProgress:32.7},
-  {name:"冀晋", amount:3013.7, yoy:-28.7, target:12582.9, progress:79.0, annualProgress:24.0},
-  {name:"湖南", amount:2820.7, yoy:1439.7, target:6209.1, progress:149.8, annualProgress:45.4},
-  {name:"江苏", amount:2728.2, yoy:-67.0, target:17504.0, progress:51.4, annualProgress:15.6},
-  {name:"甘青宁", amount:2680.8, yoy:3.8, target:5316.7, progress:166.2, annualProgress:50.4},
-  {name:"安徽", amount:2333.2, yoy:-61.7, target:17511.9, progress:43.9, annualProgress:13.3},
-  {name:"山东", amount:2224.2, yoy:-82.7, target:32545.3, progress:22.5, annualProgress:6.8},
-  {name:"东北", amount:1652.5, yoy:-25.4, target:9280.9, progress:58.7, annualProgress:17.8},
-  {name:"京津", amount:1603.1, yoy:122.6, target:7877.4, progress:67.1, annualProgress:20.4},
-  {name:"浙江", amount:1546.0, yoy:-38.4, target:10000.4, progress:51.0, annualProgress:15.5},
-  {name:"上海", amount:1318.3, yoy:320.4, target:11528.7, progress:37.7, annualProgress:11.4},
-  {name:"重庆", amount:1274.5, yoy:-50.1, target:10961.7, progress:38.3, annualProgress:11.6},
-  {name:"四川", amount:1196.4, yoy:-70.8, target:20864.4, progress:18.9, annualProgress:5.7},
-  {name:"贵州", amount:1060.9, yoy:-15.6, target:5340.5, progress:65.5, annualProgress:19.9},
-  {name:"江西", amount:921.1, yoy:-63.6, target:6392.0, progress:47.5, annualProgress:14.4},
-  {name:"新疆", amount:739.0, yoy:-56.2, target:3874.4, progress:62.9, annualProgress:19.1},
-  {name:"福建", amount:710.7, yoy:-35.5, target:5372.7, progress:43.6, annualProgress:13.2},
-  {name:"河南", amount:650.2, yoy:-44.3, target:3483.9, progress:61.5, annualProgress:18.7},
-  {name:"云南", amount:346.0, yoy:-51.3, target:4636.3, progress:24.6, annualProgress:7.5},
-  {name:"广西", amount:26.7, yoy:-96.0, target:3843.8, progress:2.3, annualProgress:0.7},
-  {name:"海南", amount:0.0, yoy:0, target:954.1, progress:0.0, annualProgress:0.0}
+  {name:"广东", amount:5226.01, yoy:-18.3, target:20205.24, progress:91.7, annualProgress:25.9},
+  {name:"陕西", amount:4781.58, yoy:-28.6, target:11310.14, progress:151.1, annualProgress:42.3},
+  {name:"湖北", amount:4430.82, yoy:-15.2, target:12521.90, progress:110.0, annualProgress:35.4},
+  {name:"冀晋", amount:3580.43, yoy:-24.0, target:12582.93, progress:94.9, annualProgress:28.5},
+  {name:"湖南", amount:3142.54, yoy:1345.2, target:6209.10, progress:166.3, annualProgress:50.6},
+  {name:"甘青宁", amount:2918.95, yoy:14.0, target:5316.66, progress:196.0, annualProgress:54.9},
+  {name:"江苏", amount:2838.31, yoy:-65.2, target:17503.98, progress:55.0, annualProgress:16.2},
+  {name:"山东", amount:2615.79, yoy:-80.1, target:32545.27, progress:19.8, annualProgress:8.0},
+  {name:"安徽", amount:2612.35, yoy:-58.3, target:17511.92, progress:55.5, annualProgress:14.9},
+  {name:"京津", amount:1984.23, yoy:184.7, target:7877.38, progress:69.5, annualProgress:25.2},
+  {name:"东北", amount:1899.91, yoy:-23.1, target:9280.93, progress:79.8, annualProgress:20.5},
+  {name:"浙江", amount:1735.50, yoy:-34.5, target:10000.45, progress:56.8, annualProgress:17.4},
+  {name:"上海", amount:1679.97, yoy:399.4, target:11528.68, progress:49.0, annualProgress:14.6},
+  {name:"重庆", amount:1442.58, yoy:-42.0, target:10961.71, progress:42.6, annualProgress:13.2},
+  {name:"四川", amount:1310.87, yoy:-65.2, target:20864.44, progress:21.0, annualProgress:6.3},
+  {name:"贵州", amount:1202.29, yoy:-6.1, target:5340.54, progress:74.0, annualProgress:22.5},
+  {name:"江西", amount:1054.32, yoy:-61.3, target:6392.01, progress:51.3, annualProgress:16.5},
+  {name:"新疆", amount:857.31, yoy:-52.2, target:3874.38, progress:71.7, annualProgress:22.1},
+  {name:"河南", amount:831.65, yoy:-35.1, target:3483.93, progress:84.4, annualProgress:23.9},
+  {name:"福建", amount:801.41, yoy:-28.9, target:5372.65, progress:46.9, annualProgress:14.9},
+  {name:"云南", amount:414.00, yoy:-45.7, target:4636.28, progress:30.5, annualProgress:8.9},
+  {name:"广西", amount:29.24, yoy:-96.6, target:3843.79, progress:2.0, annualProgress:0.8},
+  {name:"海南", amount:0.02, yoy:-100.0, target:954.10, progress:0.0, annualProgress:0.0}
 ];
-var shipTotal = 42305.4;
+var shipTotal = 46396.6;
 
 var deliveryData = [
-  {name:"山东", amount:4528.3, yoy:-44.0, target:32535.0, progress:50.9, annualProgress:13.9},
-  {name:"湖南", amount:2467.0, yoy:794.3, target:4739.0, progress:190.5, annualProgress:52.1},
-  {name:"江苏", amount:2318.3, yoy:148.0, target:17759.0, progress:47.8, annualProgress:13.1},
-  {name:"冀晋", amount:2263.1, yoy:17.0, target:11878.0, progress:69.7, annualProgress:19.1},
-  {name:"京津", amount:2243.3, yoy:63.9, target:6035.0, progress:136.0, annualProgress:37.2},
-  {name:"广东", amount:2017.0, yoy:-23.6, target:16522.0, progress:44.7, annualProgress:12.2},
-  {name:"陕西", amount:1693.2, yoy:-51.7, target:10921.0, progress:56.7, annualProgress:15.5},
-  {name:"重庆", amount:1502.6, yoy:21.0, target:9794.0, progress:56.1, annualProgress:15.3},
-  {name:"甘青宁", amount:1496.9, yoy:14.8, target:5498.0, progress:99.6, annualProgress:27.2},
-  {name:"浙江", amount:1146.4, yoy:-35.9, target:10202.0, progress:41.1, annualProgress:11.2},
-  {name:"新疆", amount:767.5, yoy:-35.6, target:3698.0, progress:75.9, annualProgress:20.8},
-  {name:"上海", amount:661.8, yoy:-43.8, target:7485.0, progress:32.3, annualProgress:8.8},
-  {name:"东北", amount:596.4, yoy:-7.7, target:7231.0, progress:30.2, annualProgress:8.2},
-  {name:"广西", amount:538.1, yoy:72.2, target:3631.0, progress:54.2, annualProgress:14.8},
-  {name:"四川", amount:-87.8, yoy:-102.8, target:17415.0, progress:-1.8, annualProgress:-0.5},
-  {name:"湖北", amount:479.3, yoy:-78.3, target:13619.0, progress:12.9, annualProgress:3.5},
-  {name:"云南", amount:357.3, yoy:-9.2, target:4459.0, progress:29.3, annualProgress:8.0},
-  {name:"河南", amount:163.8, yoy:-74.1, target:4193.0, progress:14.3, annualProgress:3.9},
-  {name:"贵州", amount:143.2, yoy:-65.0, target:4288.0, progress:12.2, annualProgress:3.3},
-  {name:"福建", amount:131.7, yoy:-75.2, target:3938.0, progress:12.2, annualProgress:3.3},
-  {name:"安徽", amount:57.9, yoy:-98.7, target:16570.0, progress:1.3, annualProgress:0.3},
-  {name:"海南", amount:50.2, yoy:-77.8, target:954.0, progress:19.2, annualProgress:5.3},
-  {name:"江西", amount:-12.8, yoy:-100.6, target:5051.0, progress:-0.9, annualProgress:-0.3}
+  {name:"山东", amount:5068.74, yoy:-41.4, target:32535.00, progress:59.0, annualProgress:15.6},
+  {name:"湖南", amount:2854.11, yoy:780.2, target:4739.00, progress:201.0, annualProgress:60.2},
+  {name:"冀晋", amount:2598.38, yoy:24.5, target:11878.00, progress:79.9, annualProgress:21.9},
+  {name:"京津", amount:2536.40, yoy:77.1, target:6035.00, progress:171.0, annualProgress:42.0},
+  {name:"江苏", amount:2497.34, yoy:155.1, target:17759.00, progress:55.0, annualProgress:14.1},
+  {name:"广东", amount:2303.42, yoy:-18.4, target:16522.00, progress:52.0, annualProgress:13.9},
+  {name:"陕西", amount:1891.24, yoy:-47.7, target:10921.00, progress:62.0, annualProgress:17.3},
+  {name:"重庆", amount:1761.82, yoy:32.3, target:9794.00, progress:59.0, annualProgress:18.0},
+  {name:"甘青宁", amount:1688.62, yoy:22.8, target:5498.00, progress:106.0, annualProgress:30.7},
+  {name:"浙江", amount:1331.57, yoy:-27.5, target:10202.00, progress:52.0, annualProgress:13.1},
+  {name:"新疆", amount:854.77, yoy:-32.6, target:3698.00, progress:83.0, annualProgress:23.1},
+  {name:"上海", amount:802.39, yoy:-35.3, target:7485.00, progress:37.0, annualProgress:10.7},
+  {name:"东北", amount:698.43, yoy:-0.9, target:7231.00, progress:39.0, annualProgress:9.7},
+  {name:"广西", amount:638.74, yoy:104.1, target:3631.00, progress:62.0, annualProgress:17.6},
+  {name:"湖北", amount:571.88, yoy:-74.5, target:13619.00, progress:14.0, annualProgress:4.2},
+  {name:"云南", amount:429.83, yoy:-9.9, target:4459.00, progress:31.0, annualProgress:9.6},
+  {name:"河南", amount:197.14, yoy:-72.1, target:4193.00, progress:17.0, annualProgress:4.7},
+  {name:"贵州", amount:170.58, yoy:-56.6, target:4288.00, progress:14.0, annualProgress:4.0},
+  {name:"福建", amount:160.22, yoy:-72.1, target:3938.00, progress:14.0, annualProgress:4.1},
+  {name:"安徽", amount:86.80, yoy:-98.1, target:16570.00, progress:2.0, annualProgress:0.5},
+  {name:"海南", amount:65.27, yoy:-74.1, target:954.00, progress:24.0, annualProgress:6.8},
+  {name:"四川", amount:-63.69, yoy:-101.6, target:17415.00, progress:-1.0, annualProgress:-0.4},
+  {name:"江西", amount:-20.94, yoy:-100.9, target:5051.00, progress:-1.0, annualProgress:-0.4}
 ];
-var deliveryTotal = 25522.7;
+var deliveryTotal = 29144.5;
 
 var ka50Data = [
-  {name:"江苏", amount:3362.6, yoy:50.0, target:10716.0, progress:103.4, annualProgress:31.4},
-  {name:"山东", amount:3067.1, yoy:-0.7, target:14954.0, progress:67.6, annualProgress:20.5},
-  {name:"广东", amount:2792.9, yoy:41.2, target:9072.0, progress:101.5, annualProgress:30.8},
-  {name:"安徽", amount:2353.3, yoy:-28.9, target:7851.0, progress:98.8, annualProgress:30.0},
-  {name:"上海", amount:1706.8, yoy:-13.4, target:4661.0, progress:120.7, annualProgress:36.6},
-  {name:"冀晋", amount:1365.5, yoy:-8.6, target:6310.0, progress:71.3, annualProgress:21.6},
-  {name:"湖北", amount:1021.6, yoy:24.3, target:5456.0, progress:61.7, annualProgress:18.7},
-  {name:"甘青宁", amount:991.6, yoy:122.6, target:2450.0, progress:133.4, annualProgress:40.5},
-  {name:"湖南", amount:885.4, yoy:78.5, target:4584.0, progress:63.7, annualProgress:19.3},
-  {name:"浙江", amount:873.9, yoy:67.5, target:2165.0, progress:133.1, annualProgress:40.4},
-  {name:"四川", amount:830.1, yoy:-10.0, target:4609.0, progress:59.4, annualProgress:18.0},
-  {name:"陕西", amount:794.4, yoy:-15.7, target:5395.0, progress:48.5, annualProgress:14.7},
-  {name:"贵州", amount:662.0, yoy:9.1, target:1586.0, progress:137.6, annualProgress:41.7},
-  {name:"河南", amount:627.7, yoy:-33.7, target:2898.0, progress:71.4, annualProgress:21.7},
-  {name:"京津", amount:499.7, yoy:-20.2, target:2534.0, progress:65.0, annualProgress:19.7},
-  {name:"新疆", amount:448.6, yoy:36.5, target:1465.0, progress:101.0, annualProgress:30.6},
-  {name:"云南", amount:416.2, yoy:-31.0, target:3362.0, progress:40.8, annualProgress:12.4},
-  {name:"东北", amount:380.4, yoy:-23.3, target:1743.0, progress:72.0, annualProgress:21.8},
-  {name:"广西", amount:235.5, yoy:-50.0, target:1736.0, progress:44.7, annualProgress:13.6},
-  {name:"江西", amount:199.8, yoy:-21.6, target:1638.0, progress:40.2, annualProgress:12.2},
-  {name:"福建", amount:190.6, yoy:0.9, target:917.0, progress:68.5, annualProgress:20.8},
-  {name:"重庆", amount:182.6, yoy:-37.4, target:1231.0, progress:48.9, annualProgress:14.8},
-  {name:"内蒙古", amount:130.6, yoy:-76.2, target:923.0, progress:46.7, annualProgress:14.1},
-  {name:"海南", amount:89.8, yoy:-25.6, target:194.0, progress:152.7, annualProgress:46.3}
+  {name:"江苏", amount:4267.12, yoy:48.2, target:10716.00, progress:131.1, annualProgress:39.8},
+  {name:"山东", amount:3692.99, yoy:5.1, target:14954.00, progress:81.2, annualProgress:24.7},
+  {name:"广东", amount:3460.42, yoy:44.8, target:9072.00, progress:127.0, annualProgress:38.1},
+  {name:"安徽", amount:2901.53, yoy:-17.1, target:7851.00, progress:120.9, annualProgress:37.0},
+  {name:"上海", amount:2130.72, yoy:-8.3, target:4661.00, progress:156.6, annualProgress:45.7},
+  {name:"冀晋", amount:1756.63, yoy:-1.6, target:6310.00, progress:91.7, annualProgress:27.8},
+  {name:"湖北", amount:1311.97, yoy:23.8, target:5456.00, progress:77.7, annualProgress:24.0},
+  {name:"甘青宁", amount:1261.82, yoy:128.7, target:2450.00, progress:169.4, annualProgress:51.5},
+  {name:"湖南", amount:1103.72, yoy:70.3, target:4584.00, progress:82.1, annualProgress:24.1},
+  {name:"浙江", amount:1052.65, yoy:52.8, target:2165.00, progress:157.0, annualProgress:48.6},
+  {name:"四川", amount:1018.63, yoy:-15.9, target:4609.00, progress:69.1, annualProgress:22.1},
+  {name:"陕西", amount:984.96, yoy:-17.8, target:5395.00, progress:70.5, annualProgress:18.3},
+  {name:"贵州", amount:821.70, yoy:16.4, target:1586.00, progress:179.8, annualProgress:51.8},
+  {name:"河南", amount:793.94, yoy:-26.2, target:2898.00, progress:92.1, annualProgress:27.4},
+  {name:"京津", amount:649.85, yoy:-19.2, target:2534.00, progress:83.3, annualProgress:25.6},
+  {name:"新疆", amount:556.58, yoy:26.9, target:1465.00, progress:135.2, annualProgress:38.0},
+  {name:"云南", amount:501.40, yoy:-27.8, target:3362.00, progress:46.1, annualProgress:14.9},
+  {name:"东北", amount:473.94, yoy:-16.4, target:1743.00, progress:85.2, annualProgress:27.2},
+  {name:"广西", amount:296.49, yoy:-45.2, target:1736.00, progress:57.1, annualProgress:17.1},
+  {name:"江西", amount:254.74, yoy:-15.4, target:1638.00, progress:56.2, annualProgress:15.6},
+  {name:"福建", amount:240.26, yoy:-4.4, target:917.00, progress:75.1, annualProgress:26.2},
+  {name:"重庆", amount:238.84, yoy:-38.1, target:1231.00, progress:51.1, annualProgress:19.4},
+  {name:"内蒙古", amount:166.49, yoy:-70.9, target:923.00, progress:49.0, annualProgress:18.0},
+  {name:"海南", amount:115.98, yoy:-10.7, target:194.00, progress:159.9, annualProgress:59.8}
 ];
-var ka50Total = 24108.6;
+var ka50Total = 30191.0;
 
 Chart.register(ChartDataLabels);
 
@@ -826,7 +878,7 @@ function initAllProvinceCharts() {
   renderMiniTable('ka50DetailTable', ka50Data, ka50Total);
 }
 
-/* ====== 4月单月数据（复方阿胶浆：发货 / 终端配送 / KA50纯销） ====== */
+/* ====== 5月单月数据（复方阿胶浆：发货 / 终端配送 / KA50纯销） ====== */
 // 后续添加月份时，往 labels 和对应 data 数组 push 即可
 var otcMonth4Data = {
   labels: ['4月'],
