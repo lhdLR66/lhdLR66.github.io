@@ -279,37 +279,55 @@
                 <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:22.2%"></div></div>
             </div>
         </div>
+        <div class="kpi-card" style="--dot-color: var(--warning);">
+            <div class="kpi-label">📅 5月单月完成</div>
+            <div class="kpi-value">5,908<span style="font-size:14px;color:#6c757d"> 万</span></div>
+            <div class="kpi-sub">OTC 4,252万 + R 1,656万</div>
+            <div class="kpi-progress">
+                <div class="kpi-progress-label"><span>占全年预算</span><span class="kpi-annual-rate" style="color:var(--text2);">1.9%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:1.9%"></div></div>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- 月度趋势折线图 -->
+<div class="section">
+  <div class="section-title"><i class="fas fa-chart-line"></i> 分渠道月度发货趋势（1-5月）
+    <span class="hint">点击图例切换渠道 | 单位：万元</span>
+  </div>
+  <div class="table-card" style="padding:20px;">
+    <div style="height:380px;"><canvas id="trendChart"></canvas></div>
+  </div>
 </div>
 
 <!-- ====== 月度看板：图表 + 表格 ====== -->
 <div class="section">
-    <div class="section-title">
-        <i class="fas fa-calendar-check"></i> 月度看板
-
+    <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span><i class="fas fa-calendar-check"></i> 月度看板</span>
+        <select id="monthSelect2" style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--card);color:var(--text);cursor:pointer;">
+            <option value="4月">4月</option>
+            <option value="5月" selected>5月</option>
+        </select>
     </div>
     <div class="two-col">
-        <!-- 左：总体柱状图 -->
+        <!-- 左：渠道柱状图 -->
         <div class="table-card">
             <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
-                <i class="fas fa-chart-bar" style="color:var(--primary);margin-right:6px;"></i>各品规月度完成
+                <i class="fas fa-chart-bar" style="color:var(--primary);margin-right:6px;"></i>各渠道 · 两种品规月度完成
             </div>
             <div class="chart-body" style="padding:14px;">
                 <canvas id="monthlyChart" style="max-height:340px;"></canvas>
             </div>
         </div>
-        <!-- 右：分渠道明细表 -->
+        <!-- 右：分渠道数据表 -->
         <div class="table-card">
-            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:space-between;">
-                <span><i class="fas fa-sitemap" style="color:var(--primary);margin-right:6px;"></i>OTC复方阿胶浆 分渠道发货明细 <span style="font-size:11px;color:var(--text2);">| 占月合计比 = 该渠道÷当月全渠道合计</span></span>
-                <select id="monthSelect" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--card);color:var(--text);cursor:pointer;">
-                    <option value="4月">4月</option>
-                    <option value="5月" selected>5月</option>
-                </select>
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
+                <span><i class="fas fa-table" style="color:var(--primary);margin-right:6px;"></i>分渠道明细 <span style="font-size:11px;color:var(--text2);">| 占月合计比 = 该渠道÷当月全渠道合计</span></span>
             </div>
             <table id="channelTable">
                 <thead>
-                    <tr><th>渠道/部门</th><th class="num">月完成（万元）</th><th class="num">环比上月</th><th class="num">占月合计比</th></tr>
+                    <tr><th>渠道/部门</th><th class="num">OTC复方阿胶浆<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num">R复方阿胶浆<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num">合计</th><th class="num">环比上月</th><th class="num">占月合计比</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -399,114 +417,130 @@
 
 <script>
 // Data store: monthly data per product per channel
-const data = {
-  OTC: {
-    "4月": { complete: 2079.79, budget: 20759.40, channels: [
-      { name: "OTC事业部（药品）", complete: 1569.37, budget: 18382.35 },
-      { name: "数字营销事业部", complete: 435.55, budget: 2136.07, note: "← 平台经销+自营店铺合并" },
-      { name: "海外事业部", complete: 17.06, budget: 172.37 },
-      { name: "滋补生活事业部 零售", complete: 23.41, budget: 36.20 },
-      { name: "文旅事业部 零售", complete: 34.39, budget: 32.42 }
-    ]},
-    "5月": { complete: 4252.18, budget: 20551.14, channels: [
-      { name: "OTC事业部（药品）", complete: 3641.36, budget: 18264.00 },
-      { name: "数字营销事业部", complete: 499.11, budget: 2090.21, note: "← 平台经销+自营店铺合并" },
-      { name: "海外事业部", complete: 24.44, budget: 140.33 },
-      { name: "滋补生活事业部 零售", complete: 36.77, budget: 35.68 },
-      { name: "文旅事业部 零售", complete: 50.50, budget: 32.77 }
-    ]},
-  },
-  R: {
-    "4月": { complete: 1440.73, budget: 2094.75 },
-    "5月": { complete: 1655.85, budget: 1673.10 },
-  }
+const monthlyData = {
+  "4月": { channels: [
+    { name: "OTC事业部（药品）", otc: 1569.37, r: 0 },
+    { name: "数字营销事业部", otc: 435.55, r: 0, note: "← 平台经销+自营店铺合并" },
+    { name: "海外事业部", otc: 17.06, r: 0 },
+    { name: "滋补生活事业部 零售", otc: 23.41, r: 0 },
+    { name: "文旅事业部 零售", otc: 34.39, r: 0 },
+    { name: "医疗事业部", otc: 0, r: 1440.73 }
+  ]},
+  "5月": { channels: [
+    { name: "OTC事业部（药品）", otc: 3641.36, r: 0 },
+    { name: "数字营销事业部", otc: 499.11, r: 0, note: "← 平台经销+自营店铺合并" },
+    { name: "海外事业部", otc: 24.44, r: 0 },
+    { name: "滋补生活事业部 零售", otc: 36.77, r: 0 },
+    { name: "文旅事业部 零售", otc: 50.50, r: 0 },
+    { name: "医疗事业部", otc: 0, r: 1655.85 }
+  ]}
 };
-const ANNUAL_BUDGET = 276660; // OTC复方阿胶浆全年预算（万元）
+ // OTC复方阿胶浆全年预算（万元）
 let chart;
 
-function renderChart(month) {
-  const otc = data.OTC[month];
-  const r = data.R[month];
-  const ctx = document.getElementById('monthlyChart').getContext('2d');
-  if (chart) chart.destroy();
-  chart = new Chart(ctx, {
+function renderMonthly(month) {
+  var data = monthlyData[month];
+  var channels = data.channels;
+  
+  // --- Bar chart ---
+  var ctx = document.getElementById('monthlyChart').getContext('2d');
+  if (window.monthlyChart) window.monthlyChart.destroy();
+  window.monthlyChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['OTC复方阿胶浆', 'R复方阿胶浆'],
+      labels: channels.map(function(c) { return c.name; }),
       datasets: [
         {
-          label: '月度完成（万元）',
-          data: [otc.complete, r.complete],
-          backgroundColor: ['#4361ee', '#f72585'],
-          borderRadius: 6
+          label: 'OTC复方阿胶浆',
+          data: channels.map(function(c) { return c.otc; }),
+          backgroundColor: '#4361ee',
+          borderRadius: 4,
+          maxBarThickness: 36
+        },
+        {
+          label: 'R复方阿胶浆',
+          data: channels.map(function(c) { return c.r; }),
+          backgroundColor: '#f72585',
+          borderRadius: 4,
+          maxBarThickness: 36
         }
       ]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,
       plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => '完成: ' + fmt(ctx.raw) + ' 万元' } }
+        legend: { position: 'top', labels: { usePointStyle: true, padding: 16, font: {size:11} } },
+        tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + c.raw.toFixed(2) + ' 万'; } } }
       },
       scales: {
-        y: { beginAtZero: true, ticks: { callback: v => (v/10000).toFixed(1) + '亿' } }
+        y: { beginAtZero: true, title: { display: true, text: '万元' } },
+        x: { ticks: { font: {size:10} } }
       }
     }
   });
-}
-
-function renderTable(month) {
-  const channels = data.OTC[month].channels;
-  let totalC = 0;
-  let html = '';
+  
+  // --- Data table ---
   var prevData = null;
-  // Get previous month data for 环比
-  var months = ["1月","2月","3月","4月","5月"];
+  var months = Object.keys(monthlyData);
   var mi = months.indexOf(month);
-  if (mi > 0) { prevData = data.OTC[months[mi-1]]; }
+  if (mi > 0) prevData = monthlyData[months[mi-1]];
+  
+  var totalOtc = 0, totalR = 0;
+  var html = '';
   channels.forEach(function(ch, i) {
-    var share = (ch.complete / ANNUAL_BUDGET * 100);
-    var note = ch.note ? ' <span style="font-size:12px;color:var(--success);">' + ch.note + '</span>' : '';
-    var mom = '';
-    var momClass = '';
+    var sum = ch.otc + ch.r;
+    totalOtc += ch.otc;
+    totalR += ch.r;
+    
+    var mom = '—';
     if (prevData && prevData.channels[i]) {
-      var prev = prevData.channels[i].complete;
-      if (prev === 0) { mom = '—'; }
-      else {
-        var chg = ((ch.complete - prev) / prev * 100);
-        var arrow = chg >= 0 ? '🟢' : '🔴';
-        mom = arrow + ' ' + (chg >= 0 ? '+' : '') + chg.toFixed(1) + '%';
+      var prev = prevData.channels[i];
+      var prevSum = prev.otc + prev.r;
+      if (prevSum > 0) {
+        var chg = ((sum - prevSum) / prevSum * 100);
+        mom = (chg >= 0 ? '🟢 ' : '🔴 ') + (chg >= 0 ? '+' : '') + chg.toFixed(1) + '%';
       }
-    } else { mom = '—'; }
+    }
+    
+    var note = ch.note ? ' <span style="font-size:11px;color:var(--text2);">' + ch.note + '</span>' : '';
     html += '<tr>' +
       '<td>' + ch.name + note + '</td>' +
-      '<td class="num">' + fmt(ch.complete) + '</td>' +
+      '<td class="num">' + (ch.otc > 0 ? ch.otc.toFixed(2) : '—') + '</td>' +
+      '<td class="num">' + (ch.r > 0 ? ch.r.toFixed(2) : '—') + '</td>' +
+      '<td class="num"><b>' + sum.toFixed(2) + '</b></td>' +
       '<td class="num" style="font-size:12px;">' + mom + '</td>' +
-      '<td class="num"><span class="rate-tag ' + rateClass(share) + '">' + share.toFixed(2) + '%</span></td>' +
+      '<td class="num"><span class="rate-tag ' + rateClass(sum/67361) + '">' + (sum/(totalOtc+totalR)*100).toFixed(1) + '%</span></td>' +
       '</tr>';
-    totalC += ch.complete;
   });
-  var totalShare = (totalC / ANNUAL_BUDGET * 100);
+  
+  var grandTotal = totalOtc + totalR;
   html += '<tr class="total">' +
-    '<td>合计</td>' +
-    '<td class="num">' + fmt(totalC) + '</td>' +
+    '<td><b>合计</b></td>' +
+    '<td class="num"><b>' + totalOtc.toFixed(2) + '</b></td>' +
+    '<td class="num"><b>' + totalR.toFixed(2) + '</b></td>' +
+    '<td class="num"><b>' + grandTotal.toFixed(2) + '</b></td>' +
     '<td class="num">—</td>' +
-    '<td class="num"><span class="rate-tag ' + rateClass(totalShare) + '">' + totalShare.toFixed(2) + '%</span></td>' +
+    '<td class="num">100%</td>' +
     '</tr>';
+  
   document.querySelector('#channelTable tbody').innerHTML = html;
 }
 
-function refresh(month) {
-  renderChart(month);
-  renderTable(month);
-}
-
-document.getElementById('monthSelect').addEventListener('change', function() {
-  refresh(this.value);
+// Init
+document.getElementById('monthSelect2').addEventListener('change', function() {
+  renderMonthly(this.value);
 });
 
-refresh('5月');
+
+function fmt(n) { return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+function rateClass(rate) {
+  if (rate < 60) return "rate-danger";
+  if (rate >= 100) return "rate-success";
+  return "rate-warning";
+}
+
+renderMonthly('5月');
 
 /* ====== 月度趋势折线图 ====== */
 (function initTrendChart() {
@@ -547,7 +581,6 @@ refresh('5月');
     }
   });
 })();
-
 </script>
 
 </div><!-- end tab-overview -->
