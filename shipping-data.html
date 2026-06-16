@@ -263,6 +263,45 @@
         .css-bars .bar-label { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 10px; color: var(--text2); line-height: 1.4; }
         .css-bars .bar-label .note { font-size: 8px; opacity: 0.7; }
 
+        /* Month Pills */
+        .month-pills { display: inline-flex; gap: 4px; margin-left: 12px; vertical-align: middle; }
+        .month-pill { 
+          padding: 3px 14px; border: 1px solid var(--border); border-radius: 16px;
+          font-size: 12px; font-weight: 500; cursor: pointer; background: var(--card);
+          color: var(--text2); transition: all 0.2s;
+        }
+        .month-pill:hover { border-color: var(--primary); color: var(--primary); }
+        .month-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        /* Insight Summary */
+        .insight { 
+          font-size: 12px; color: var(--text2); margin: 2px 0 14px 0; 
+          padding: 6px 14px; background: rgba(67,97,238,0.04); border-radius: 6px;
+          border-left: 3px solid var(--primary);
+        }
+        .insight b { color: var(--text); }
+        .insight .up { color: var(--success); }
+        .insight .down { color: var(--danger); }
+        /* KPI Badge */
+        .kpi-badge {
+          display: inline-flex; align-items: center; gap: 4px;
+          padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500;
+          margin-left: 6px; vertical-align: middle;
+        }
+        .kpi-badge.up { background: rgba(6,214,160,0.1); color: var(--success); }
+        .kpi-badge.down { background: rgba(231,76,60,0.1); color: var(--danger); }
+        /* Mini Trend Strip */
+        .mini-trend { display: flex; align-items: flex-end; gap: 6px; height: 32px; padding: 0 4px; }
+        .mini-trend .mini-bar { flex: 1; border-radius: 3px 3px 0 0; min-width: 14px; position: relative; cursor: pointer; transition: filter 0.2s; }
+        .mini-trend .mini-bar:hover { filter: brightness(0.8); }
+        .mini-trend .mini-bar:hover::after {
+          content: attr(data-tooltip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+          background: rgba(30,30,40,0.95); color: #fff; padding: 5px 10px; border-radius: 6px;
+          font-size: 11px; font-weight: 500; white-space: nowrap; pointer-events: none; z-index: 100;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .mini-trend-stat { font-size: 11px; color: var(--text2); white-space: nowrap; }
+        .mini-trend-stat .big { font-size: 15px; font-weight: 600; color: var(--text); }
+
   </style>
 </head>
 <body>
@@ -302,7 +341,7 @@
     <div class="kpi-row">
         <div class="kpi-card" style="--dot-color: var(--primary);">
             <div class="kpi-label">OTC复方阿胶浆</div>
-            <div class="kpi-value">55,927<span style="font-size:14px;color:#6c757d"> 万</span></div>
+            <div class="kpi-value">55,927<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +4,252万 &middot; 环比 +104%</span></div>
             <div class="kpi-sub">全年预算 276,660.00 万</div>
             <div class="kpi-progress">
                 <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate" style="color:var(--danger);">20.2%</span></div>
@@ -311,7 +350,7 @@
         </div>
         <div class="kpi-card" style="--dot-color: var(--over);">
             <div class="kpi-label">R复方阿胶浆</div>
-            <div class="kpi-value">11,557<span style="font-size:14px;color:#6c757d"> 万</span></div>
+            <div class="kpi-value">11,557<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +1,656万 &middot; 环比 +15%</span></div>
             <div class="kpi-sub">全年预算 27,930.00 万</div>
             <div class="kpi-progress">
                 <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate" style="color:var(--warning);">41.4%</span></div>
@@ -320,7 +359,7 @@
         </div>
         <div class="kpi-card" style="--dot-color: var(--success);">
             <div class="kpi-label">合计</div>
-            <div class="kpi-value">67,484<span style="font-size:14px;color:#6c757d"> 万</span></div>
+            <div class="kpi-value">67,484<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +5,908万 &middot; 环比 +68%</span></div>
             <div class="kpi-sub">全年预算 304,590 万</div>
             <div class="kpi-progress">
                 <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate" style="color:var(--danger);">22.2%</span></div>
@@ -330,29 +369,19 @@
     </div>
 </div>
 
-<!-- 月度趋势折线图 -->
-<div class="section">
-  <div class="section-title"><i class="fas fa-chart-line"></i> 月度发货趋势（复方阿胶浆合计）
-    <span class="hint">柱状=月发货额 | 蓝字=同比 | 粉字=环比</span>
-  </div>
-  <div class="table-card" style="padding:20px;">
-    <div class="legend-inline">
-      <span><span class="dot" style="background:var(--primary);"></span> 当月发货额</span>
-      <span style="margin-left:8px;">同比→<span style="color:var(--primary);">蓝字</span></span>
-      <span>环比→<span style="color:#f72585;">粉字</span></span>
-    </div>
-    <div class="css-trend" id="trendBars"></div>
-  </div>
-</div>
-
-<!-- ====== 月度看板：图表 + 表格 ====== -->
+<!-- ====== 月度看板：趋势 + 图表 + 表格 ====== -->
 <div class="section">
     <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
         <span><i class="fas fa-calendar-check"></i> 月度看板
-        <select id="monthSelect2" style="margin-left:10px;padding:4px 26px 4px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg);color:var(--text);cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 10 10%22><path fill=%22%236c757d%22 d=%22M5 7L1 2h8z%22/></svg>');background-repeat:no-repeat;background-position:right 6px center;font-weight:500;vertical-align:middle;">
-            <option value="4月">4月</option>
-            <option value="5月" selected>5月</option>
-        </select></span>
+        <span class="month-pills">
+            <button class="month-pill" data-month="4月" onclick="switchMonthlyMonth('4月')">4月</button>
+            <button class="month-pill active" data-month="5月" onclick="switchMonthlyMonth('5月')">5月</button>
+        </span></span>
+    </div>
+    <div class="insight" id="monthlyInsight"></div>
+    <div style="display:flex;align-items:center;gap:12px;padding:0 16px;margin-bottom:8px;">
+        <span style="font-size:11px;color:var(--text2);font-weight:500;">趋势</span>
+        <div class="mini-trend" id="miniTrend"></div>
     </div>
     <div class="two-col">
         <!-- 左：渠道柱状图 -->
@@ -538,6 +567,59 @@ const monthlyData = {
  // OTC复方阿胶浆全年预算（万元）
 let chart;
 
+function switchMonthlyMonth(month) {
+  document.querySelectorAll('.month-pill').forEach(function(b) { b.classList.remove('active'); });
+  var target = document.querySelector('.month-pill[data-month="'+month+'"]');
+  if (target) target.classList.add('active');
+  renderMonthly(month);
+  renderMiniTrend(month);
+  renderInsight(month);
+}
+
+function renderMiniTrend(month) {
+  var c = document.getElementById('miniTrend');
+  if (!c) return;
+  var data = monthlyData[month];
+  if (!data) return;
+  var chs = data.channels;
+  var maxV = 0;
+  chs.forEach(function(ch) { var s = ch.otc + ch.r; if (s > maxV) maxV = s; });
+  var h = '';
+  var colors = ['var(--primary)','#7c5cfc','#06d6a0','#fbbf24','#f72585','#e67e22'];
+  chs.forEach(function(ch, i) {
+    var s = ch.otc + ch.r;
+    var barH = s > 0 ? Math.max(3, s / maxV * 30) : 0;
+    var name = ch.name.replace('（药品）','').replace('事业部','').replace(' 零售','');
+    h += '<div class="mini-bar" style="height:'+barH+'px;background:'+colors[i%6]+';" data-tooltip="'+name+': '+s.toFixed(1)+'万"></div>';
+  });
+  var total = chs.reduce(function(a,ch){return a+ch.otc+ch.r;},0);
+  c.innerHTML = h + '<span class="mini-trend-stat" style="margin-left:8px;"><span class="big">'+total.toFixed(0)+'</span> 万</span>';
+}
+
+function renderInsight(month) {
+  var c = document.getElementById('monthlyInsight');
+  if (!c) return;
+  var data = monthlyData[month];
+  if (!data) return;
+  var chs = data.channels;
+  var total = 0;
+  chs.forEach(function(ch) { total += ch.otc + ch.r; });
+  var top = chs[0]; var topV = top.otc + top.r;
+  chs.forEach(function(ch) { var s = ch.otc + ch.r; if (s > topV) { topV = s; top = ch; } });
+  var topName = top.name.replace('（药品）','').replace('事业部','').replace(' 零售','').trim();
+  var prevKey = month === '5月' ? '4月' : null;
+  var momText = '';
+  if (prevKey && monthlyData[prevKey]) {
+    var prevTotal = 0;
+    monthlyData[prevKey].channels.forEach(function(ch) { prevTotal += ch.otc + ch.r; });
+    if (prevTotal > 0) {
+      var mom = ((total - prevTotal) / prevTotal * 100);
+      momText = '&middot; 环比 <span class="'+(mom>=0?'up':'down')+'">'+(mom>=0?'+':'')+mom.toFixed(1)+'%</span>';
+    }
+  }
+  c.innerHTML = '<b>'+topName+'</b> 以 <b>'+topV.toFixed(0)+'万</b> 领跑，贡献 '+(topV/total*100).toFixed(0)+'% '+momText;
+}
+
 function renderMonthly(month) {
 
   var data = monthlyData[month];
@@ -610,9 +692,9 @@ function renderMonthly(month) {
 }
 
 // Init
-document.getElementById('monthSelect2').addEventListener('change', function() {
-  renderMonthly(this.value);
-});
+renderMonthly('5月');
+renderMiniTrend('5月');
+renderInsight('5月');
 
 
 function fmt(n) { return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
@@ -622,33 +704,7 @@ function rateClass(rate) {
   return "rate-warning";
 }
 
-renderMonthly('5月');
 
-/* ====== 月度趋势折线图 ====== */
-(function renderTrendBars() {
-  var container = document.getElementById("trendBars");
-  if (!container) return;
-  var items = [
-    { label: '4月', val: 3521, yoy: null, mom: null, color: 'var(--primary)' },
-    { label: '5月', val: 5908, yoy: 0.9, mom: 67.8, color: 'var(--primary)' }
-  ];
-  var maxV = 5908;
-  var html = '';
-  items.forEach(function(it) {
-    var h = Math.max(4, it.val / maxV * 250);
-    var sub = '';
-    if (it.yoy !== null) sub += '同比 <span class="'+(it.yoy>=0?'up':'down')+'">'+(it.yoy>=0?'+':'')+it.yoy+'%</span> ';
-    if (it.mom !== null) sub += '环比 <span class="up">+'+it.mom+'%</span>';
-    if (!sub) sub = '&nbsp;';
-    html += '<div class="bar-col">' +
-      '<div class="bar-val">' + (it.val/10000).toFixed(2).replace(/\.?0+$/,'') + '亿</div>' +
-      '<div class="bar-sub">'+sub+'</div>' +
-      '<div class="bar" style="height:'+h+'px;background:'+it.color+';" data-tooltip="'+it.val.toLocaleString()+'万"></div>' +
-      '<div class="bar-label">'+it.label+'</div>' +
-      '</div>';
-  });
-  container.innerHTML = html;
-})();
 </script>
 
 </div><!-- end tab-overview -->
@@ -662,7 +718,7 @@ renderMonthly('5月');
   <div class="kpi-row">
     <div class="kpi-card" style="--dot-color:#4361ee;">
       <div class="kpi-label">📦 发货</div>
-      <div class="kpi-value">55,927<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-value">55,927<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +4,252万 &middot; 环比 +104%</span></div>
       <div class="kpi-sub">年度指标 276,660 万 | 同比 <span style="color:var(--success);">↓35.7%</span></div>
       <div class="kpi-progress">
         <div class="kpi-progress-label"><span class="kpi-annual-rate" style="color:var(--danger);">年度进度 19%</span></div>
@@ -689,7 +745,7 @@ renderMonthly('5月');
     </div>
     <div class="kpi-card" style="--dot-color:#7209b7;">
       <div class="kpi-label">🏭 渠道库存</div>
-      <div class="kpi-value">11,557<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-value">11,557<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +1,656万 &middot; 环比 +15%</span></div>
       <div class="kpi-sub">年度指标 27,930 万 | 同比 ↑13.6%</div>
     </div>
   </div>
