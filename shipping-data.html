@@ -230,13 +230,13 @@
         .legend-inline { display:flex;gap:16px;align-items:center;font-size:11px;color:var(--text2);margin-bottom:4px; }
         .legend-inline .dot { display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px; }
 
-        .css-bars { display: flex; align-items: flex-end; gap: 8px; height: 270px; padding: 0 12px; }
-        .css-bars .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 60px; }
-        .css-bars .bars-row { display: flex; gap: 3px; align-items: flex-end; height: 240px; }
+        .css-bars { display: flex; align-items: stretch; gap: 8px; height: 300px; padding: 0 12px; }
+        .css-bars .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-width: 60px; }
+        .css-bars .bars-row { position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%); display: flex; gap: 3px; align-items: flex-end; height: 240px; }
         .css-bars .bar { width: 22px; border-radius: 4px 4px 0 0; transition: height 0.4s; }
         .css-bars .bar.otc { background: var(--primary); }
         .css-bars .bar.r { background: #f72585; }
-        .css-bars .bar-label { font-size: 10px; color: var(--text2); margin-top: 6px; text-align: center; line-height: 1.4; }
+        .css-bars .bar-label { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 10px; color: var(--text2); line-height: 1.4; }
         .css-bars .bar-label .note { font-size: 8px; opacity: 0.7; }
 
   </style>
@@ -325,7 +325,7 @@
 <div class="section">
     <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
         <span><i class="fas fa-calendar-check"></i> 月度看板</span>
-        <select id="monthSelect2" style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--card);color:var(--text);cursor:pointer;">
+        <select id="monthSelect2" style="padding:6px 28px 6px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236c757d%22 d=%22M6 8L1 3h10z%22/></svg>');background-repeat:no-repeat;background-position:right 8px center;font-weight:500;">
             <option value="4月">4月</option>
             <option value="5月" selected>5月</option>
         </select>
@@ -345,11 +345,11 @@
         <!-- 右：分渠道数据表 -->
         <div class="table-card">
             <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
-                <span><i class="fas fa-table" style="color:var(--primary);margin-right:6px;"></i>分渠道明细 <span style="font-size:11px;color:var(--text2);">| 占月合计比 = 该渠道÷当月全渠道合计</span></span>
+                <span><i class="fas fa-table" style="color:var(--primary);margin-right:6px;"></i>分渠道明细</span>
             </div>
-            <table id="channelTable">
+            <table id="channelTable" style="table-layout:fixed;width:100%;">
                 <thead>
-                    <tr><th>渠道/部门</th><th class="num">合计<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num">同比变化</th><th class="num">环比上月</th><th class="num">占月合计比</th></tr>
+                    <tr><th style="width:40%;">渠道/部门</th><th class="num" style="width:22%;">合计<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num" style="width:18%;">同比变化</th><th class="num" style="width:20%;">环比上月</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -571,7 +571,6 @@ function renderMonthly(month) {
       '<td class="num"><b>' + sum.toFixed(2) + '</b></td>' +
       '<td class="num" style="font-size:12px;">' + yoy + '</td>' +
       '<td class="num" style="font-size:12px;">' + mom + '</td>' +
-      '<td class="num"><span class="rate-tag ' + ((sum/(totalOtc+totalR)*100) < 10 ? 'rate-danger' : (sum/(totalOtc+totalR)*100) >= 50 ? 'rate-success' : 'rate-warning') + '">' + (sum/(totalOtc+totalR)*100).toFixed(1) + '%</span></td>' +
       '</tr>';
   });
   
@@ -581,7 +580,6 @@ function renderMonthly(month) {
     '<td class="num"><b>' + grandTotal.toFixed(2) + '</b></td>' +
     '<td class="num">—</td>' +
     '<td class="num">—</td>' +
-    '<td class="num">100%</td>' +
     '</tr>';
   
   document.querySelector('#channelTable tbody').innerHTML = html;
