@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Chart Diagnostic</title>
+<style>
+body { font-family: monospace; padding: 20px; background: #1a1a2e; color: #e0e0e0; }
+.pass { color: #4ade80; } .fail { color: #f87171; } .warn { color: #fbbf24; }
+.result { margin: 8px 0; padding: 8px; border-radius: 4px; background: #16213e; }
+pre { background: #0f3460; padding: 12px; border-radius: 6px; overflow-x: auto; }
+</style>
+</head><body>
+<h1>🩺 Chart Diagnostic</h1>
+<div id="results"></div>
+<script src="chart.min.js"></script>
+<script>
+var out = document.getElementById('results');
+
+function log(msg, cls) {
+  out.innerHTML += '<div class="result '+(cls||'')+'">' + msg + '</div>';
+}
+
+// Step 1: Check scripts
+log('1. Chart.js loaded: ' + (typeof Chart !== 'undefined' ? 'YES ✓' : 'NO ✗'), typeof Chart !== 'undefined' ? 'pass' : 'fail');
+
+// Step 2: Check canvases
+['trendChart', 'monthlyChart'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    var rect = el.getBoundingClientRect();
+    log('2. Canvas #'+id+': FOUND | pos=('+rect.x.toFixed(0)+','+rect.y.toFixed(0)+') size=('+rect.width.toFixed(0)+'x'+rect.height.toFixed(0)+') | visible='+(rect.width>0&&rect.height>0?'YES':'NO'), (rect.width>0&&rect.height>0)?'pass':'fail');
+  } else {
+    log('2. Canvas #'+id+': NOT FOUND ✗', 'fail');
+  }
+});
+
+// Step 3: Check tab state
+['tab-overview', 'tab-otc'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    var style = window.getComputedStyle(el);
+    log('3. #'+id+': display='+style.display+' | visibility='+style.visibility, style.display!=='none'?'pass':'fail');
+  } else {
+    log('3. #'+id+': NOT FOUND', 'fail');
+  }
+});
+
+// Step 4: Try to render
+try {
+  if (typeof Chart !== 'undefined') {
+    var c1 = document.getElementById('trendChart');
+    if (c1 && c1.getBoundingClientRect().width > 0) {
+      new Chart(c1.getContext('2d'), {
+        type: 'bar',
+        data: { labels: ['A','B','C'], datasets: [{label:'Test',data:[10,20,30],backgroundColor:'#4ade80'}] },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+      log('4. Test chart rendered: OK ✓', 'pass');
+    }
+  }
+} catch(e) {
+  log('4. Test chart: ERROR - ' + e.message, 'fail');
+}
+
+// Step 5: Window errors
+window.onerror = function(msg, url, line) {
+  log('5. RUNTIME ERROR: ' + msg + ' at line ' + line, 'fail');
+};
+
+// Step 6: Check if script blocks ran
+log('6. Diagnostic script position: at bottom of page', 'pass');
+log('<br><b>👉 请截图此页面发给看板运维师</b>', 'warn');
+</script>
+</body></html>
