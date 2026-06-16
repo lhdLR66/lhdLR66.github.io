@@ -500,7 +500,9 @@ function renderMonthly(month) {
   var channels = data.channels;
   
   // --- Bar chart ---
-  var ctx = document.getElementById('monthlyChart').getContext('2d');
+  var ctx = chartCanvas.getContext('2d');
+  chartCanvas.style.width = "100%";
+  chartCanvas.style.height = "100%";
   if (window.monthlyChart) window.monthlyChart.destroy();
   window.monthlyChart = new Chart(ctx, {
     type: 'bar',
@@ -606,6 +608,8 @@ renderMonthly('5月');
 
   var ctx = document.getElementById("trendChart");
   if (!ctx) return;
+  ctx.style.width = "100%";
+  ctx.style.height = "100%";
   ctx = ctx.getContext("2d");
   // 复方阿胶浆(OTC+R)月度数据 | Q1=1-3月月均
   var labels = ["Q1月均","4月","5月"];
