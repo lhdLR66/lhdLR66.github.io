@@ -216,6 +216,11 @@
         .note-bar i { color: var(--primary); }
         .note-bar .highlight { color: var(--over); font-weight: 500; }
     </style>
+<script>
+window.onerror = function(msg, url, line, col, err) {
+  document.body.insertAdjacentHTML('beforeend', '<div style="position:fixed;bottom:0;left:0;right:0;background:#ff4444;color:white;padding:8px;font:12px monospace;z-index:9999;">JS ERROR: ' + msg + ' at line ' + line + '</div>');
+};
+</script>
 </head>
 <body>
 
@@ -484,6 +489,13 @@ const monthlyData = {
 let chart;
 
 function renderMonthly(month) {
+  try { console.log('renderMonthly called with', month); } catch(e) {}
+  if (typeof Chart === 'undefined') { console.error('Chart.js not loaded!'); return; }
+  var chartCanvas = document.getElementById('monthlyChart');
+  if (!chartCanvas) { console.error('monthlyChart canvas not found!'); return; }
+  var tableBody = document.querySelector('#channelTable tbody');
+  if (!tableBody) { console.error('channelTable tbody not found!'); return; }
+
   var data = monthlyData[month];
   var channels = data.channels;
   
@@ -570,6 +582,7 @@ function renderMonthly(month) {
     '</tr>';
   
   document.querySelector('#channelTable tbody').innerHTML = html;
+  } catch(e) { console.error('renderMonthly error:', e.message); }
 }
 
 // Init
@@ -589,6 +602,8 @@ renderMonthly('5月');
 
 /* ====== 月度趋势折线图 ====== */
 (function initTrendChart() {
+  try { if (typeof Chart === 'undefined') { console.error('Trend: Chart.js not loaded'); return; } } catch(e) {}
+
   var ctx = document.getElementById("trendChart");
   if (!ctx) return;
   ctx = ctx.getContext("2d");
