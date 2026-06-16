@@ -279,25 +279,16 @@
                 <div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:22.2%"></div></div>
             </div>
         </div>
-        <div class="kpi-card" style="--dot-color: var(--warning);">
-            <div class="kpi-label">📅 5月单月完成</div>
-            <div class="kpi-value">5,908<span style="font-size:14px;color:#6c757d"> 万</span></div>
-            <div class="kpi-sub">OTC 4,252万 + R 1,656万</div>
-            <div class="kpi-progress">
-                <div class="kpi-progress-label"><span>占全年预算</span><span class="kpi-annual-rate" style="color:var(--text2);">1.9%</span></div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:1.9%"></div></div>
-            </div>
-        </div>
     </div>
 </div>
 
 <!-- 月度趋势折线图 -->
 <div class="section">
-  <div class="section-title"><i class="fas fa-chart-line"></i> 分渠道月度发货趋势（1-5月）
-    <span class="hint">点击图例切换渠道 | 单位：万元</span>
+  <div class="section-title"><i class="fas fa-chart-line"></i> 月度发货趋势（复方阿胶浆合计）
+    <span class="hint">柱状=月发货额 | 蓝线=同比 | 橙线=环比 | Q1=1-3月月均</span>
   </div>
   <div class="table-card" style="padding:20px;">
-    <div style="height:380px;"><canvas id="trendChart"></canvas></div>
+    <div style="height:360px;"><canvas id="trendChart"></canvas></div>
   </div>
 </div>
 
@@ -339,9 +330,16 @@
 <div class="section">
     <div class="section-title">
         <i class="fas fa-chart-line"></i> 累计看板 — 1-5月
-        <span class="hint">复方阿胶浆（含R浆）各渠道发货 | <span style="background:#fde8e8;padding:1px 4px;border-radius:2px;">红底=完成率&lt;60%</span> <span style="background:#fff3e0;padding:1px 4px;border-radius:2px;">橙底=完成率≥100%</span> <span style="color:#e74c3c;">红字=同比&lt;-20%</span> <span style="color:#e67e22;">橙字=同比&gt;+50%</span></span>
+        <span class="hint"><span style="background:#fde8e8;padding:1px 4px;border-radius:2px;">红底=完成率&lt;60%</span> <span style="background:#fff3e0;padding:1px 4px;border-radius:2px;">橙底=完成率≥100%</span> <span style="color:#e74c3c;">红字=同比&lt;-20%</span> <span style="color:#e67e22;">橙字=同比&gt;+50%</span></span>
     </div>
-    <div class="table-card">
+
+    <!-- OTC装 -->
+    <div style="margin-bottom:16px;">
+    <div class="section-title" style="font-size:15px;margin-bottom:8px;">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#4361ee;margin-right:8px;"></span>OTC装
+        <span style="font-size:12px;color:var(--text2);font-weight:400;">| 复方阿胶浆（OTC）· 累计完成 55,927万 · 年度进度 20.2%</span>
+    </div>
+    <div class="table-card" style="margin-bottom:16px;">
         <table>
             <thead>
                 <tr>
@@ -393,25 +391,74 @@
                     <td class="num" style="color:#e67e22;">+255.2%</td>
                     <td class="num"><span class="rate-tag rate-success">273.1%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-success" style="width:100%"></div></div><span class="progress-pct" style="color:var(--success)">115.2%</span></div></td>
-                </tr>                <tr>
-                    <td><b>R复方阿胶浆</b> <span style="font-size:12px;color:var(--text2);">← 医疗事业部渠道</span></td>
+                </tr>
+                <tr class="total">
+                    <td><b>OTC装 合计</b></td>
+                    <td class="num"><b>55,927</b></td>
+                    <td class="num"><b>102,420</b></td>
+                    <td class="num" style="color:var(--danger);"><b>-35.7%</b></td>
+                    <td class="num"><span class="rate-tag rate-danger"><b>54.6%</b></span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:20.2%"></div></div><span class="progress-pct" style="color:var(--danger)">20.2%</span></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+    <!-- R装 -->
+    <div>
+    <div class="section-title" style="font-size:15px;margin-bottom:8px;">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#f72585;margin-right:8px;"></span>R装
+        <span style="font-size:12px;color:var(--text2);font-weight:400;">| 复方阿胶浆（R）· 累计完成 11,557万 · 年度进度 41.4%</span>
+    </div>
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>渠道/部门</th>
+                    <th class="num">1-5月完成（万元）</th>
+                    <th class="num">1-5月预算（万元）</th>
+                    <th class="num">同比变化</th>
+                    <th class="num">累计完成率</th>
+                    <th class="progress-cell">年度完成进度</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>医疗事业部</td>
                     <td class="num">11,557</td>
                     <td class="num">10,334</td>
                     <td class="num" style="color:var(--success);">+13.6%</td>
                     <td class="num"><span class="rate-tag rate-success">111.8%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:41.4%"></div></div><span class="progress-pct" style="color:var(--warning)">41.4%</span></div></td>
                 </tr>
-
                 <tr class="total">
-                    <td><b>合计（OTC+R浆）</b></td>
-                    <td class="num">67,484</td>
-                    <td class="num">112,754</td>
-                    <td class="num" style="color:var(--danger);">-30.5%</td>
-                    <td class="num"><span class="rate-tag rate-danger">59.9%</span></td>
-                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:22.2%"></div></div><span class="progress-pct" style="color:var(--danger)">22.2%</span></div></td>
+                    <td><b>R装 合计</b></td>
+                    <td class="num"><b>11,557</b></td>
+                    <td class="num"><b>10,334</b></td>
+                    <td class="num" style="color:var(--success);"><b>+13.6%</b></td>
+                    <td class="num"><span class="rate-tag rate-success"><b>111.8%</b></span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-warning" style="width:41.4%"></div></div><span class="progress-pct" style="color:var(--warning)">41.4%</span></div></td>
                 </tr>
             </tbody>
         </table>
+    </div>
+    </div>
+
+    <!-- 全品规合计 -->
+    <div class="table-card" style="margin-top:16px;background:var(--bg);">
+        <table>
+            <tr class="total" style="font-size:15px;">
+                <td><b>📊 全品规合计</b></td>
+                <td class="num"><b>67,484</b></td>
+                <td class="num"><b>112,754</b></td>
+                <td class="num" style="color:var(--danger);"><b>-30.5%</b></td>
+                <td class="num"><span class="rate-tag rate-danger"><b>59.9%</b></span></td>
+                <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill fill-danger" style="width:22.2%"></div></div><span class="progress-pct" style="color:var(--danger)">22.2%</span></div></td>
+            </tr>
+        </table>
+    </div>
+</div>
     </div>
 </div>
 
@@ -510,7 +557,7 @@ function renderMonthly(month) {
       '<td class="num">' + (ch.r > 0 ? ch.r.toFixed(2) : '—') + '</td>' +
       '<td class="num"><b>' + sum.toFixed(2) + '</b></td>' +
       '<td class="num" style="font-size:12px;">' + mom + '</td>' +
-      '<td class="num"><span class="rate-tag ' + rateClass(sum/67361) + '">' + (sum/(totalOtc+totalR)*100).toFixed(1) + '%</span></td>' +
+      '<td class="num"><span class="rate-tag ' + ((sum/(totalOtc+totalR)*100) < 10 ? 'rate-danger' : (sum/(totalOtc+totalR)*100) >= 50 ? 'rate-success' : 'rate-warning') + '">' + (sum/(totalOtc+totalR)*100).toFixed(1) + '%</span></td>' +
       '</tr>';
   });
   
@@ -547,35 +594,69 @@ renderMonthly('5月');
   var ctx = document.getElementById("trendChart");
   if (!ctx) return;
   ctx = ctx.getContext("2d");
-  var labels = ["1月","2月","3月","4月","5月"];
-  var colors = ["#4361ee","#f72585","#06d6a0","#ffd166","#7209b7"];
-  var datasets = [
-    {label:"OTC事业部", data:[43355,43355,43355,7294,6835]},
-    {label:"数字营销", data:[15440,15440,15440,4379,6446]},
-    {label:"海外", data:[193,193,193,215,274]},
-    {label:"滋补生活", data:[999,999,999,779,827]},
-    {label:"文旅", data:[1223,1223,1223,470,862]}
-  ];
-  var chartDatasets = datasets.map(function(d, i) {
-    return {
-      label: d.label, data: d.data,
-      borderColor: colors[i], backgroundColor: colors[i] + "20",
-      borderWidth: 2.5, pointRadius: 4, pointHoverRadius: 7,
-      tension: 0.3, fill: false
-    };
-  });
+  // 复方阿胶浆(OTC+R)月度数据 | Q1=1-3月月均
+  var labels = ["Q1月均","4月","5月"];
+  var amounts = [19352, 3521, 5908];  // 万元
+  var yoyPct = [null, null, 0.9];     // 同比% (Q1/4月缺逐月数据)
+  var momPct = [null, null, 67.8];    // 环比%
+  
   new Chart(ctx, {
-    type: "line",
-    data: { labels: labels, datasets: chartDatasets },
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "月发货额（万元）",
+          data: amounts,
+          backgroundColor: ["#a0c4ff","#4361ee","#4361ee"],
+          borderRadius: 4, yAxisID: "y",
+          order: 2
+        },
+        {
+          label: "同比变化（%）",
+          data: yoyPct,
+          type: "line",
+          borderColor: "#4361ee", backgroundColor: "transparent",
+          borderWidth: 2.5, pointRadius: 5, tension: 0.3,
+          yAxisID: "y1", spanGaps: false,
+          order: 1
+        },
+        {
+          label: "环比变化（%）",
+          data: momPct,
+          type: "line",
+          borderColor: "#f72585", backgroundColor: "transparent",
+          borderWidth: 2.5, pointRadius: 5, tension: 0.3,
+          yAxisID: "y1", spanGaps: false,
+          order: 1
+        }
+      ]
+    },
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: {
-        legend: { position: "top", labels: { usePointStyle: true, padding: 20, font: {size:12} } },
-        tooltip: { callbacks: { label: function(c) { return c.dataset.label + ": " + c.raw.toLocaleString() + " 万元"; } } }
+        legend: { position: "top", labels: { usePointStyle: true, padding: 16, font: {size:12} } },
+        tooltip: {
+          callbacks: {
+            label: function(c) {
+              if (c.datasetIndex === 0) return "月发货额: " + c.raw.toLocaleString() + " 万";
+              if (c.raw === null || c.raw === undefined) return c.dataset.label + ": 数据不足";
+              return c.dataset.label + ": " + (c.raw >= 0 ? "+" : "") + c.raw.toFixed(1) + "%";
+            }
+          }
+        }
       },
       scales: {
-        y: { beginAtZero: false, title: { display: true, text: "发货金额（万元）" }, ticks: { callback: function(v) { return (v/10000).toFixed(1)+"亿"; } } },
+        y: { type: "linear", position: "left", beginAtZero: false,
+          title: { display: true, text: "发货金额（万元）" },
+          ticks: { callback: function(v) { return (v/10000).toFixed(1)+"亿"; } }
+        },
+        y1: { type: "linear", position: "right", beginAtZero: true,
+          title: { display: true, text: "变化率（%）" },
+          ticks: { callback: function(v) { return v.toFixed(0)+"%"; } },
+          grid: { drawOnChartArea: false }
+        },
         x: { title: { display: true, text: "2026年" } }
       }
     }
