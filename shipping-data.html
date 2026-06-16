@@ -6,8 +6,8 @@
     <title>发货数据 - 复方阿胶浆2026年1-4月</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="chart.min.js"></script>
+    <script src="chartjs-plugin-datalabels.min.js"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -216,11 +216,6 @@
         .note-bar i { color: var(--primary); }
         .note-bar .highlight { color: var(--over); font-weight: 500; }
     </style>
-<script>
-window.onerror = function(msg, url, line, col, err) {
-  document.body.insertAdjacentHTML('beforeend', '<div style="position:fixed;bottom:0;left:0;right:0;background:#ff4444;color:white;padding:8px;font:12px monospace;z-index:9999;">JS ERROR: ' + msg + ' at line ' + line + '</div>');
-};
-</script>
 </head>
 <body>
 
@@ -489,20 +484,12 @@ const monthlyData = {
 let chart;
 
 function renderMonthly(month) {
-  try { console.log('renderMonthly called with', month); } catch(e) {}
-  if (typeof Chart === 'undefined') { console.error('Chart.js not loaded!'); return; }
-  var chartCanvas = document.getElementById('monthlyChart');
-  if (!chartCanvas) { console.error('monthlyChart canvas not found!'); return; }
-  var tableBody = document.querySelector('#channelTable tbody');
-  if (!tableBody) { console.error('channelTable tbody not found!'); return; }
 
   var data = monthlyData[month];
   var channels = data.channels;
   
   // --- Bar chart ---
-  var ctx = chartCanvas.getContext('2d');
-  chartCanvas.style.width = "100%";
-  chartCanvas.style.height = "100%";
+  var ctx = document.getElementById('monthlyChart').getContext('2d');
   if (window.monthlyChart) window.monthlyChart.destroy();
   window.monthlyChart = new Chart(ctx, {
     type: 'bar',
@@ -584,7 +571,6 @@ function renderMonthly(month) {
     '</tr>';
   
   document.querySelector('#channelTable tbody').innerHTML = html;
-  } catch(e) { console.error('renderMonthly error:', e.message); }
 }
 
 // Init
@@ -604,8 +590,6 @@ renderMonthly('5月');
 
 /* ====== 月度趋势折线图 ====== */
 (function initTrendChart() {
-  try { if (typeof Chart === 'undefined') { console.error('Trend: Chart.js not loaded'); return; } } catch(e) {}
-
   var ctx = document.getElementById("trendChart");
   if (!ctx) return;
   ctx.style.width = "100%";
