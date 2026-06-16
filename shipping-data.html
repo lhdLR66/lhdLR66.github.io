@@ -309,12 +309,11 @@
 <!-- 月度趋势折线图 -->
 <div class="section">
   <div class="section-title"><i class="fas fa-chart-line"></i> 月度发货趋势（复方阿胶浆合计）
-    <span class="hint">柱状=月发货额 | 蓝线=同比 | 橙线=环比 | Q1=1-3月月均</span>
+    <span class="hint">柱状=月发货额 | 蓝字=同比 | 粉字=环比</span>
   </div>
   <div class="table-card" style="padding:20px;">
     <div class="legend-inline">
-      <span><span class="dot" style="background:#a0c4ff;"></span> Q1=1-3月均值</span>
-      <span><span class="dot" style="background:var(--primary);"></span> 当月</span>
+      <span><span class="dot" style="background:var(--primary);"></span> 当月发货额</span>
       <span style="margin-left:8px;">同比→<span style="color:var(--primary);">蓝字</span></span>
       <span>环比→<span style="color:#f72585;">粉字</span></span>
     </div>
@@ -350,7 +349,7 @@
             </div>
             <table id="channelTable">
                 <thead>
-                    <tr><th>渠道/部门</th><th class="num">OTC复方阿胶浆<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num">R复方阿胶浆<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num">合计</th><th class="num">环比上月</th><th class="num">占月合计比</th></tr>
+                    <tr><th>渠道/部门</th><th class="num">合计<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num">同比变化</th><th class="num">环比上月</th><th class="num">占月合计比</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -534,8 +533,8 @@ function renderMonthly(month) {
     var notePart = ch.note ? '<br><span class="note">'+ch.note+'</span>' : '';
     barHtml += '<div class="bar-group">' +
       '<div class="bars-row">' +
-      (oH > 0 ? '<div class="bar otc" style="height:'+oH+'px;" title="OTC: '+ch.otc.toFixed(1)+'万"></div>' : '<div class="bar otc" style="height:0"></div>') +
-      (rH > 0 ? '<div class="bar r" style="height:'+rH+'px;" title="R: '+ch.r.toFixed(1)+'万"></div>' : '<div class="bar r" style="height:0"></div>') +
+      (oH > 0 ? '<div class="bar otc" style="height:'+oH+'px;" title="OTC: '+ch.otc.toFixed(1)+'万"></div>' : '') +
+      (rH > 0 ? '<div class="bar r" style="height:'+rH+'px;" title="R: '+ch.r.toFixed(1)+'万"></div>' : '') +
       '</div>' +
       '<div class="bar-label">'+name+notePart+'</div>' +
       '</div>';
@@ -566,11 +565,11 @@ function renderMonthly(month) {
     }
     
     var note = ch.note ? ' <span style="font-size:11px;color:var(--text2);">' + ch.note + '</span>' : '';
+    var yoy = '—';  // 需去年同期数据
     html += '<tr>' +
       '<td>' + ch.name + note + '</td>' +
-      '<td class="num">' + (ch.otc > 0 ? ch.otc.toFixed(2) : '—') + '</td>' +
-      '<td class="num">' + (ch.r > 0 ? ch.r.toFixed(2) : '—') + '</td>' +
       '<td class="num"><b>' + sum.toFixed(2) + '</b></td>' +
+      '<td class="num" style="font-size:12px;">' + yoy + '</td>' +
       '<td class="num" style="font-size:12px;">' + mom + '</td>' +
       '<td class="num"><span class="rate-tag ' + ((sum/(totalOtc+totalR)*100) < 10 ? 'rate-danger' : (sum/(totalOtc+totalR)*100) >= 50 ? 'rate-success' : 'rate-warning') + '">' + (sum/(totalOtc+totalR)*100).toFixed(1) + '%</span></td>' +
       '</tr>';
@@ -579,9 +578,8 @@ function renderMonthly(month) {
   var grandTotal = totalOtc + totalR;
   html += '<tr class="total">' +
     '<td><b>合计</b></td>' +
-    '<td class="num"><b>' + totalOtc.toFixed(2) + '</b></td>' +
-    '<td class="num"><b>' + totalR.toFixed(2) + '</b></td>' +
     '<td class="num"><b>' + grandTotal.toFixed(2) + '</b></td>' +
+    '<td class="num">—</td>' +
     '<td class="num">—</td>' +
     '<td class="num">100%</td>' +
     '</tr>';
@@ -609,11 +607,10 @@ renderMonthly('5月');
   var container = document.getElementById("trendBars");
   if (!container) return;
   var items = [
-    { label: 'Q1<br><span class="small">月均</span>', val: 19352, yoy: null, mom: null, color: '#a0c4ff' },
     { label: '4月', val: 3521, yoy: null, mom: null, color: 'var(--primary)' },
     { label: '5月', val: 5908, yoy: 0.9, mom: 67.8, color: 'var(--primary)' }
   ];
-  var maxV = 19352;
+  var maxV = 5908;
   var html = '';
   items.forEach(function(it) {
     var h = Math.max(4, it.val / maxV * 250);
