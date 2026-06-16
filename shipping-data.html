@@ -220,7 +220,19 @@
         /* === CSS Bar Charts === */
         .css-trend { display: flex; align-items: flex-end; gap: 40px; height: 280px; padding: 10px 24px 0; justify-content: center; }
         .css-trend .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; max-width: 140px; }
-        .css-trend .bar { width: 72px; border-radius: 8px 8px 0 0; position: relative; transition: height 0.4s; }
+        .css-trend .bar { width: 72px; border-radius: 8px 8px 0 0; position: relative; transition: height 0.4s; cursor: pointer; }
+        .css-trend .bar:hover { filter: brightness(0.85); }
+        .css-trend .bar:hover::after {
+          content: attr(data-tooltip);
+          position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+          background: rgba(30,30,40,0.95); color: #fff; padding: 8px 14px; border-radius: 8px;
+          font-size: 13px; font-weight: 500; white-space: nowrap; pointer-events: none; z-index: 100;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .css-trend .bar:hover::before {
+          content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+          border: 6px solid transparent; border-top-color: rgba(30,30,40,0.95); z-index: 100;
+        }
         .css-trend .bar-val { font-size: 13px; font-weight: 700; margin-bottom: 2px; color: var(--text); }
         .css-trend .bar-sub { font-size: 11px; color: var(--text2); margin-bottom: 8px; line-height: 1.4; }
         .css-trend .bar-sub .up { color: var(--success); }
@@ -233,7 +245,19 @@
         .css-bars { display: flex; align-items: stretch; gap: 8px; height: 300px; padding: 0 12px; }
         .css-bars .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-width: 60px; }
         .css-bars .bars-row { position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%); display: flex; gap: 3px; align-items: flex-end; height: 240px; }
-        .css-bars .bar { width: 22px; border-radius: 4px 4px 0 0; transition: height 0.4s; }
+        .css-bars .bar { width: 22px; border-radius: 4px 4px 0 0; transition: height 0.4s; position: relative; cursor: pointer; }
+        .css-bars .bar:hover { filter: brightness(0.8); }
+        .css-bars .bar:hover::after {
+          content: attr(data-tooltip);
+          position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+          background: rgba(30,30,40,0.95); color: #fff; padding: 6px 12px; border-radius: 8px;
+          font-size: 12px; font-weight: 500; white-space: nowrap; pointer-events: none; z-index: 100;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .css-bars .bar:hover::before {
+          content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+          border: 5px solid transparent; border-top-color: rgba(30,30,40,0.95); z-index: 100;
+        }
         .css-bars .bar.otc { background: var(--primary); }
         .css-bars .bar.r { background: #f72585; }
         .css-bars .bar-label { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 10px; color: var(--text2); line-height: 1.4; }
@@ -324,11 +348,11 @@
 <!-- ====== 月度看板：图表 + 表格 ====== -->
 <div class="section">
     <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
-        <span><i class="fas fa-calendar-check"></i> 月度看板</span>
-        <select id="monthSelect2" style="padding:6px 28px 6px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236c757d%22 d=%22M6 8L1 3h10z%22/></svg>');background-repeat:no-repeat;background-position:right 8px center;font-weight:500;">
+        <span><i class="fas fa-calendar-check"></i> 月度看板
+        <select id="monthSelect2" style="margin-left:10px;padding:4px 26px 4px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg);color:var(--text);cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 10 10%22><path fill=%22%236c757d%22 d=%22M5 7L1 2h8z%22/></svg>');background-repeat:no-repeat;background-position:right 6px center;font-weight:500;vertical-align:middle;">
             <option value="4月">4月</option>
             <option value="5月" selected>5月</option>
-        </select>
+        </select></span>
     </div>
     <div class="two-col">
         <!-- 左：渠道柱状图 -->
@@ -533,8 +557,8 @@ function renderMonthly(month) {
     var notePart = ch.note ? '<br><span class="note">'+ch.note+'</span>' : '';
     barHtml += '<div class="bar-group">' +
       '<div class="bars-row">' +
-      (oH > 0 ? '<div class="bar otc" style="height:'+oH+'px;" title="OTC: '+ch.otc.toFixed(1)+'万"></div>' : '') +
-      (rH > 0 ? '<div class="bar r" style="height:'+rH+'px;" title="R: '+ch.r.toFixed(1)+'万"></div>' : '') +
+      (oH > 0 ? '<div class="bar otc" style="height:'+oH+'px;" data-tooltip="OTC复方阿胶浆: '+ch.otc.toFixed(1)+'万"></div>' : '') +
+      (rH > 0 ? '<div class="bar r" style="height:'+rH+'px;" data-tooltip="R复方阿胶浆: '+ch.r.toFixed(1)+'万"></div>' : '') +
       '</div>' +
       '<div class="bar-label">'+name+notePart+'</div>' +
       '</div>';
@@ -619,7 +643,7 @@ renderMonthly('5月');
     html += '<div class="bar-col">' +
       '<div class="bar-val">' + (it.val/10000).toFixed(2).replace(/\.?0+$/,'') + '亿</div>' +
       '<div class="bar-sub">'+sub+'</div>' +
-      '<div class="bar" style="height:'+h+'px;background:'+it.color+';" title="'+it.val.toLocaleString()+'万"></div>' +
+      '<div class="bar" style="height:'+h+'px;background:'+it.color+';" data-tooltip="'+it.val.toLocaleString()+'万"></div>' +
       '<div class="bar-label">'+it.label+'</div>' +
       '</div>';
   });
