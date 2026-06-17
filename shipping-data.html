@@ -302,6 +302,22 @@
         .mini-trend-stat { font-size: 11px; color: var(--text2); white-space: nowrap; }
         .mini-trend-stat .big { font-size: 15px; font-weight: 600; color: var(--text); }
 
+        /* === Overview 双栏布局 === */
+        .overview-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+        .overview-left { display: flex; flex-direction: column; gap: 12px; }
+        .overview-left .section-title { margin-bottom: 0; }
+        .kpi-col { display: flex; flex-direction: column; gap: 14px; }
+        .kpi-col .kpi-card { flex: none; }
+        .kpi-col .kpi-card .kpi-value { font-size: 24px; }
+        .kpi-col .kpi-card .kpi-value span[style] { font-size: 12px !important; }
+        .kpi-col .kpi-badge { display: block; margin: 4px 0 0 0; text-align: center; width: fit-content; }
+        .overview-right { display: flex; flex-direction: column; gap: 12px; }
+        @media (max-width: 900px) {
+          .overview-layout { grid-template-columns: 1fr; }
+          .overview-left { flex-direction: row; flex-wrap: wrap; }
+          .overview-left .kpi-card { flex: 1; min-width: 200px; }
+        }
+
   </style>
 </head>
 <body>
@@ -335,10 +351,14 @@
 <!-- Tab: 发货总览 -->
 <div id="tab-overview" class="tab-content active">
 
-<!-- ====== 产品汇总 KPI ====== -->
+<!-- ====== KPI + 月度看板 双栏布局 ====== -->
 <div class="section">
+<div class="overview-layout">
+
+<!-- 左栏：产品汇总 KPI -->
+<div class="overview-left">
     <div class="section-title"><i class="fas fa-boxes"></i> 产品汇总</div>
-    <div class="kpi-row">
+    <div class="kpi-col">
         <div class="kpi-card" style="--dot-color: var(--primary);">
             <div class="kpi-label">OTC复方阿胶浆</div>
             <div class="kpi-value">55,927<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +4,252万 &middot; 环比 +104%</span></div>
@@ -369,8 +389,8 @@
     </div>
 </div>
 
-<!-- ====== 月度看板：趋势 + 图表 + 表格 ====== -->
-<div class="section">
+<!-- 右栏：月度看板 -->
+<div class="overview-right">
     <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
         <span><i class="fas fa-calendar-check"></i> 月度看板
         <span class="month-pills">
@@ -379,35 +399,36 @@
         </span></span>
     </div>
     <div class="insight" id="monthlyInsight"></div>
-    <div style="display:flex;align-items:center;gap:12px;padding:0 16px;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;gap:12px;padding:0 4px;">
         <span style="font-size:11px;color:var(--text2);font-weight:500;">趋势</span>
         <div class="mini-trend" id="miniTrend"></div>
     </div>
-    <div class="two-col">
-        <!-- 左：渠道柱状图 -->
-        <div class="table-card">
-            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
-                <i class="fas fa-chart-bar" style="color:var(--primary);margin-right:6px;"></i>各渠道 · 两种品规月度完成
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;padding:4px 16px 0;font-size:10px;color:var(--text2);">
-                <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--primary);margin-right:3px;"></span>OTC复方阿胶浆</span>
-                <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f72585;margin-right:3px;"></span>R复方阿胶浆</span>
-            </div>
-            <div class="css-bars" id="monthlyBars" style="height:300px;"></div>
+    <!-- 柱状图 -->
+    <div class="table-card">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
+            <i class="fas fa-chart-bar" style="color:var(--primary);margin-right:6px;"></i>各渠道 · 两种品规月度完成
         </div>
-        <!-- 右：分渠道数据表 -->
-        <div class="table-card">
-            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
-                <span><i class="fas fa-table" style="color:var(--primary);margin-right:6px;"></i>分渠道明细</span>
-            </div>
-            <table id="channelTable" style="table-layout:fixed;width:100%;">
-                <thead>
-                    <tr><th style="width:40%;">渠道/部门</th><th class="num" style="width:22%;">合计<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num" style="width:18%;">同比变化</th><th class="num" style="width:20%;">环比上月</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 16px 0;font-size:10px;color:var(--text2);">
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--primary);margin-right:3px;"></span>OTC复方阿胶浆</span>
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f72585;margin-right:3px;"></span>R复方阿胶浆</span>
         </div>
+        <div class="css-bars" id="monthlyBars" style="height:280px;"></div>
     </div>
+    <!-- 数据表 -->
+    <div class="table-card">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
+            <span><i class="fas fa-table" style="color:var(--primary);margin-right:6px;"></i>分渠道明细</span>
+        </div>
+        <table id="channelTable" style="table-layout:fixed;width:100%;">
+            <thead>
+                <tr><th style="width:40%;">渠道/部门</th><th class="num" style="width:22%;">合计<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num" style="width:18%;">同比变化</th><th class="num" style="width:20%;">环比上月</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+</div>
 </div>
 
 <!-- ====== 累计看板 + 全年完成进度 ====== -->
