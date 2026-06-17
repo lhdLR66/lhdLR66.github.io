@@ -318,6 +318,15 @@
           .overview-left .kpi-card { flex: 1; min-width: 200px; }
         }
 
+        /* === Collapsible Section === */
+        .collapse-toggle { cursor: pointer; user-select: none; }
+        .collapse-toggle:hover { opacity: 0.85; }
+        .collapse-chevron { display: inline-block; transition: transform 0.3s; margin-right: 4px; font-size: 10px; }
+        .collapse-chevron.open { transform: rotate(90deg); }
+        .collapse-body { overflow: hidden; transition: max-height 0.4s ease; }
+        .collapse-body.collapsed { max-height: 0 !important; }
+        .collapse-body.expanded { max-height: 2000px; }
+
   </style>
 </head>
 <body>
@@ -437,11 +446,13 @@
 
     <!-- OTC装 -->
     <div style="margin-bottom:16px;">
-    <div class="section-title" style="font-size:15px;margin-bottom:8px;">
+    <div class="section-title collapse-toggle" style="font-size:15px;margin-bottom:8px;" onclick="toggleCollapse('otcDetail')" data-target="otcDetail">
+        <span class="collapse-chevron">▶</span>
         <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#4361ee;margin-right:8px;"></span>OTC装
         <span style="font-size:12px;color:var(--text2);font-weight:400;">| 复方阿胶浆（OTC）· 累计完成 55,927万 · 年度进度 20.2%</span>
     </div>
-    <div class="table-card" style="margin-bottom:16px;">
+    <div id="otcDetail" class="collapse-body collapsed" style="margin-bottom:16px;">
+    <div class="table-card">
         <table>
             <thead>
                 <tr>
@@ -458,61 +469,64 @@
                     <td>OTC事业部（药品）</td>
                     <td class="num">46,054</td>
                     <td class="num">91,306</td>
-                    <td class="num">-40.0%</td>
-                    <td class="num"><span>50.4%</span></td>
+                    <td class="num" style="color:var(--danger);">-40.0%</td>
+                    <td class="num"><span class="rate-tag rate-danger">50.4%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:19.0%"></div></div><span class="progress-pct">19.0%</span></div></td>
                 </tr>
                 <tr>
                     <td>数字营销 <span style="font-size:12px;color:var(--text2);">← 平台经销+自营店铺合并</span></td>
                     <td class="num">8,715</td>
                     <td class="num">10,070</td>
-                    <td class="num">-0.2%</td>
-                    <td class="num"><span>86.5%</span></td>
+                    <td class="num" style="color:var(--danger);">-0.2%</td>
+                    <td class="num"><span class="rate-tag rate-warning">86.5%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:28.6%"></div></div><span class="progress-pct">28.6%</span></div></td>
                 </tr>
                 <tr>
                     <td>海外事业部</td>
                     <td class="num">537</td>
                     <td class="num">702</td>
-                    <td class="num">-52.1%</td>
-                    <td class="num"><span>76.5%</span></td>
+                    <td class="num" style="color:var(--danger);">-52.1%</td>
+                    <td class="num"><span class="rate-tag rate-warning">76.5%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:19.1%"></div></div><span class="progress-pct">19.1%</span></div></td>
                 </tr>
                 <tr>
                     <td>滋补生活事业部 零售</td>
                     <td class="num">174</td>
                     <td class="num">178</td>
-                    <td class="num">+18.9%</td>
-                    <td class="num"><span>97.6%</span></td>
+                    <td class="num" style="color:var(--success);">+18.9%</td>
+                    <td class="num"><span class="rate-tag rate-warning">97.6%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:32.5%"></div></div><span class="progress-pct">32.5%</span></div></td>
                 </tr>
                 <tr>
                     <td>文旅事业部 零售</td>
                     <td class="num">447</td>
                     <td class="num">164</td>
-                    <td class="num">+255.2%</td>
-                    <td class="num"><span>273.1%</span></td>
+                    <td class="num" style="color:var(--warning);">+255.2%</td>
+                    <td class="num"><span class="rate-tag rate-success">273.1%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:100%"></div></div><span class="progress-pct">115.2%</span></div></td>
                 </tr>
                 <tr class="total">
                     <td><b>OTC装 合计</b></td>
                     <td class="num"><b>55,927</b></td>
                     <td class="num"><b>102,420</b></td>
-                    <td class="num"><b>-35.7%</b></td>
-                    <td class="num"><span><b>54.6%</b></span></td>
+                    <td class="num" style="color:var(--danger);"><b>-35.7%</b></td>
+                    <td class="num"><span class="rate-tag rate-danger"><b>54.6%</b></span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:20.2%"></div></div><span class="progress-pct">20.2%</span></div></td>
                 </tr>
             </tbody>
         </table>
     </div>
     </div>
+    </div>
 
     <!-- R装 -->
     <div>
-    <div class="section-title" style="font-size:15px;margin-bottom:8px;">
+    <div class="section-title collapse-toggle" style="font-size:15px;margin-bottom:8px;" onclick="toggleCollapse('rDetail')" data-target="rDetail">
+        <span class="collapse-chevron">▶</span>
         <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#f72585;margin-right:8px;"></span>R装
         <span style="font-size:12px;color:var(--text2);font-weight:400;">| 复方阿胶浆（R）· 累计完成 11,557万 · 年度进度 41.4%</span>
     </div>
+    <div id="rDetail" class="collapse-body collapsed">
     <div class="table-card">
         <table>
             <thead>
@@ -530,37 +544,25 @@
                     <td>医疗事业部</td>
                     <td class="num">11,557</td>
                     <td class="num">10,334</td>
-                    <td class="num">+13.6%</td>
-                    <td class="num"><span>111.8%</span></td>
+                    <td class="num" style="color:var(--success);">+13.6%</td>
+                    <td class="num"><span class="rate-tag rate-success">111.8%</span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:41.4%"></div></div><span class="progress-pct">41.4%</span></div></td>
                 </tr>
                 <tr class="total">
                     <td><b>R装 合计</b></td>
                     <td class="num"><b>11,557</b></td>
                     <td class="num"><b>10,334</b></td>
-                    <td class="num"><b>+13.6%</b></td>
-                    <td class="num"><span><b>111.8%</b></span></td>
+                    <td class="num" style="color:var(--success);"><b>+13.6%</b></td>
+                    <td class="num"><span class="rate-tag rate-success"><b>111.8%</b></span></td>
                     <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:41.4%"></div></div><span class="progress-pct">41.4%</span></div></td>
                 </tr>
             </tbody>
         </table>
     </div>
     </div>
-
-    <!-- 全品规合计 -->
-    <div class="table-card" style="margin-top:16px;background:var(--bg);">
-        <table>
-            <tr class="total" style="font-size:15px;">
-                <td><b>📊 全品规合计</b></td>
-                <td class="num"><b>67,484</b></td>
-                <td class="num"><b>112,754</b></td>
-                <td class="num"><b>-30.5%</b></td>
-                <td class="num"><span><b>59.9%</b></span></td>
-                <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:22.2%"></div></div><span class="progress-pct">22.2%</span></div></td>
-            </tr>
-        </table>
     </div>
-</div>
+
+    
 
 <script>
 // Data store: monthly data per product per channel
@@ -815,6 +817,23 @@ function rateClass(rate) {
 </div><!-- close .main -->
 
 <script>
+
+function toggleCollapse(id) {
+  var body = document.getElementById(id);
+  var chev = document.querySelector('[data-target="'+id+'"] .collapse-chevron');
+  if (!body || !chev) return;
+  var isOpen = body.classList.contains('expanded');
+  if (isOpen) {
+    body.classList.remove('expanded');
+    body.classList.add('collapsed');
+    chev.classList.remove('open');
+  } else {
+    body.classList.remove('collapsed');
+    body.classList.add('expanded');
+    chev.classList.add('open');
+  }
+}
+
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(function(b) { b.classList.remove('active'); });
   document.querySelectorAll('.tab-content').forEach(function(d) { d.classList.remove('active'); });
@@ -1117,6 +1136,8 @@ function initOtcCharts() {
   otcChartsReady = true;
 }
 </script>
+
+</div>
 
 </body>
 </html>
