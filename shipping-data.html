@@ -863,6 +863,7 @@ function switchTab(name, pushState) {
     }
   }
   if (name === 'otc') { initOtcCharts(); }
+}
 
 window.addEventListener('hashchange', function() {
   var tab = window.location.hash === '#otc' ? 'otc' : 'overview';
