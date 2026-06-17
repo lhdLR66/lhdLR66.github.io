@@ -73,8 +73,8 @@
         .tabs { display:flex; gap:6px; margin-bottom:24px; background:var(--card); border-radius:var(--radius); padding:6px; box-shadow:var(--shadow); }
         .tab { padding:10px 24px; border-radius:10px; cursor:pointer; font-size:14px; font-weight:500; transition:all .2s; border:none; background:none; color:var(--text2); }
         .tab.active { background:var(--primary); color:#fff; }
-        .tab-content { display:none; }
-        .tab-content.active { display:block; }
+        .tab-content { height:0; overflow:hidden; }
+        .tab-content.active { height:auto; overflow:visible; }
 
         /* OTC tab uses existing section/kpi-card/table-card classes */
 
@@ -889,10 +889,6 @@ function switchTab(name, pushState) {
       history.pushState(null, '', newHash);
     }
   }
-  // Force reflow: toggle display to fix tab-otc zero-height layout bug
-  panel.style.display = 'none';
-  void panel.offsetHeight;
-  panel.style.display = '';
   if (name === 'otc') { initOtcCharts(); }
 }
 
