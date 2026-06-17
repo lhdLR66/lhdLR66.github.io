@@ -637,23 +637,19 @@ function renderMonthly(month) {
     var notePart = ch.note ? '<br><span class="note">'+ch.note+'</span>' : '';
     barHtml += '<div class="bar-group">' +
       '<div class="bars-row">' +
-      (oH > 0 ? '<div class="bar otc" style="height:'+oH+'px;" data-tooltip="OTC复方阿胶浆: '+ch.otc.toFixed(1)+'万"></div>' : '') +
-      (rH > 0 ? '<div class="bar r" style="height:'+rH+'px;" data-tooltip="R复方阿胶浆: '+ch.r.toFixed(1)+'万"></div>' : '') +
+      (oH > 0 ? '<div class="bar otc" style="height:0" data-h="'+oH+'" data-tooltip="OTC复方阿胶浆: '+ch.otc.toFixed(1)+'万"></div>' : '') +
+      (rH > 0 ? '<div class="bar r" style="height:0" data-h="'+rH+'" data-tooltip="R复方阿胶浆: '+ch.r.toFixed(1)+'万"></div>' : '') +
       '</div>' +
       '<div class="bar-label">'+name+notePart+'</div>' +
       '</div>';
   });
-  // Render bars with height:0 first, then animate to target heights
+  // Animate bars: render at height:0, then grow to data-h
   document.getElementById('monthlyBars').innerHTML = barHtml;
   requestAnimationFrame(function() {
     var bars = document.querySelectorAll('#monthlyBars .bar');
     bars.forEach(function(bar) {
-      var targetH = bar.style.height;
-      bar.style.height = '0';
       bar.style.transition = 'height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-      requestAnimationFrame(function() {
-        bar.style.height = targetH;
-      });
+      bar.style.height = bar.getAttribute('data-h') + 'px';
     });
   });
   
