@@ -727,10 +727,12 @@ function rateClass(rate) {
 <!-- Tab: OTC月度 -->
 <div id="tab-otc" class="tab-content">
 
-<!-- 核心指标 KPI -->
-<div class="section">
-  <div class="section-title"><i class="fas fa-clipboard-check"></i> 复方阿胶浆 · 发货核心指标（1-5月累计）</div>
-  <div class="kpi-row">
+<div class="overview-layout">
+
+<!-- 左栏：核心指标 KPI -->
+<div class="overview-left">
+  <div class="section-title"><i class="fas fa-clipboard-check"></i> 发货核心指标</div>
+  <div class="kpi-col">
     <div class="kpi-card" style="--dot-color:#4361ee;">
       <div class="kpi-label">📦 发货</div>
       <div class="kpi-value">55,927<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +4,252万 &middot; 环比 +104%</span></div>
@@ -765,6 +767,9 @@ function rateClass(rate) {
     </div>
   </div>
 </div>
+
+<!-- 右栏：月度 + 省区明细 -->
+<div class="overview-right">
 
 <!-- 5月单月 -->
 <div class="section">
@@ -820,6 +825,7 @@ function rateClass(rate) {
   </div>
 </div>
 
+</div><!-- close overview-layout -->
 </div><!-- end tab-otc -->
 
 </div><!-- close .main -->
@@ -842,13 +848,31 @@ function toggleCollapse(id) {
   }
 }
 
-function switchTab(name) {
+function switchTab(name, pushState) {
   document.querySelectorAll('.tab').forEach(function(b) { b.classList.remove('active'); });
   document.querySelectorAll('.tab-content').forEach(function(d) { d.classList.remove('active'); });
-  document.querySelector('.tab[onclick*="'+name+'"]').classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
+  var btn = document.querySelector('.tab[onclick*="'+name+'"]');
+  if (btn) btn.classList.add('active');
+  var panel = document.getElementById('tab-'+name);
+  if (panel) panel.classList.add('active');
+  if (pushState !== false) {
+    var newHash = name === 'otc' ? '#otc' : '#overview';
+    if (window.location.hash !== newHash) {
+      history.pushState(null, '', newHash);
+    }
+  }
   if (name === 'otc') { initOtcCharts(); }
-}
+
+window.addEventListener('hashchange', function() {
+  var tab = window.location.hash === '#otc' ? 'otc' : 'overview';
+  switchTab(tab, false);
+});
+
+// On page load, activate tab based on URL hash
+(function() {
+  var tab = window.location.hash === '#otc' ? 'otc' : 'overview';
+  switchTab(tab, false);
+})();
 
 var otcChartsReady = false;
 
