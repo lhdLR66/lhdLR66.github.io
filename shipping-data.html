@@ -245,7 +245,7 @@
         .css-bars { display: flex; align-items: stretch; gap: 8px; height: 300px; padding: 0 12px; }
         .css-bars .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-width: 60px; }
         .css-bars .bars-row { position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%); display: flex; gap: 3px; align-items: flex-end; height: 240px; }
-        .css-bars .bar { width: 22px; border-radius: 4px 4px 0 0; transition: height 0.4s; position: relative; cursor: pointer; }
+        .css-bars .bar { width: 22px; border-radius: 4px 4px 0 0; position: relative; cursor: pointer; }
         .css-bars .bar:hover { filter: brightness(0.8); }
         .css-bars .bar:hover::after {
           content: attr(data-tooltip);
@@ -303,11 +303,11 @@
         .mini-trend-stat .big { font-size: 15px; font-weight: 600; color: var(--text); }
 
         /* === Overview 双栏布局 === */
-        .overview-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
-        .overview-left { display: flex; flex-direction: column; gap: 12px; }
+        .overview-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: stretch; }
+        .overview-left { display: flex; flex-direction: column; gap: 12px; height: 100%; }
         .overview-left .section-title { margin-bottom: 0; }
-        .kpi-col { display: flex; flex-direction: column; gap: 14px; }
-        .kpi-col .kpi-card { flex: none; }
+        .kpi-col { display: flex; flex-direction: column; gap: 14px; height: 100%; }
+        .kpi-col .kpi-card { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .kpi-col .kpi-card .kpi-value { font-size: 24px; }
         .kpi-col .kpi-card .kpi-value span[style] { font-size: 12px !important; }
         .kpi-col .kpi-badge { display: block; margin: 4px 0 0 0; text-align: center; width: fit-content; }
@@ -399,10 +399,7 @@
         </span></span>
     </div>
     <div class="insight" id="monthlyInsight"></div>
-    <div style="display:flex;align-items:center;gap:12px;padding:0 4px;">
-        <span style="font-size:11px;color:var(--text2);font-weight:500;">趋势</span>
-        <div class="mini-trend" id="miniTrend"></div>
-    </div>
+
     <!-- 柱状图 -->
     <div class="table-card">
         <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
@@ -593,29 +590,9 @@ function switchMonthlyMonth(month) {
   var target = document.querySelector('.month-pill[data-month="'+month+'"]');
   if (target) target.classList.add('active');
   renderMonthly(month);
-  renderMiniTrend(month);
   renderInsight(month);
 }
 
-function renderMiniTrend(month) {
-  var c = document.getElementById('miniTrend');
-  if (!c) return;
-  var data = monthlyData[month];
-  if (!data) return;
-  var chs = data.channels;
-  var maxV = 0;
-  chs.forEach(function(ch) { var s = ch.otc + ch.r; if (s > maxV) maxV = s; });
-  var h = '';
-  var colors = ['var(--primary)','#7c5cfc','#06d6a0','#fbbf24','#f72585','#e67e22'];
-  chs.forEach(function(ch, i) {
-    var s = ch.otc + ch.r;
-    var barH = s > 0 ? Math.max(3, s / maxV * 30) : 0;
-    var name = ch.name.replace('（药品）','').replace('事业部','').replace(' 零售','');
-    h += '<div class="mini-bar" style="height:'+barH+'px;background:'+colors[i%6]+';" data-tooltip="'+name+': '+s.toFixed(1)+'万"></div>';
-  });
-  var total = chs.reduce(function(a,ch){return a+ch.otc+ch.r;},0);
-  c.innerHTML = h + '<span class="mini-trend-stat" style="margin-left:8px;"><span class="big">'+total.toFixed(0)+'</span> 万</span>';
-}
 
 function renderInsight(month) {
   var c = document.getElementById('monthlyInsight');
@@ -666,7 +643,19 @@ function renderMonthly(month) {
       '<div class="bar-label">'+name+notePart+'</div>' +
       '</div>';
   });
+  // Render bars with height:0 first, then animate to target heights
   document.getElementById('monthlyBars').innerHTML = barHtml;
+  requestAnimationFrame(function() {
+    var bars = document.querySelectorAll('#monthlyBars .bar');
+    bars.forEach(function(bar) {
+      var targetH = bar.style.height;
+      bar.style.height = '0';
+      bar.style.transition = 'height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      requestAnimationFrame(function() {
+        bar.style.height = targetH;
+      });
+    });
+  });
   
   // --- Data table ---
   var prevData = null;
@@ -714,7 +703,6 @@ function renderMonthly(month) {
 
 // Init
 renderMonthly('5月');
-renderMiniTrend('5月');
 renderInsight('5月');
 
 
