@@ -327,6 +327,11 @@
         .collapse-body.collapsed { max-height: 0 !important; }
         .collapse-body.expanded { max-height: 2000px; }
 
+        .kpi-yoy { font-size: 13px; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+        .kpi-yoy .label { color: var(--text2); }
+        .kpi-yoy .val { font-weight: 600; }
+        .kpi-yoy.down .val { color: var(--danger); }
+        .kpi-yoy.up .val { color: var(--success); }
   </style>
 </head>
 <body>
@@ -371,6 +376,7 @@
         <div class="kpi-card" style="--dot-color: var(--primary);">
             <div class="kpi-label">OTC复方阿胶浆</div>
             <div class="kpi-value">55,927<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +4,252万 &middot; 环比 +104%</span></div>
+            <div class="kpi-yoy down"><span class="label">累计同比</span><span class="val">-35.7%</span></div>
             <div class="kpi-sub">全年预算 276,660.00 万</div>
             <div class="kpi-progress">
                 <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate">20.2%</span></div>
@@ -380,6 +386,7 @@
         <div class="kpi-card" style="--dot-color: var(--over);">
             <div class="kpi-label">R复方阿胶浆</div>
             <div class="kpi-value">11,557<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +1,656万 &middot; 环比 +15%</span></div>
+            <div class="kpi-yoy up"><span class="label">累计同比</span><span class="val">+13.6%</span></div>
             <div class="kpi-sub">全年预算 27,930.00 万</div>
             <div class="kpi-progress">
                 <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate">41.4%</span></div>
@@ -389,6 +396,7 @@
         <div class="kpi-card" style="--dot-color: var(--success);">
             <div class="kpi-label">合计</div>
             <div class="kpi-value">67,484<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +5,908万 &middot; 环比 +68%</span></div>
+            <div class="kpi-yoy down"><span class="label">累计同比</span><span class="val">-30.5%</span></div>
             <div class="kpi-sub">全年预算 304,590 万</div>
             <div class="kpi-progress">
                 <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate">22.2%</span></div>
