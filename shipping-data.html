@@ -889,6 +889,10 @@ function switchTab(name, pushState) {
       history.pushState(null, '', newHash);
     }
   }
+  // Force reflow: toggle display to fix tab-otc zero-height layout bug
+  panel.style.display = 'none';
+  void panel.offsetHeight;
+  panel.style.display = '';
   if (name === 'otc') { initOtcCharts(); }
 }
 
