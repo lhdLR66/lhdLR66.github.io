@@ -602,7 +602,7 @@
     </div>
     </div>
     </div>
-    </div><!-- close .section (累计看板) -->
+
 
 <script>
 // Data store: monthly data per product per channel
@@ -756,8 +756,6 @@ function rateClass(rate) {
 
 </div><!-- end tab-overview -->
 
-</div><!-- close unclosed container before OTC tab -->
-
 <!-- Tab: OTC月度 -->
 <div id="tab-otc" class="tab-content">
 
@@ -900,6 +898,13 @@ window.addEventListener('hashchange', function() {
 
 // On page load, activate tab based on URL hash
 (function() {
+  // Fix: if tab-otc is nested inside tab-overview (HTML parser quirk), move it out
+  var otc = document.getElementById('tab-otc');
+  var overview = document.getElementById('tab-overview');
+  if (otc && overview && overview.contains(otc)) {
+    var main = document.querySelector('.main');
+    if (main) main.appendChild(otc);
+  }
   var tab = window.location.hash === '#otc' ? 'otc' : 'overview';
   switchTab(tab, false);
 })();
