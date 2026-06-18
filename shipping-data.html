@@ -206,6 +206,15 @@
         @media (max-width: 1200px) { .three-col { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 768px)  { .three-col { grid-template-columns: 1fr; } }
 
+        /* 各省KA50 TOP5 折叠网格 */
+        .province-top5-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 900px) { .province-top5-grid { grid-template-columns: 1fr; } }
+        .prov-top5-header { display:flex; align-items:center; gap:10px; padding:10px 12px; cursor:pointer; background:var(--card); border-radius:8px; transition:background 0.15s; }
+        .prov-top5-header:hover { background:#f0f2ff; }
+        .prov-top5-header .prov-name { font-weight:700; font-size:14px; color:var(--text); min-width:50px; }
+        .prov-top5-header .prov-stats { display:flex; gap:16px; font-size:12px; color:var(--text2); flex:1; justify-content:flex-end; }
+        .prov-top5-header .prov-stats span:last-child { color:var(--primary); font-weight:600; }
+
         .note-bar {
             background: rgba(67,97,238,0.06);
             border: 1px solid rgba(67,97,238,0.12);
@@ -891,6 +900,14 @@ function rateClass(rate) {
   </div>
 </div>
 
+<!-- 各省KA50客户 TOP5 -->
+<div class="section">
+  <div class="section-title"><i class="fas fa-map-marker-alt"></i> 各省KA50客户纯销 TOP5（1-5月累计 · 复方阿胶浆）
+    <span class="hint">按省份纯销合计降序 | 点击省区展开TOP5 | 含KA50连锁纯销额 &amp; 同比</span>
+  </div>
+  <div class="province-top5-grid" id="provTop5Grid"></div>
+</div>
+
 </div><!-- end tab-otc -->
 
 </div><!-- close .main -->
@@ -1032,6 +1049,31 @@ var ka50Data = [
 ];
 var ka50Total = 30191.0;
 
+// ====== 各省KA50客户TOP5数据 ======
+var provTop5Data = [
+  {province:"湖南", totalClients:4, totalSales:5779.8, top5Pct:100.0, clients:[{"province": "湖南", "client": "益丰大药房连锁股份有限公司", "type": "NKA", "sales": 2892.9, "yoy": 10.6}, {"province": "湖南", "client": "丰沃达医药物流（湖南）有限公司", "type": "NKA", "sales": 2819.6, "yoy": 37.5}, {"province": "湖南", "client": "湖南千金大药房连锁有限公司", "type": "LKA", "sales": 39.5, "yoy": 15.6}, {"province": "湖南", "client": "湖南和盛医药有限公司", "type": "LKA", "sales": 27.8, "yoy": -16.9}]},
+  {province:"京津", totalClients:4, totalSales:4316.4, top5Pct:100.0, clients:[{"province": "京津", "client": "高济医药有限公司", "type": "NKA", "sales": 3875.9, "yoy": 40.5}, {"province": "京津", "client": "北京同仁堂商业投资集团有限公司", "type": "NKA", "sales": 301.7, "yoy": -11.0}, {"province": "京津", "client": "京东大药房（北京）有限公司", "type": "LKA", "sales": 75.1, "yoy": 53.0}, {"province": "京津", "client": "华润医药商业集团商贸有限公司", "type": "LKA", "sales": 63.8, "yoy": -31.2}]},
+  {province:"山东", totalClients:5, totalSales:4312.6, top5Pct:100.0, clients:[{"province": "山东", "client": "漱玉医药物流（山东）有限公司", "type": "NKA", "sales": 3198.7, "yoy": -0.1}, {"province": "山东", "client": "威海市天福医药有限公司", "type": "LKA", "sales": 459.7, "yoy": -13.4}, {"province": "山东", "client": "山东立健药店连锁有限公司", "type": "LKA", "sales": 410.0, "yoy": 10.7}, {"province": "山东", "client": "青岛同方药业连锁有限公司", "type": "LKA", "sales": 154.9, "yoy": -40.8}, {"province": "山东", "client": "山东神奇医药有限公司", "type": "LKA", "sales": 89.3, "yoy": -33.5}]},
+  {province:"广东", totalClients:9, totalSales:4057.8, top5Pct:97.1, clients:[{"province": "广东", "client": "深圳市海王易点药医药有限公司", "type": "NKA", "sales": 2117.1, "yoy": -23.1}, {"province": "广东", "client": "大参林医药集团股份有限公司", "type": "NKA", "sales": 1599.8, "yoy": 27.8}, {"province": "广东", "client": "深圳市南北医药集团有限公司", "type": "LKA", "sales": 82.8, "yoy": 817.7}, {"province": "广东", "client": "湛江益洲大药房连锁有限公司", "type": "LKA", "sales": 76.6, "yoy": 43.4}, {"province": "广东", "client": "深圳市立丰医药有限公司", "type": "LKA", "sales": 63.0, "yoy": -36.1}]},
+  {province:"江苏", totalClients:1, totalSales:3170.6, top5Pct:100.0, clients:[{"province": "江苏", "client": "全亿健康药房有限公司", "type": "NKA", "sales": 3170.6, "yoy": 147.9}]},
+  {province:"浙沪", totalClients:4, totalSales:1794.2, top5Pct:100.0, clients:[{"province": "浙沪", "client": "国药控股国大药房有限公司", "type": "NKA", "sales": 1410.7, "yoy": -39.3}, {"province": "浙沪", "client": "上药凌慧供应链（上海）有限公司", "type": "LKA", "sales": 188.1, "yoy": 335.1}, {"province": "浙沪", "client": "浙江九欣医药有限公司", "type": "LKA", "sales": 137.5, "yoy": -5.8}, {"province": "浙沪", "client": "上海汇丰医药药材有限责任公司", "type": "LKA", "sales": 57.9, "yoy": -74.5}]},
+  {province:"安徽", totalClients:2, totalSales:1690.8, top5Pct:100.0, clients:[{"province": "安徽", "client": "安徽华人健康医药股份有限公司", "type": "NKA", "sales": 1541.4, "yoy": -38.9}, {"province": "安徽", "client": "安徽百信医药有限公司", "type": "LKA", "sales": 149.4, "yoy": -48.2}]},
+  {province:"云南", totalClients:3, totalSales:1183.3, top5Pct:100.0, clients:[{"province": "云南", "client": "一心堂药业集团股份有限公司", "type": "NKA", "sales": 663.1, "yoy": -29.3}, {"province": "云南", "client": "健之佳医药连锁集团股份有限公司", "type": "NKA", "sales": 500.6, "yoy": -53.5}, {"province": "云南", "client": "云南白药大药房有限公司", "type": "LKA", "sales": 19.6, "yoy": 482.3}]},
+  {province:"贵州", totalClients:2, totalSales:768.0, top5Pct:100.0, clients:[{"province": "贵州", "client": "贵州博大医药有限公司", "type": "LKA", "sales": 641.1, "yoy": 6.6}, {"province": "贵州", "client": "贵州衍志医药有限公司", "type": "LKA", "sales": 126.9, "yoy": 76.7}]},
+  {province:"陕西", totalClients:1, totalSales:644.2, top5Pct:100.0, clients:[{"province": "陕西", "client": "西安怡康医药连锁有限责任公司", "type": "LKA", "sales": 644.2, "yoy": -21.0}]},
+  {province:"河南", totalClients:2, totalSales:562.7, top5Pct:100.0, clients:[{"province": "河南", "client": "河南张仲景医药物流有限公司", "type": "LKA", "sales": 442.3, "yoy": -33.4}, {"province": "河南", "client": "许昌市胖东来药业连锁有限公司", "type": "LKA", "sales": 120.4, "yoy": 17.8}]},
+  {province:"冀晋", totalClients:2, totalSales:377.4, top5Pct:100.0, clients:[{"province": "冀晋", "client": "河北神威大药房连锁有限公司", "type": "LKA", "sales": 233.3, "yoy": -0.8}, {"province": "冀晋", "client": "张家口市华佗医药经营有限公司", "type": "LKA", "sales": 144.1, "yoy": -35.5}]},
+  {province:"甘青宁", totalClients:1, totalSales:359.6, top5Pct:100.0, clients:[{"province": "甘青宁", "client": "甘肃德生堂医药批发有限公司", "type": "LKA", "sales": 359.6, "yoy": -10.4}]},
+  {province:"湖北", totalClients:1, totalSales:304.7, top5Pct:100.0, clients:[{"province": "湖北", "client": "好药师大药房连锁有限公司", "type": "LKA", "sales": 304.7, "yoy": -10.7}]},
+  {province:"新疆", totalClients:1, totalSales:208.8, top5Pct:100.0, clients:[{"province": "新疆", "client": "新疆普济堂医药零售连锁有限公司", "type": "LKA", "sales": 208.8, "yoy": 86.6}]},
+  {province:"重庆", totalClients:2, totalSales:177.0, top5Pct:100.0, clients:[{"province": "重庆", "client": "重庆市吉和药品有限公司", "type": "LKA", "sales": 141.9, "yoy": 6.0}, {"province": "重庆", "client": "重庆和平药房连锁有限责任公司医药保健品分公司", "type": "LKA", "sales": 35.1, "yoy": -54.3}]},
+  {province:"福建", totalClients:1, totalSales:175.6, top5Pct:100.0, clients:[{"province": "福建", "client": "福建新紫金医药有限公司", "type": "LKA", "sales": 175.6, "yoy": 5.5}]},
+  {province:"四川", totalClients:2, totalSales:121.2, top5Pct:100.0, clients:[{"province": "四川", "client": "四川泉源堂药业有限公司", "type": "LKA", "sales": 70.6, "yoy": -37.3}, {"province": "四川", "client": "四川正和祥健康管理有限公司", "type": "LKA", "sales": 50.6, "yoy": -2.1}]},
+  {province:"江西", totalClients:2, totalSales:82.9, top5Pct:100.0, clients:[{"province": "江西", "client": "江西黄庆仁栈华氏大药房有限公司", "type": "LKA", "sales": 56.9, "yoy": -13.7}, {"province": "江西", "client": "江西盛锦医药有限公司", "type": "LKA", "sales": 26.0, "yoy": -32.3}]},
+  {province:"东北", totalClients:1, totalSales:70.2, top5Pct:100.0, clients:[{"province": "东北", "client": "吉林省亚泰医药物流有限责任公司", "type": "LKA", "sales": 70.2, "yoy": 189.5}]},
+  {province:"广西", totalClients:1, totalSales:34.6, top5Pct:100.0, clients:[{"province": "广西", "client": "广西桂中大药房连锁有限责任公司", "type": "LKA", "sales": 34.6, "yoy": -40.6}]}
+];
+
 Chart.register(ChartDataLabels);
 
 /* ====== 通用条形图创建 + 通用明细表渲染 ====== */
@@ -1101,6 +1143,7 @@ var otcMonth4Data = {
   renderMiniTable('deliveryDetailTable', deliveryData, deliveryTotal);
   renderMiniTable('ka50DetailTable', ka50Data, ka50Total);
   renderKa50TopBars();
+  renderProvTop5();
   otcChartsReady = true;
 }
 
@@ -1155,6 +1198,38 @@ function renderKa50TopBars() {
       '</div>';
   });
   container.innerHTML = html;
+}
+
+function renderProvTop5() {
+  var grid = document.getElementById('provTop5Grid');
+  if (!grid || !provTop5Data) return;
+  var html = '';
+  provTop5Data.forEach(function(p){
+    var provId = p.province.replace(/\s/g, '_');
+    html += '<div class="table-card prov-top5">';
+    html += '<div class="prov-top5-header" onclick="toggleCollapse(\'provTop5_'+provId+'\',\'provChev_'+provId+'\')" data-target="provTop5_'+provId+'">';
+    html += '<span class="collapse-chevron" id="provChev_'+provId+'">▶</span>';
+    html += '<span class="prov-name">'+p.province+'</span>';
+    html += '<span class="prov-stats"><span>'+p.totalClients+'客户</span><span>'+p.totalSales.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'万</span><span>TOP5占'+p.top5Pct+'%</span></span>';
+    html += '</div>';
+    html += '<div id="provTop5_'+provId+'" class="collapse-body collapsed" style="padding:0;">';
+    html += '<table style="width:100%;font-size:12px;margin:0;">';
+    html += '<thead><tr><th style="width:30px;">#</th><th>连锁</th><th class="num">纯销（万元）</th><th class="num">同比</th></tr></thead><tbody>';
+    p.clients.forEach(function(c,i){
+      var rankClr = i<3 ? 'var(--primary)' : 'var(--text2)';
+      var yoyStr = '—', yoyClr = 'var(--text2)';
+      if (c.yoy !== null) {
+        yoyClr = c.yoy >= 0 ? 'var(--success)' : 'var(--danger)';
+        yoyStr = (c.yoy>=0?'+':'') + c.yoy.toFixed(1) + '%';
+      }
+      html += '<tr><td style="color:'+rankClr+';font-weight:700;text-align:center;">'+(i+1)+'</td>';
+      html += '<td>'+c.client+'</td>';
+      html += '<td class="num"><b>'+c.sales.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</b></td>';
+      html += '<td class="num"><span style="color:'+yoyClr+';font-weight:500;">'+yoyStr+'</span></td></tr>';
+    });
+    html += '</tbody></table></div></div>';
+  });
+  grid.innerHTML = html;
 }
 
 function renderProvinceBars(containerId, dataArr, chartTitle) {
