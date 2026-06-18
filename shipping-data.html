@@ -354,11 +354,14 @@
         .prov-bars { display:flex; flex-direction:column; gap:2px; }
         .prov-row { display:flex; align-items:center; gap:4px; font-size:12px; }
         .prov-row .prov-name { width:48px; text-align:right; flex-shrink:0; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
-        .prov-row .prov-bar-wrap { flex:1; min-width:30px; height:18px; background:var(--bg); border-radius:3px; position:relative; overflow:hidden; }
+        .prov-row .prov-bar-wrap { flex:1; min-width:30px; height:18px; background:transparent; border-radius:3px; position:relative; overflow:hidden; }
         .prov-row .prov-bar-fill { height:100%; border-radius:3px; position:absolute; left:0; top:0; transition:width 0.5s ease; min-width:2px; }
         .prov-row .prov-metric { width:48px; text-align:right; font-size:10px; color:var(--text2); flex-shrink:0; }
         .prov-row .prov-metric.red { color:#e74c3c; font-weight:500; }
         .prov-row .prov-metric.green { color:#27ae60; font-weight:500; }
+        .mini-bar-bg { display:block; height:4px; background:#f0f0f0; border-radius:2px; margin-bottom:1px; overflow:hidden; }
+        .mini-bar-fill { display:block; height:100%; border-radius:2px; transition:width 0.5s ease; }
+        .mini-bar-pct { font-size:9px; font-weight:600; }
         .prov-header-row { display:flex; align-items:center; gap:4px; padding:2px 0 4px; border-bottom:1px solid var(--border); margin-bottom:4px; }
         .prov-header-row .prov-hdr { width:48px; text-align:right; font-size:9px; color:var(--text2); flex-shrink:0; font-weight:500; }
   </style>
@@ -1273,15 +1276,19 @@ function renderProvinceBars(containerId, dataArr, chartTitle) {
     var mom = momMap[d.name];
     var momStr = mom != null ? (mom>=0?'+':'') + mom.toFixed(1) + '%' : '—';
     var momCls = mom != null ? (mom>=0?'red':'green') : '';
-    // 年度进度
-    var apVal = d.annualProgress != null ? d.annualProgress.toFixed(1) + '%' : '—';
+    // 年度进度 → 迷你进度条+百分比
+    var ap = d.annualProgress != null ? d.annualProgress : 0;
+    var apClr = ap >= 60 ? '#27ae60' : (ap >= 30 ? '#f39c12' : '#e74c3c');
     html += '<div class="prov-row">' +
       '<span class="prov-name" title="'+d.name+'">'+d.name+'</span>' +
       '<span class="prov-bar-wrap"><span class="prov-bar-fill" style="width:0;background:'+barColor+';" data-w="'+pct+'"></span></span>' +
       '<span class="prov-metric">'+progressVal+'</span>' +
       '<span class="prov-metric" style="color:'+(d.yoy>=0?'#e74c3c':'#27ae60')+';font-weight:500;">'+yoyStr+'</span>' +
       '<span class="prov-metric '+momCls+'">'+momStr+'</span>' +
-      '<span class="prov-metric">'+apVal+'</span>' +
+      '<span class="prov-metric">' +
+        '<span class="mini-bar-bg"><span class="mini-bar-fill" style="width:'+Math.min(ap,100)+'%;background:'+apClr+';" data-w2="'+Math.min(ap,100)+'"></span></span>' +
+        '<span class="mini-bar-pct" style="color:'+apClr+';">'+ap.toFixed(1)+'%</span>' +
+      '</span>' +
       '</div>';
   });
   html += '</div>';
@@ -1290,6 +1297,10 @@ function renderProvinceBars(containerId, dataArr, chartTitle) {
     var fills = container.querySelectorAll('.prov-bar-fill');
     fills.forEach(function(f){
       f.style.width = f.getAttribute('data-w') + '%';
+    });
+    var minis = container.querySelectorAll('.mini-bar-fill');
+    minis.forEach(function(m){
+      m.style.width = m.getAttribute('data-w2') + '%';
     });
   });
 }
