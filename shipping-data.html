@@ -951,19 +951,6 @@ window.addEventListener('hashchange', function() {
   switchTab(tab, false);
 });
 
-// On page load, activate tab based on URL hash
-(function() {
-  // Fix: if tab-otc is nested inside tab-overview (HTML parser quirk), move it out
-  var otc = document.getElementById('tab-otc');
-  var overview = document.getElementById('tab-overview');
-  if (otc && overview && overview.contains(otc)) {
-    var main = document.querySelector('.main');
-    if (main) main.appendChild(otc);
-  }
-  var tab = window.location.hash === '#otc' ? 'otc' : 'overview';
-  switchTab(tab, false);
-})();
-
 var otcChartsReady = false;
 
 /* ====== 省区数据（复方阿胶浆 1-4月累计，23省） ====== */
@@ -1073,6 +1060,19 @@ var provTop5Data = [
   {province:"东北", totalClients:1, totalSales:70.2, top5Pct:100.0, clients:[{"province": "东北", "client": "吉林省亚泰医药物流有限责任公司", "type": "LKA", "sales": 70.2, "yoy": 189.5}]},
   {province:"广西", totalClients:1, totalSales:34.6, top5Pct:100.0, clients:[{"province": "广西", "client": "广西桂中大药房连锁有限责任公司", "type": "LKA", "sales": 34.6, "yoy": -40.6}]}
 ];
+
+// On page load, activate tab based on URL hash
+(function() {
+  // Fix: if tab-otc is nested inside tab-overview (HTML parser quirk), move it out
+  var otc = document.getElementById('tab-otc');
+  var overview = document.getElementById('tab-overview');
+  if (otc && overview && overview.contains(otc)) {
+    var main = document.querySelector('.main');
+    if (main) main.appendChild(otc);
+  }
+  var tab = window.location.hash === '#otc' ? 'otc' : 'overview';
+  switchTab(tab, false);
+})();
 
 Chart.register(ChartDataLabels);
 
