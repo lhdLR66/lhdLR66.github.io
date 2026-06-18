@@ -859,15 +859,6 @@ function rateClass(rate) {
     <div class="progress-bar-bg" style="height:8px;"><div id="ka50TtBar" class="progress-bar-fill" style="height:100%;border-radius:4px;"></div></div>
   </div>
 
-  <!-- 三张可折叠明细表 -->
-  <div class="three-col">
-    <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('shipTableBody','shipToggleIcon')">📦 发货明细（23省）<span id="shipToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
-      <div id="shipTableBody"><table id="shipDetailTable" style="font-size:12px;"><thead><tr><th onclick="sortTable('shipDetailTable',shipData,shipTotal,0)" style="cursor:pointer;user-select:none;">省区 <span class="sa"></span></th><th class="num" onclick="sortTable('shipDetailTable',shipData,shipTotal,1)" style="cursor:pointer;user-select:none;">完成 <span class="sa"></span></th><th class="num" onclick="sortTable('shipDetailTable',shipData,shipTotal,2)" style="cursor:pointer;user-select:none;">同比 <span class="sa"></span></th><th class="num" onclick="sortTable('shipDetailTable',shipData,shipTotal,3)" style="cursor:pointer;user-select:none;">进度 <span class="sa"></span></th></tr></thead><tbody></tbody></table></div></div>
-    <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('deliveryTableBody','deliveryToggleIcon')">🚚 终端配送明细（23省）<span id="deliveryToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
-      <div id="deliveryTableBody"><table id="deliveryDetailTable" style="font-size:12px;"><thead><tr><th onclick="sortTable('deliveryDetailTable',deliveryData,deliveryTotal,0)" style="cursor:pointer;user-select:none;">省区 <span class="sa"></span></th><th class="num" onclick="sortTable('deliveryDetailTable',deliveryData,deliveryTotal,1)" style="cursor:pointer;user-select:none;">完成 <span class="sa"></span></th><th class="num" onclick="sortTable('deliveryDetailTable',deliveryData,deliveryTotal,2)" style="cursor:pointer;user-select:none;">同比 <span class="sa"></span></th><th class="num" onclick="sortTable('deliveryDetailTable',deliveryData,deliveryTotal,3)" style="cursor:pointer;user-select:none;">进度 <span class="sa"></span></th></tr></thead><tbody></tbody></table></div></div>
-    <div class="table-card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-weight:600;font-size:13px;" onclick="toggleTable('ka50TableBody','ka50ToggleIcon')">🏪 KA50纯销明细（23省）<span id="ka50ToggleIcon" style="float:right;color:var(--text2);">▾</span></div>
-      <div id="ka50TableBody"><table id="ka50DetailTable" style="font-size:12px;"><thead><tr><th onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,0)" style="cursor:pointer;user-select:none;">省区 <span class="sa"></span></th><th class="num" onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,1)" style="cursor:pointer;user-select:none;">完成 <span class="sa"></span></th><th class="num" onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,2)" style="cursor:pointer;user-select:none;">同比 <span class="sa"></span></th><th class="num" onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,3)" style="cursor:pointer;user-select:none;">进度 <span class="sa"></span></th></tr></thead><tbody></tbody></table></div></div>
-  </div>
 </div>
 
 <!-- KA50客户纯销 TOP5 -->
@@ -1163,9 +1154,6 @@ var otcMonth4Data = {
   renderProvinceBars('shipBars', shipData, '📦 发货');
   renderProvinceBars('deliveryBars', deliveryData, '🚚 终端配送');
   renderProvinceBars('ka50Bars', ka50Data, '🏪 KA50纯销');
-  renderMiniTable('shipDetailTable', shipData, shipTotal);
-  renderMiniTable('deliveryDetailTable', deliveryData, deliveryTotal);
-  renderMiniTable('ka50DetailTable', ka50Data, ka50Total);
   renderKa50TopBars();
   renderProvTop5();
   otcChartsReady = true;
@@ -1268,7 +1256,7 @@ function renderProvinceBars(containerId, dataArr, chartTitle) {
   html += '<div class="prov-header-row">'+
     '<span class="prov-hdr" style="width:48px;"></span>'+
     '<span class="prov-hdr" style="flex:1;min-width:30px;"></span>'+
-    '<span class="prov-hdr">完成</span>'+
+    '<span class="prov-hdr">销售额</span>'+
     '<span class="prov-hdr">同比</span>'+
     '<span class="prov-hdr">环比</span>'+
     '<span class="prov-hdr">进度</span>'+
@@ -1279,8 +1267,8 @@ function renderProvinceBars(containerId, dataArr, chartTitle) {
     var barColor = yoyBarColor(d.yoy);
     var sign = d.yoy >= 0 ? '+' : '';
     var yoyStr = sign + d.yoy + '%';
-    // 完成(completion) = progress
-    var progressVal = d.progress != null ? d.progress.toFixed(1) + '%' : '—';
+    // 完成 = 实际销售额（万元）
+    var progressVal = d.amount != null ? d.amount.toFixed(1) + '万' : '—';
     // 环比
     var mom = momMap[d.name];
     var momStr = mom != null ? (mom>=0?'+':'') + mom.toFixed(1) + '%' : '—';
