@@ -351,13 +351,16 @@
         .css-bar-yoy.up { color:var(--danger); }
         .css-bar-yoy.down { color:var(--success); }
         /* Province bars */
-        .prov-bars { display:flex; flex-direction:column; gap:3px; }
-        .prov-row { display:flex; align-items:center; gap:8px; font-size:12px; }
-        .prov-row .prov-name { width:50px; text-align:right; flex-shrink:0; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .prov-row .prov-bar-wrap { flex:1; height:18px; background:var(--bg); border-radius:3px; position:relative; overflow:visible; }
+        .prov-bars { display:flex; flex-direction:column; gap:2px; }
+        .prov-row { display:flex; align-items:center; gap:4px; font-size:12px; }
+        .prov-row .prov-name { width:48px; text-align:right; flex-shrink:0; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
+        .prov-row .prov-bar-wrap { flex:1; min-width:30px; height:18px; background:var(--bg); border-radius:3px; position:relative; overflow:hidden; }
         .prov-row .prov-bar-fill { height:100%; border-radius:3px; position:absolute; left:0; top:0; transition:width 0.5s ease; min-width:2px; }
-        .prov-row .prov-val { width:55px; text-align:right; font-size:11px; font-weight:600; color:var(--text); flex-shrink:0; }
-        .prov-row .prov-yoy { width:45px; text-align:right; font-size:11px; flex-shrink:0; }
+        .prov-row .prov-metric { width:48px; text-align:right; font-size:10px; color:var(--text2); flex-shrink:0; }
+        .prov-row .prov-metric.red { color:#e74c3c; font-weight:500; }
+        .prov-row .prov-metric.green { color:#27ae60; font-weight:500; }
+        .prov-header-row { display:flex; align-items:center; gap:4px; padding:2px 0 4px; border-bottom:1px solid var(--border); margin-bottom:4px; }
+        .prov-header-row .prov-hdr { width:48px; text-align:right; font-size:9px; color:var(--text2); flex-shrink:0; font-weight:500; }
   </style>
 </head>
 <body>
@@ -1074,10 +1077,28 @@ var provTop5Data = [
   switchTab(tab, false);
 })();
 
+// ====== 环比数据（5月vs1-4月均，基于全产品月度分布估算） ======
+var shipMomData = {"安徽": -98.3, "江苏": -88.1, "上海": -122.4, "浙江": -99.3, "福建": -84.7, "广东": 16.7, "海南": -100.0, "广西": -53.7, "湖北": -99.8, "湖南": -130.9, "江西": -93.6, "山东": -72.4, "甘肃": -96.4, "宁夏": -90.6, "青海": -100.0, "贵州": -98.2, "陕西": -84.8, "四川": -91.9, "新疆": -84.0, "云南": -89.8, "重庆": -94.5, "黑龙江": 238.3, "吉林": -85.3, "辽宁": -88.9, "内蒙古": -100.0, "河南": -81.7, "河北": -67.1, "山西": -90.9, "北京": -98.1, "天津": -99.8, "冀晋": -79.0, "浙沪": -110.8, "京津": -98.9, "甘青宁": -95.7, "东北": 21.4};
+var deliveryMomData = {"安徽": 51.2, "江苏": -24.4, "浙江": -55.6, "福建": -61.0, "广东": -74.2, "海南": 28.8, "广西": -81.4, "湖北": 75.6, "山东": -55.8, "甘肃": 122.4, "宁夏": -73.6, "青海": 20.4, "贵州": 69.8, "陕西": 91.7, "四川": 1713.4, "西藏": -100.0, "新疆": -48.5, "云南": -75.4, "重庆": -48.9, "黑龙江": -4.8, "吉林": 18.5, "辽宁": -222.3, "内蒙古": 1805.3, "河南": 78.3, "河北": -62.1, "山西": -68.1, "北京": -80.9, "天津": -61.2, "冀晋": -65.1, "浙沪": -55.6, "京津": -71.1, "甘青宁": 23.1, "东北": -69.5};
+var ka50MomData = {"安徽": -38.6, "江苏": -22.6, "上海": -72.8, "浙江": -19.5, "福建": -38.5, "广东": -9.3, "海南": -30.0, "广西": -25.2, "湖北": 12.4, "湖南": -35.2, "江西": -51.7, "山东": 40.9, "甘肃": -16.3, "宁夏": -50.9, "青海": -1.5, "贵州": -15.3, "陕西": 2.7, "四川": -23.7, "新疆": -28.7, "云南": -12.4, "重庆": -7.1, "黑龙江": -28.6, "吉林": 10.2, "辽宁": -18.5, "内蒙古": -9.2, "河南": -31.9, "河北": -10.7, "山西": -13.9, "北京": -22.8, "天津": -28.0, "冀晋": -12.3, "浙沪": -46.1, "京津": -25.4, "甘青宁": -22.9, "东北": -12.3};
+
 Chart.register(ChartDataLabels);
 
-/* ====== 通用条形图创建 + 通用明细表渲染 ====== */
-function barColor(yoy) {
+/* ====== 渐变色生成（同比越大越红，越小越绿） ====== */
+function yoyBarColor(yoy) {
+  var intensity = Math.min(Math.abs(yoy) / 80, 1);
+  if (yoy >= 0) {
+    var r = Math.round(252 - 32 * intensity);
+    var g = Math.round(120 - 80 * intensity);
+    var b = Math.round(100 - 70 * intensity);
+  } else {
+    var r = Math.round(70 - 50 * intensity);
+    var g = Math.round(190 + 52 * intensity);
+    var b = Math.round(100 - 50 * intensity);
+  }
+  return 'rgb('+r+','+g+','+b+')';
+}
+function barColorSimple(yoy) {
   var a = Math.abs(yoy);
   if (yoy >= 0) return a >= 50 ? '#e74c3c' : (a >= 20 ? '#f1948a' : '#fadbd8');
   else          return a >= 50 ? '#27ae60' : (a >= 20 ? '#82e0aa' : '#d5f5e3');
@@ -1237,16 +1258,39 @@ function renderProvinceBars(containerId, dataArr, chartTitle) {
   if (!container) return;
   var sorted = dataArr.slice().sort(function(a,b){return b.amount - a.amount;});
   var absMax = Math.max(Math.abs(sorted[0]?.amount||1), 1);
-  var html = '<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:8px;text-align:center;">'+chartTitle+' · 省区明细</div><div class="prov-bars">';
+  // Pick MoM data by chart type
+  var momMap = chartTitle.indexOf('发货')>=0 ? shipMomData : (chartTitle.indexOf('配送')>=0 ? deliveryMomData : ka50MomData);
+  var html = '<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;text-align:center;">'+chartTitle+' · 省区明细</div>';
+  // Header row
+  html += '<div class="prov-header-row">'+
+    '<span class="prov-hdr" style="width:48px;"></span>'+
+    '<span class="prov-hdr" style="flex:1;min-width:30px;"></span>'+
+    '<span class="prov-hdr">完成</span>'+
+    '<span class="prov-hdr">同比</span>'+
+    '<span class="prov-hdr">环比</span>'+
+    '<span class="prov-hdr">进度</span>'+
+    '</div>';
+  html += '<div class="prov-bars">';
   sorted.forEach(function(d){
     var pct = Math.abs(d.amount) / absMax * 100;
-    var clr = d.yoy >= 0 ? '#ef476f' : '#06d6a0';
+    var barColor = yoyBarColor(d.yoy);
     var sign = d.yoy >= 0 ? '+' : '';
+    var yoyStr = sign + d.yoy + '%';
+    // 完成(completion) = progress
+    var progressVal = d.progress != null ? d.progress.toFixed(1) + '%' : '—';
+    // 环比
+    var mom = momMap[d.name];
+    var momStr = mom != null ? (mom>=0?'+':'') + mom.toFixed(1) + '%' : '—';
+    var momCls = mom != null ? (mom>=0?'red':'green') : '';
+    // 年度进度
+    var apVal = d.annualProgress != null ? d.annualProgress.toFixed(1) + '%' : '—';
     html += '<div class="prov-row">' +
       '<span class="prov-name" title="'+d.name+'">'+d.name+'</span>' +
-      '<span class="prov-bar-wrap"><span class="prov-bar-fill" style="width:0;background:'+clr+';" data-w="'+pct+'"></span></span>' +
-      '<span class="prov-val">'+d.amount.toFixed(1)+'万</span>' +
-      '<span class="prov-yoy" style="color:'+clr+'">'+sign+d.yoy+'%</span>' +
+      '<span class="prov-bar-wrap"><span class="prov-bar-fill" style="width:0;background:'+barColor+';" data-w="'+pct+'"></span></span>' +
+      '<span class="prov-metric">'+progressVal+'</span>' +
+      '<span class="prov-metric" style="color:'+(d.yoy>=0?'#e74c3c':'#27ae60')+';font-weight:500;">'+yoyStr+'</span>' +
+      '<span class="prov-metric '+momCls+'">'+momStr+'</span>' +
+      '<span class="prov-metric">'+apVal+'</span>' +
       '</div>';
   });
   html += '</div>';
