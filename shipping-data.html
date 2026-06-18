@@ -770,7 +770,7 @@ function rateClass(rate) {
       <div class="kpi-value">55,927<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +4,252万 &middot; 环比 +104%</span></div>
       <div class="kpi-sub">年度指标 276,660 万 | 同比 <span>↓35.7%</span></div>
       <div class="kpi-progress">
-        <div class="kpi-progress-label"><span class="kpi-annual-rate">年度进度 19%</span></div>
+        <div class="kpi-progress-label"><span class="kpi-annual-rate">年度进度 20.2%</span></div>
         <div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:20.2%"></div></div>
       </div>
     </div>
@@ -794,8 +794,8 @@ function rateClass(rate) {
     </div>
     <div class="kpi-card" style="--dot-color:#7209b7;">
       <div class="kpi-label">🏭 渠道库存</div>
-      <div class="kpi-value">11,557<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">5月 +1,656万 &middot; 环比 +15%</span></div>
-      <div class="kpi-sub">年度指标 27,930 万 | 同比 ↑13.6%</div>
+      <div class="kpi-value">81,236<span style="font-size:14px;color:#6c757d"> 万</span></div>
+      <div class="kpi-sub">同比 ↑41% &middot; 周转天数 176天</div>
     </div>
   </div>
 </div>
@@ -855,6 +855,42 @@ function rateClass(rate) {
       <div id="ka50TableBody"><table id="ka50DetailTable" style="font-size:12px;"><thead><tr><th onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,0)" style="cursor:pointer;user-select:none;">省区 <span class="sa"></span></th><th class="num" onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,1)" style="cursor:pointer;user-select:none;">完成 <span class="sa"></span></th><th class="num" onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,2)" style="cursor:pointer;user-select:none;">同比 <span class="sa"></span></th><th class="num" onclick="sortTable('ka50DetailTable',ka50Data,ka50Total,3)" style="cursor:pointer;user-select:none;">进度 <span class="sa"></span></th></tr></thead><tbody></tbody></table></div></div>
   </div>
 </div>
+
+<!-- KA50客户纯销 TOP5 -->
+<div class="section">
+  <div class="section-title"><i class="fas fa-building"></i> KA50客户纯销 TOP5（1-5月累计 · 复方阿胶浆）
+    <span class="hint">前5占KA50复方阿胶浆纯销 53%</span>
+  </div>
+  <div class="two-col">
+    <!-- 排名表 -->
+    <div class="table-card">
+      <table style="width:100%;font-size:13px;">
+        <thead><tr><th>#</th><th>客户</th><th class="num">纯销（万元）</th><th class="num">同比</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--primary);font-weight:700;">1</td><td>高济医药</td><td class="num"><b>3,876</b></td><td class="num" style="color:var(--success);">+40.5%</td></tr>
+          <tr><td style="color:var(--primary);font-weight:700;">2</td><td>漱玉平民（山东）</td><td class="num"><b>3,199</b></td><td class="num">-0.1%</td></tr>
+          <tr><td style="color:var(--primary);font-weight:700;">3</td><td>全亿健康（江安）</td><td class="num"><b>3,171</b></td><td class="num" style="color:var(--success);">+47.9%</td></tr>
+          <tr><td style="color:var(--text2);">4</td><td>益丰大药房（华中）</td><td class="num"><b>2,893</b></td><td class="num" style="color:var(--success);">+10.6%</td></tr>
+          <tr><td style="color:var(--text2);">5</td><td>丰沃达（华中）</td><td class="num"><b>2,820</b></td><td class="num" style="color:var(--success);">+37.5%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- 迷你柱状图 -->
+    <div class="table-card" style="padding:16px;">
+      <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:12px;">纯销对比（万元）</div>
+      <div id="ka50TopBars" style="display:flex;align-items:flex-end;gap:12px;height:180px;justify-content:space-around;">
+      </div>
+      <div style="display:flex;gap:12px;justify-content:space-around;margin-top:8px;font-size:11px;color:var(--text2);">
+        <span style="text-align:center;flex:1;">高济</span>
+        <span style="text-align:center;flex:1;">漱玉</span>
+        <span style="text-align:center;flex:1;">全亿</span>
+        <span style="text-align:center;flex:1;">益丰</span>
+        <span style="text-align:center;flex:1;">丰沃达</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- end tab-otc -->
 
 </div><!-- close .main -->
@@ -1064,19 +1100,19 @@ var otcMonth4Data = {
   renderMiniTable('shipDetailTable', shipData, shipTotal);
   renderMiniTable('deliveryDetailTable', deliveryData, deliveryTotal);
   renderMiniTable('ka50DetailTable', ka50Data, ka50Total);
+  renderKa50TopBars();
   otcChartsReady = true;
 }
 
 function renderOtcMonthBars() {
   var container = document.getElementById('otcBars');
   if (!container) return;
-  var labels = ['4月'];
   var groups = [
-    {name:'发货', amount:1569.37, yoy:38, color:'#4361ee'},
-    {name:'配送', amount:3906, yoy:-5, color:'#06d6a0'},
-    {name:'KA50', amount:4235, yoy:-15, color:'#f72585'}
+    {name:'发货', amount:3641, yoy:38, color:'#4361ee'},
+    {name:'配送', amount:6181, yoy:-5, color:'#06d6a0'},
+    {name:'KA50', amount:6079, yoy:-15, color:'#f72585'}
   ];
-  var maxVal = 4500;
+  var maxVal = 6500;
   var html = '';
   groups.forEach(function(g){
     var hVal = Math.max(4, g.amount/maxVal*240);
@@ -1097,6 +1133,28 @@ function renderOtcMonthBars() {
       b.style.height = b.getAttribute('data-h') + 'px';
     });
   });
+}
+
+function renderKa50TopBars() {
+  var container = document.getElementById('ka50TopBars');
+  if (!container) return;
+  var data = [
+    {name:'高济医药', amount:3876, color:'#4361ee'},
+    {name:'漱玉平民', amount:3199, color:'#7209b7'},
+    {name:'全亿健康', amount:3171, color:'#f72585'},
+    {name:'益丰大药房', amount:2893, color:'#06d6a0'},
+    {name:'丰沃达', amount:2820, color:'#ffd166'}
+  ];
+  var maxVal = 4000;
+  var html = '';
+  data.forEach(function(d){
+    var hPct = d.amount / maxVal * 100;
+    html += '<div style="display:flex;flex-direction:column;align-items:center;flex:1;">' +
+      '<span style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">'+d.amount+'</span>' +
+      '<div style="width:100%;height:'+hPct+'%;background:'+d.color+';border-radius:4px 4px 0 0;min-width:24px;transition:height 0.6s ease;"></div>' +
+      '</div>';
+  });
+  container.innerHTML = html;
 }
 
 function renderProvinceBars(containerId, dataArr, chartTitle) {
