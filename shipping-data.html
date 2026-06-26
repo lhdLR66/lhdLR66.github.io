@@ -1180,37 +1180,66 @@ function renderKa50ProvChart() {
   if (!container || !ka50ProvChains) return;
   var provList = [];
   Object.keys(ka50ProvChains).forEach(function(p){
-    provList.push({province:p, total:ka50ProvChains[p].total});
+    provList.push({province:p, total:ka50ProvChains[p].total, top5:ka50ProvChains[p].top5});
   });
   provList.sort(function(a,b){return b.total - a.total;});
   var maxVal = provList[0].total * 1.1;
   var colors = ['#4361ee','#3a86ff','#4cc9f0','#4895ef','#560bad','#7209b7','#f72585','#b5179e','#e07a5f','#06d6a0','#118ab2','#ffd166','#ef476f','#8338ec','#ff006e','#fb5607','#3a0ca3','#f4a261','#2a9d8f','#e76f51','#264653'];
+  // Compute TOP5 share per province
+  var top5PctMap = {};
+  provList.forEach(function(p){
+    var s = p.top5.reduce(function(a,x){return a+x.ffej;},0);
+    top5PctMap[p.province] = p.total>0 ? (s/p.total*100).toFixed(1) : 0;
+  });
   var html = '';
   provList.forEach(function(p,i){
     var provId = p.province.replace(/\s/g, '_');
     var barPct = p.total / maxVal * 100;
     var clr = colors[i % colors.length];
-    html += '<div style="display:flex;align-items:center;margin-bottom:7px;cursor:pointer;" onclick="scrollToProvChain(\'provChain_'+provId+'\',\'provChainChev_'+provId+'\')">';
-    html += '<span style="width:44px;font-size:12px;font-weight:600;text-align:right;padding-right:10px;flex-shrink:0;color:var(--text);">'+p.province+'</span>';
-    html += '<div style="flex:1;height:22px;background:#f0f0f5;border-radius:4px;overflow:hidden;position:relative;">';
+    var detailId = 'ka50Detail_'+provId;
+    var top5Sum = p.top5.reduce(function(s,h){return s+h.ffej;},0);
+    var top5Pct = top5PctMap[p.province];
+    // Bar row
+    html += '<div style="margin-bottom:6px;">';
+    html += '<div style="display:flex;align-items:center;cursor:pointer;" onclick="toggleKA50Detail(\''+detailId+'\', this)">';
+    html += '<span class="collapse-chevron" id="'+detailId+'_chev" style="width:16px;text-align:center;flex-shrink:0;">\u25b6</span>';
+    html += '<span style="width:42px;font-size:12px;font-weight:600;text-align:right;padding-right:8px;flex-shrink:0;color:var(--text);">'+p.province+'</span>';
+    html += '<div style="flex:1;height:24px;background:#f0f0f5;border-radius:4px;overflow:hidden;position:relative;">';
     html += '<div style="height:100%;width:'+barPct+'%;background:'+clr+';border-radius:4px;transition:width 0.5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;">';
-    html += '<span style="font-size:11px;font-weight:600;color:#fff;white-space:nowrap;">'+p.total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</span>';
+    html += '<span style="font-size:12px;font-weight:600;color:#fff;white-space:nowrap;">'+p.total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</span>';
     html += '</div></div></div>';
+    // Detail panel (collapsed by default)
+    html += '<div id="'+detailId+'" style="display:none;margin:8px 0 12px 58px;padding:12px 16px;background:#f8f9fc;border-radius:8px;border-left:3px solid '+clr+';">';
+    html += '<div style="font-size:12px;color:var(--text2);margin-bottom:8px;">TOP5连锁合计 <b style="color:var(--primary);">'+top5Sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</b>万，占全省KA纯销 <b style="color:var(--primary);">'+top5Pct+'%</b></div>';
+    html += '<table style="width:100%;font-size:12px;">';
+    html += '<thead><tr><th style="width:24px;">#</th><th>连锁</th><th class="num">纯销（万元）</th><th class="num">占本省</th><th class="num">同比</th></tr></thead><tbody>';
+    p.top5.forEach(function(h,j){
+      var rankClr = j<3 ? 'var(--primary)' : 'var(--text2)';
+      var yoyStr = h.yoy!=null ? ((h.yoy>=0?'+':'')+h.yoy.toFixed(1)+'%') : '\u2014';
+      var yoyClr = h.yoy!=null ? (h.yoy>=0?'var(--success)':'var(--danger)') : 'var(--text2)';
+      html += '<tr><td style="text-align:center;color:'+rankClr+';font-weight:700;">'+(j+1)+'</td>';
+      html += '<td>'+h.chain+'</td>';
+      html += '<td class="num"><b>'+h.ffej.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</b></td>';
+      html += '<td class="num">'+h.share+'%</td>';
+      html += '<td class="num" style="color:'+yoyClr+';font-weight:500;">'+yoyStr+'</td></tr>';
+    });
+    html += '</tbody></table></div></div>';
   });
   container.innerHTML = html;
 }
 
-function scrollToProvChain(bodyId, chevId) {
-  var body = document.getElementById(bodyId);
-  if (!body) return;
-  // Expand if collapsed
-  if (body.classList.contains('collapsed')) {
-    toggleCollapse(bodyId, chevId);
+function toggleKA50Detail(detailId, barEl) {
+  var panel = document.getElementById(detailId);
+  if (!panel) return;
+  var chev = document.getElementById(detailId+'_chev');
+  var isOpen = panel.style.display === 'block';
+  if (isOpen) {
+    panel.style.display = 'none';
+    if (chev) chev.textContent = '\u25b6';
+  } else {
+    panel.style.display = 'block';
+    if (chev) chev.textContent = '\u25bc';
   }
-  // Small delay then scroll
-  setTimeout(function(){
-    body.scrollIntoView({behavior:'smooth', block:'center'});
-  }, 120);
 }
 
 function renderKa50HqTable() {
