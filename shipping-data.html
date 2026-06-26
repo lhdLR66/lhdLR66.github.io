@@ -882,6 +882,13 @@ function rateClass(rate) {
   </div>
 
   <div class="section">
+    <div class="section-title"><i class="fas fa-chart-bar"></i> 各省KA50纯销总览（万元）
+      <span class="hint">点击省区柱跳转到连锁TOP5明细</span>
+    </div>
+    <div id="ka50ProvChart" style="padding:12px 0;"></div>
+  </div>
+
+  <div class="section">
     <div class="section-title"><i class="fas fa-map-marker-alt"></i> 各省KA50纯销 · 连锁TOP5（1-5月累计 · 复方阿胶浆）
       <span class="hint">按省份纯销合计降序 | 点击省区展开TOP5连锁 | 数据来源：1.2KA50分部明细</span>
     </div>
@@ -1164,7 +1171,46 @@ function renderOtcMonthBars() {
 // ====== KA50归属总部渲染 ======
 function initKa50Charts() {
   renderKa50HqTable();
+  renderKa50ProvChart();
   renderProvChains();
+}
+
+function renderKa50ProvChart() {
+  var container = document.getElementById('ka50ProvChart');
+  if (!container || !ka50ProvChains) return;
+  var provList = [];
+  Object.keys(ka50ProvChains).forEach(function(p){
+    provList.push({province:p, total:ka50ProvChains[p].total});
+  });
+  provList.sort(function(a,b){return b.total - a.total;});
+  var maxVal = provList[0].total * 1.1;
+  var colors = ['#4361ee','#3a86ff','#4cc9f0','#4895ef','#560bad','#7209b7','#f72585','#b5179e','#e07a5f','#06d6a0','#118ab2','#ffd166','#ef476f','#8338ec','#ff006e','#fb5607','#3a0ca3','#f4a261','#2a9d8f','#e76f51','#264653'];
+  var html = '';
+  provList.forEach(function(p,i){
+    var provId = p.province.replace(/\s/g, '_');
+    var barPct = p.total / maxVal * 100;
+    var clr = colors[i % colors.length];
+    html += '<div style="display:flex;align-items:center;margin-bottom:7px;cursor:pointer;" onclick="scrollToProvChain(\'provChain_'+provId+'\',\'provChainChev_'+provId+'\')">';
+    html += '<span style="width:44px;font-size:12px;font-weight:600;text-align:right;padding-right:10px;flex-shrink:0;color:var(--text);">'+p.province+'</span>';
+    html += '<div style="flex:1;height:22px;background:#f0f0f5;border-radius:4px;overflow:hidden;position:relative;">';
+    html += '<div style="height:100%;width:'+barPct+'%;background:'+clr+';border-radius:4px;transition:width 0.5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;">';
+    html += '<span style="font-size:11px;font-weight:600;color:#fff;white-space:nowrap;">'+p.total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</span>';
+    html += '</div></div></div>';
+  });
+  container.innerHTML = html;
+}
+
+function scrollToProvChain(bodyId, chevId) {
+  var body = document.getElementById(bodyId);
+  if (!body) return;
+  // Expand if collapsed
+  if (body.classList.contains('collapsed')) {
+    toggleCollapse(bodyId, chevId);
+  }
+  // Small delay then scroll
+  setTimeout(function(){
+    body.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 120);
 }
 
 function renderKa50HqTable() {
