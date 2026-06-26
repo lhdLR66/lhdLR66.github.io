@@ -392,6 +392,7 @@
 <div class="tabs">
   <button class="tab active" onclick="switchTab('overview')">📦 发货总览</button>
   <button class="tab" onclick="switchTab('otc')">📊 销售总览</button>
+  <button class="tab" onclick="switchTab('ka50')">🏪 KA50纯销</button>
 </div>
 
 <!-- Tab: 发货总览 -->
@@ -866,6 +867,35 @@ function rateClass(rate) {
 
 </div><!-- end tab-otc -->
 
+<!-- Tab: KA50纯销 -->
+<div id="tab-ka50" class="tab-content">
+  <div class="section">
+    <div class="section-title"><i class="fas fa-trophy"></i> KA50归属总部 TOP5（1-5月累计 · 复方阿胶浆）
+      <span class="hint">前5占KA50复方阿胶浆纯销 <span id="ka50HqTop5Pct">53%</span></span>
+    </div>
+    <div class="two-col">
+      <div class="table-card">
+        <table>
+          <thead><tr><th>#</th><th>归属总部</th><th class="num">纯销（万元）</th><th class="num">占全国</th><th class="num">同比</th><th class="num">环比</th></tr></thead>
+          <tbody id="ka50HqTopTable"></tbody>
+        </table>
+      </div>
+      <div class="table-card" style="padding:16px;">
+        <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:12px;">纯销对比（万元）</div>
+        <div id="ka50TopBars" style="display:flex;align-items:flex-end;gap:12px;height:160px;justify-content:space-around;"></div>
+        <div id="ka50TopLabels" style="display:flex;gap:12px;justify-content:space-around;margin-top:8px;font-size:10px;color:var(--text2);"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><i class="fas fa-map-marker-alt"></i> 各省KA50归属总部 TOP5（1-5月累计 · 复方阿胶浆）
+      <span class="hint">按省份纯销合计降序 | 点击省区展开TOP5总部 | 数据来源：1.2KA50分部明细</span>
+    </div>
+    <div class="province-top5-grid" id="provTop5Grid"></div>
+  </div>
+</div><!-- end tab-ka50 -->
+
 </div><!-- close .main -->
 
 <script>
@@ -894,16 +924,18 @@ function switchTab(name, pushState) {
   var panel = document.getElementById('tab-'+name);
   if (panel) panel.classList.add('active');
   if (pushState !== false) {
-    var newHash = name === 'otc' ? '#otc' : '#overview';
+    var newHash = name === 'otc' ? '#otc' : (name === 'ka50' ? '#ka50' : '#overview');
     if (window.location.hash !== newHash) {
       history.pushState(null, '', newHash);
     }
   }
   if (name === 'otc') { initOtcCharts(); }
+  if (name === 'ka50') { initKa50Charts(); }
 }
 
 window.addEventListener('hashchange', function() {
-  var tab = window.location.hash === '#otc' ? 'otc' : 'overview';
+  var h = window.location.hash;
+  var tab = h === '#otc' ? 'otc' : (h === '#ka50' ? 'ka50' : 'overview');
   switchTab(tab, false);
 });
 
@@ -992,6 +1024,10 @@ var ka50Data = [
 ];
 var ka50Total = 30191.0;
 
+// ====== KA50归属总部数据（来自1.2KA50分部明细）======
+var ka50HqByProv = {"东北":{total:620.92,top5:[{hq:"国药控股国大药房有限公司",ffej:275.19,yoy:-63.0,mom:-11.7,share:44.3},{hq:"深圳市海王易点药医药有限公司",ffej:118.12,yoy:-50.7,mom:-15.9,share:19.0},{hq:"吉林省亚泰医药物流有限责任公司",ffej:70.16,yoy:189.5,mom:11.6,share:11.3},{hq:"高济医药有限公司",ffej:53.93,yoy:85.2,mom:-34.9,share:8.7},{hq:"丰沃达医药物流（湖南）有限公司",ffej:42.1,yoy:-70.1,mom:32.4,share:6.8}]},"云南":{total:531.05,top5:[{hq:"一心堂药业集团股份有限公司",ffej:292.41,yoy:-21.8,mom:-5.5,share:55.1},{hq:"健之佳医药连锁集团股份有限公司",ffej:214.78,yoy:-53.0,mom:5.6,share:40.4},{hq:"云南白药大药房有限公司",ffej:19.59,yoy:482.3,mom:-57.4,share:3.7},{hq:"国药控股国大药房有限公司",ffej:4.27,yoy:-30.3,mom:-51.4,share:0.8}]},"京津":{total:629.87,top5:[{hq:"高济医药有限公司",ffej:192.18,yoy:-25.7,mom:-16.1,share:30.5},{hq:"丰沃达医药物流（湖南）有限公司",ffej:116.55,yoy:-34.5,mom:-21.9,share:18.5},{hq:"甘肃德生堂医药批发有限公司",ffej:97.09,yoy:4.7,mom:-100.0,share:15.4},{hq:"国药控股国大药房有限公司",ffej:84.87,yoy:-7.8,mom:-19.7,share:13.5},{hq:"京东大药房（北京）有限公司",ffej:55.13,yoy:12.4,mom:18.1,share:8.8}]},"冀晋":{total:1647.12,top5:[{hq:"国药控股国大药房有限公司",ffej:358.77,yoy:-5.3,mom:-31.1,share:21.8},{hq:"益丰大药房连锁股份有限公司",ffej:237.24,yoy:8.7,mom:1.7,share:14.4},{hq:"河北神威大药房连锁有限公司",ffej:233.25,yoy:-0.8,mom:-3.2,share:14.2},{hq:"北京同仁堂商业投资集团有限公司",ffej:230.16,yoy:-20.6,mom:19.4,share:14.0},{hq:"张家口市华佗医药经营有限公司",ffej:144.05,yoy:-35.5,mom:-17.7,share:8.7}]},"四川":{total:1074.65,top5:[{hq:"高济医药有限公司",ffej:509.81,yoy:46.1,mom:4.4,share:47.4},{hq:"全亿健康药房有限公司",ffej:196.32,yoy:-8.1,mom:-65.1,share:18.3},{hq:"深圳市海王易点药医药有限公司",ffej:130.81,yoy:-57.1,mom:-40.5,share:12.2},{hq:"健之佳医药连锁集团股份有限公司",ffej:93.6,yoy:-45.8,mom:92.7,share:8.7},{hq:"一心堂药业集团股份有限公司",ffej:90.39,yoy:-27.3,mom:-36.6,share:8.4}]},"安徽":{total:2763.64,top5:[{hq:"安徽华人健康医药股份有限公司",ffej:1524.43,yoy:-39.3,mom:-30.7,share:55.2},{hq:"高济医药有限公司",ffej:728.65,yoy:1.5,mom:-47.2,share:26.4},{hq:"丰沃达医药物流（湖南）有限公司",ffej:333.56,yoy:-26.6,mom:-30.4,share:12.1},{hq:"安徽百信医药有限公司",ffej:149.44,yoy:-48.2,mom:-14.7,share:5.4},{hq:"大参林医药集团股份有限公司",ffej:27.55,yoy:51.8,mom:-54.5,share:1.0}]},"山东":{total:4382.58,top5:[{hq:"漱玉医药物流（山东）有限公司",ffej:2987.99,yoy:2.0,mom:38.6,share:68.2},{hq:"威海市天福医药有限公司",ffej:459.72,yoy:-13.4,mom:133.0,share:10.5},{hq:"山东立健药店连锁有限公司",ffej:409.95,yoy:10.7,mom:-50.2,share:9.4},{hq:"青岛同方药业连锁有限公司",ffej:154.89,yoy:-40.8,mom:-28.6,share:3.5},{hq:"山东神奇医药有限公司",ffej:89.26,yoy:-33.5,mom:-36.5,share:2.0}]},"广东":{total:3629.69,top5:[{hq:"高济医药有限公司",ffej:1086.85,yoy:443.4,mom:-29.9,share:29.9},{hq:"深圳市海王易点药医药有限公司",ffej:1064.19,yoy:-6.6,mom:3.0,share:29.3},{hq:"大参林医药集团股份有限公司",ffej:935.85,yoy:52.9,mom:1.0,share:25.8},{hq:"一心堂药业集团股份有限公司",ffej:89.49,yoy:-30.3,mom:-23.6,share:2.5},{hq:"深圳市南北医药集团有限公司",ffej:82.78,yoy:817.7,mom:31.2,share:2.3}]},"广西":{total:288.85,top5:[{hq:"大参林医药集团股份有限公司",ffej:90.03,yoy:-8.2,mom:-43.6,share:31.2},{hq:"健之佳医药连锁集团股份有限公司",ffej:49.7,yoy:-80.8,mom:-45.1,share:17.2},{hq:"丰沃达医药物流（湖南）有限公司",ffej:43.3,yoy:-8.5,mom:41.9,share:15.0},{hq:"一心堂药业集团股份有限公司",ffej:39.81,yoy:-36.9,mom:-19.7,share:13.8},{hq:"广西桂中大药房连锁有限责任公司",ffej:34.59,yoy:-40.6,mom:4.7,share:12.0}]},"新疆":{total:533.44,top5:[{hq:"高济医药有限公司",ffej:215.19,yoy:20.7,mom:-22.3,share:40.3},{hq:"新疆普济堂医药零售连锁有限公司",ffej:208.81,yoy:86.6,mom:-35.4,share:39.1},{hq:"国药控股国大药房有限公司",ffej:69.88,yoy:-19.0,mom:-18.4,share:13.1},{hq:"好药师大药房连锁有限公司",ffej:22.72,yoy:null,mom:6.6,share:4.3},{hq:"大参林医药集团股份有限公司",ffej:16.83,yoy:-4.0,mom:4.2,share:3.2}]},"江苏":{total:4112.64,top5:[{hq:"全亿健康药房有限公司",ffej:2398.56,yoy:154.7,mom:-21.3,share:58.3},{hq:"益丰大药房连锁股份有限公司",ffej:484.16,yoy:-16.4,mom:-25.3,share:11.8},{hq:"高济医药有限公司",ffej:361.95,yoy:18.7,mom:-22.3,share:8.8},{hq:"丰沃达医药物流（湖南）有限公司",ffej:285.94,yoy:15.3,mom:37.5,share:7.0},{hq:"深圳市海王易点药医药有限公司",ffej:263.09,yoy:-25.6,mom:-4.3,share:6.4}]},"江西":{total:211.8,top5:[{hq:"益丰大药房连锁股份有限公司",ffej:99.79,yoy:-34.4,mom:-18.4,share:47.1},{hq:"江西黄庆仁栈华氏大药房有限公司",ffej:56.91,yoy:-13.7,mom:-63.8,share:26.9},{hq:"江西盛锦医药有限公司",ffej:26.03,yoy:-32.3,mom:-100.0,share:12.3},{hq:"大参林医药集团股份有限公司",ffej:18.76,yoy:0.4,mom:-22.4,share:8.9},{hq:"高济医药有限公司",ffej:10.31,yoy:-12.3,mom:-45.9,share:4.9}]},"河南":{total:772.63,top5:[{hq:"河南张仲景医药物流有限公司",ffej:442.28,yoy:-33.4,mom:-14.5,share:57.2},{hq:"许昌市胖东来药业连锁有限公司",ffej:120.37,yoy:17.8,mom:-29.0,share:15.6},{hq:"高济医药有限公司",ffej:116.2,yoy:-49.1,mom:-32.4,share:15.0},{hq:"大参林医药集团股份有限公司",ffej:70.68,yoy:-47.7,mom:-19.8,share:9.1},{hq:"丰沃达医药物流（湖南）有限公司",ffej:10.0,yoy:-42.5,mom:-149.3,share:1.3}]},"浙沪":{total:2916.66,top5:[{hq:"全亿健康药房有限公司",ffej:566.74,yoy:464.9,mom:39.7,share:19.4},{hq:"益丰大药房连锁股份有限公司",ffej:522.97,yoy:-24.4,mom:-84.1,share:17.9},{hq:"深圳市海王易点药医药有限公司",ffej:387.93,yoy:-7.8,mom:-44.2,share:13.3},{hq:"国药控股国大药房有限公司",ffej:374.16,yoy:-45.3,mom:-87.8,share:12.8},{hq:"丰沃达医药物流（湖南）有限公司",ffej:328.09,yoy:30.8,mom:-65.9,share:11.2}]},"湖北":{total:1435.28,top5:[{hq:"益丰大药房连锁股份有限公司",ffej:858.1,yoy:45.4,mom:15.9,share:59.8},{hq:"高济医药有限公司",ffej:402.05,yoy:21.2,mom:-18.7,share:28.0},{hq:"丰沃达医药物流（湖南）有限公司",ffej:103.13,yoy:71.3,mom:56.5,share:7.2},{hq:"大参林医药集团股份有限公司",ffej:26.68,yoy:-5.2,mom:-31.0,share:1.9},{hq:"深圳市海王易点药医药有限公司",ffej:20.41,yoy:-28.1,mom:-39.3,share:1.4}]},"湖南":{total:1053.07,top5:[{hq:"益丰大药房连锁股份有限公司",ffej:669.2,yoy:94.0,mom:-53.6,share:63.5},{hq:"丰沃达医药物流（湖南）有限公司",ffej:299.97,yoy:83.6,mom:-8.4,share:28.5},{hq:"湖南千金大药房连锁有限公司",ffej:39.48,yoy:15.6,mom:-44.0,share:3.7},{hq:"湖南和盛医药有限公司",ffej:18.76,yoy:-8.5,mom:217.3,share:1.8},{hq:"深圳市海王易点药医药有限公司",ffej:13.65,yoy:-51.9,mom:-64.2,share:1.3}]},"甘青宁":{total:1205.85,top5:[{hq:"丰沃达医药物流（湖南）有限公司",ffej:852.73,yoy:690.9,mom:-13.1,share:70.7},{hq:"甘肃德生堂医药批发有限公司",ffej:247.35,yoy:-15.5,mom:-14.7,share:20.5},{hq:"漱玉医药物流（山东）有限公司",ffej:81.67,yoy:-19.3,mom:-32.0,share:6.8},{hq:"国药控股国大药房有限公司",ffej:24.11,yoy:-39.9,mom:-43.0,share:2.0}]},"福建":{total:284.64,top5:[{hq:"福建新紫金医药有限公司",ffej:175.57,yoy:5.5,mom:-26.9,share:61.7},{hq:"好药师大药房连锁有限公司",ffej:29.38,yoy:-35.0,mom:-100.0,share:10.3},{hq:"漱玉医药物流（山东）有限公司",ffej:22.22,yoy:-3.4,mom:9.6,share:7.8},{hq:"国药控股国大药房有限公司",ffej:18.8,yoy:-16.1,mom:-41.2,share:6.6},{hq:"高济医药有限公司",ffej:16.42,yoy:-27.4,mom:-11.0,share:5.8}]},"贵州":{total:796.59,top5:[{hq:"贵州博大医药有限公司",ffej:641.11,yoy:6.6,mom:-12.8,share:80.5},{hq:"贵州衍志医药有限公司",ffej:126.93,yoy:76.7,mom:-6.5,share:15.9},{hq:"四川正和祥健康管理有限公司",ffej:16.37,yoy:-51.7,mom:-1.5,share:2.1},{hq:"丰沃达医药物流（湖南）有限公司",ffej:12.18,yoy:0.0,mom:-4.1,share:1.5},{hq:"一心堂药业集团股份有限公司",ffej:0,yoy:-100.0,mom:null,share:0.0}]},"重庆":{total:284.09,top5:[{hq:"重庆市吉和药品有限公司",ffej:141.88,yoy:6.0,mom:14.6,share:49.9},{hq:"健之佳医药连锁集团股份有限公司",ffej:67.31,yoy:-3.8,mom:-100.0,share:23.7},{hq:"重庆和平药房连锁有限责任公司医药保健品分公司",ffej:33.98,yoy:-51.7,mom:-40.6,share:12.0},{hq:"一心堂药业集团股份有限公司",ffej:24.85,yoy:-35.1,mom:-33.7,share:8.7},{hq:"大参林医药集团股份有限公司",ffej:10.33,yoy:-4.7,mom:93.8,share:3.6}]},"陕西":{total:1017.16,top5:[{hq:"西安怡康医药连锁有限责任公司",ffej:560.37,yoy:-23.5,mom:-16.5,share:55.1},{hq:"丰沃达医药物流（湖南）有限公司",ffej:276.02,yoy:9.8,mom:55.9,share:27.1},{hq:"漱玉医药物流（山东）有限公司",ffej:97.43,yoy:-25.6,mom:-22.8,share:9.6},{hq:"大参林医药集团股份有限公司",ffej:57.44,yoy:12.4,mom:0.1,share:5.6},{hq:"甘肃德生堂医药批发有限公司",ffej:15.11,yoy:-3.1,mom:18.7,share:1.5}]}};
+var ka50HqTop5 = [{hq:"高济医药有限公司",ffej:3875.92,yoy:40.5,mom:-23.8,share:12.8},{hq:"漱玉医药物流（山东）有限公司",ffej:3198.66,yoy:-0.1,mom:36.1,share:10.6},{hq:"全亿健康药房有限公司",ffej:3170.63,yoy:147.9,mom:-13.5,share:10.5},{hq:"益丰大药房连锁股份有限公司",ffej:2892.89,yoy:10.6,mom:-27.0,share:9.6},{hq:"丰沃达医药物流（湖南）有限公司",ffej:2819.59,yoy:37.5,mom:-7.7,share:9.3}];
+
 // ====== 环比数据（5月vs1-4月均，基于全产品月度分布估算） ======
 var shipMomData = {"安徽": -98.3, "江苏": -88.1, "上海": -122.4, "浙江": -99.3, "福建": -84.7, "广东": 16.7, "海南": -100.0, "广西": -53.7, "湖北": -99.8, "湖南": -130.9, "江西": -93.6, "山东": -72.4, "甘肃": -96.4, "宁夏": -90.6, "青海": -100.0, "贵州": -98.2, "陕西": -84.8, "四川": -91.9, "新疆": -84.0, "云南": -89.8, "重庆": -94.5, "黑龙江": 238.3, "吉林": -85.3, "辽宁": -88.9, "内蒙古": -100.0, "河南": -81.7, "河北": -67.1, "山西": -90.9, "北京": -98.1, "天津": -99.8, "冀晋": -79.0, "浙沪": -110.8, "京津": -98.9, "甘青宁": -95.7, "东北": 21.4};
 var deliveryMomData = {"安徽": 51.2, "江苏": -24.4, "浙江": -55.6, "福建": -61.0, "广东": -74.2, "海南": 28.8, "广西": -81.4, "湖北": 75.6, "山东": -55.8, "甘肃": 122.4, "宁夏": -73.6, "青海": 20.4, "贵州": 69.8, "陕西": 91.7, "四川": 1713.4, "西藏": -100.0, "新疆": -48.5, "云南": -75.4, "重庆": -48.9, "黑龙江": -4.8, "吉林": 18.5, "辽宁": -222.3, "内蒙古": 1805.3, "河南": 78.3, "河北": -62.1, "山西": -68.1, "北京": -80.9, "天津": -61.2, "冀晋": -65.1, "浙沪": -55.6, "京津": -71.1, "甘青宁": 23.1, "东北": -69.5};
@@ -1006,7 +1042,14 @@ var ka50MomData = {"安徽": -38.6, "江苏": -22.6, "上海": -72.8, "浙江": 
     var main = document.querySelector('.main');
     if (main) main.appendChild(otc);
   }
-  var tab = window.location.hash === '#otc' ? 'otc' : 'overview';
+  // Also fix tab-ka50 nesting if needed
+  var ka50 = document.getElementById('tab-ka50');
+  if (ka50 && ka50.parentElement && ka50.parentElement.id && ka50.parentElement.id !== 'main') {
+    var main = document.querySelector('.main');
+    if (main) main.appendChild(ka50);
+  }
+  var h = window.location.hash;
+  var tab = h === '#otc' ? 'otc' : (h === '#ka50' ? 'ka50' : 'overview');
   switchTab(tab, false);
 })();
 
@@ -1121,6 +1164,99 @@ function renderOtcMonthBars() {
       b.style.height = b.getAttribute('data-h') + 'px';
     });
   });
+}
+
+// ====== KA50归属总部渲染 ======
+function initKa50Charts() {
+  renderKa50TopBars();
+  renderProvTop5();
+}
+
+function renderKa50TopBars() {
+  var container = document.getElementById('ka50TopBars');
+  if (!container || !ka50HqTop5) return;
+  var colors = ['#4361ee','#7209b7','#f72585','#06d6a0','#ffd166'];
+  var maxVal = ka50HqTop5[0].ffej * 1.1;
+  var html = '';
+  ka50HqTop5.forEach(function(d,i){
+    var hPct = d.ffej / maxVal * 100;
+    html += '<div style="display:flex;flex-direction:column;align-items:center;flex:1;">' +
+      '<span style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px;">'+d.ffej.toFixed(0)+'</span>' +
+      '<div style="width:100%;height:'+hPct+'%;background:'+colors[i]+';border-radius:4px 4px 0 0;min-width:24px;transition:height 0.6s ease;"></div>' +
+      '</div>';
+  });
+  container.innerHTML = html;
+  var lbl = document.getElementById('ka50TopLabels');
+  if (lbl) {
+    lbl.innerHTML = ka50HqTop5.map(function(d){
+      var s = d.hq.length > 8 ? d.hq.substring(0,8)+'…' : d.hq;
+      return '<span style="text-align:center;flex:1;">'+s+'</span>';
+    }).join('');
+  }
+  var pctEl = document.getElementById('ka50HqTop5Pct');
+  if (pctEl) {
+    var sumPct = ka50HqTop5.reduce(function(a,b){return a+b.share;},0);
+    pctEl.textContent = sumPct.toFixed(0)+'%';
+  }
+  var tbl = document.getElementById('ka50HqTopTable');
+  if (tbl) {
+    var rows = '';
+    ka50HqTop5.forEach(function(d,i){
+      var rankClr = i<3 ? 'var(--primary)' : 'var(--text2)';
+      var yoyStr = d.yoy!=null ? ((d.yoy>=0?'+':'')+d.yoy.toFixed(1)+'%') : '—';
+      var yoyClr = d.yoy!=null ? (d.yoy>=0?'var(--success)':'var(--danger)') : 'var(--text2)';
+      var momStr = d.mom!=null ? ((d.mom>=0?'+':'')+d.mom.toFixed(1)+'%') : '—';
+      var momClr = d.mom!=null ? (d.mom>=0?'var(--danger)':'var(--success)') : 'var(--text2)';
+      rows += '<tr><td style="color:'+rankClr+';font-weight:700;">'+(i+1)+'</td>'+
+        '<td>'+d.hq+'</td>'+
+        '<td class="num"><b>'+d.ffej.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</b></td>'+
+        '<td class="num">'+d.share+'%</td>'+
+        '<td class="num" style="color:'+yoyClr+';font-weight:500;">'+yoyStr+'</td>'+
+        '<td class="num" style="color:'+momClr+';font-weight:500;">'+momStr+'</td></tr>';
+    });
+    tbl.innerHTML = rows;
+  }
+}
+
+function renderProvTop5() {
+  var grid = document.getElementById('provTop5Grid');
+  if (!grid || !ka50HqByProv) return;
+  var provList = [];
+  Object.keys(ka50HqByProv).forEach(function(p){
+    provList.push({province:p, total:ka50HqByProv[p].total, top5:ka50HqByProv[p].top5});
+  });
+  provList.sort(function(a,b){return b.total - a.total;});
+  var html = '';
+  provList.forEach(function(p){
+    var provId = p.province.replace(/\s/g, '_');
+    var totalHqs = p.top5.length;
+    var top5Sum = p.top5.reduce(function(s,h){return s+h.ffej;},0);
+    var top5Pct = p.total > 0 ? top5Sum/p.total*100 : 100;
+    html += '<div class="table-card" style="border-radius:8px;overflow:hidden;">';
+    html += '<div class="prov-top5-header" onclick="toggleCollapse(\'provTop5_'+provId+'\',\'provChev_'+provId+'\')">';
+    html += '<span class="collapse-chevron" id="provChev_'+provId+'">▶</span>';
+    html += '<span class="prov-name">'+p.province+'</span>';
+    html += '<span class="prov-stats"><span>'+totalHqs+'总部</span><span>'+p.total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'万</span><span>TOP5占'+top5Pct.toFixed(0)+'%</span></span>';
+    html += '</div>';
+    html += '<div id="provTop5_'+provId+'" class="collapse-body collapsed" style="padding:0;">';
+    html += '<table style="width:100%;font-size:12px;margin:0;">';
+    html += '<thead><tr><th style="width:30px;">#</th><th>归属总部</th><th class="num">纯销（万元）</th><th class="num">占本省</th><th class="num">同比</th><th class="num">环比</th></tr></thead><tbody>';
+    p.top5.forEach(function(h,i){
+      var rankClr = i<3 ? 'var(--primary)' : 'var(--text2)';
+      var yoyStr = h.yoy!=null ? ((h.yoy>=0?'+':'')+h.yoy.toFixed(1)+'%') : '—';
+      var yoyClr = h.yoy!=null ? (h.yoy>=0?'var(--success)':'var(--danger)') : 'var(--text2)';
+      var momStr = h.mom!=null ? ((h.mom>=0?'+':'')+h.mom.toFixed(1)+'%') : '—';
+      var momClr = h.mom!=null ? (h.mom>=0?'var(--danger)':'var(--success)') : 'var(--text2)';
+      html += '<tr><td style="color:'+rankClr+';font-weight:700;text-align:center;">'+(i+1)+'</td>';
+      html += '<td>'+h.hq+'</td>';
+      html += '<td class="num"><b>'+h.ffej.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</b></td>';
+      html += '<td class="num">'+h.share+'%</td>';
+      html += '<td class="num" style="color:'+yoyClr+';font-weight:500;">'+yoyStr+'</td>';
+      html += '<td class="num" style="color:'+momClr+';font-weight:500;">'+momStr+'</td></tr>';
+    });
+    html += '</tbody></table></div></div>';
+  });
+  grid.innerHTML = html;
 }
 
 function renderProvinceBars(containerId, dataArr, chartTitle) {
