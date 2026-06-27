@@ -1258,7 +1258,7 @@ function renderKa50ProvChart() {
     html += '<span style="width:44px;font-size:12px;font-weight:600;text-align:right;padding-right:8px;flex-shrink:0;color:var(--text);">'+p.province+'</span>';
     html += '<div style="flex:1;height:26px;background:#f0f0f5;border-radius:5px;overflow:hidden;">';
     html += '<div style="height:100%;width:'+barPct+'%;background:'+clr+';border-radius:5px;transition:width .5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;">';
-    html += '<span style="font-size:12px;font-weight:600;color:#fff;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.3);">'+p.total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</span>';
+    html += '<span style="font-size:12px;font-weight:600;color:#222;white-space:nowrap;text-shadow:none;">'+p.total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")+'</span>';
     html += '</div></div>';
     // YoY + absolute change
     html += '<span style="margin-left:8px;font-size:12px;font-weight:600;color:'+yoySignClr+';white-space:nowrap;flex-shrink:0;min-width:56px;text-align:right;">'+yoyStr+'</span>';
