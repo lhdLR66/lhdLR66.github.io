@@ -1202,21 +1202,23 @@ function renderKa50ProvChart() {
   if (!container || !ka50ProvChains) return;
 
   function yoyColor(yoy) {
-    if (yoy == null) return '#b0b0b0';
+    // 0% = white; growth → red; decline → green; wider range for differentiation
+    if (yoy == null || yoy === 0) return 'rgb(255,255,255)';
     var abs = Math.abs(yoy);
-    var t = Math.min(abs / 60, 1);
+    var t = Math.min(Math.pow(abs / 100, 0.75), 1); // power curve: small values more spread out
     if (yoy > 0) {
-      var r = Math.round(232 - t * 100);
-      var g = Math.round(67 - t * 40);
-      var b = Math.round(55 - t * 35);
+      // white(255,255,255) → red(215,32,40)
+      var r = Math.round(255 - t * 40);
+      var g = Math.round(255 - t * 223);
+      var b = Math.round(255 - t * 215);
       return 'rgb('+r+','+g+','+b+')';
-    } else if (yoy < 0) {
-      var r2 = Math.round(112 - t * 90);
-      var g2 = Math.round(173 - t * 60);
-      var b2 = Math.round(109 - t * 60);
+    } else {
+      // white(255,255,255) → green(28,165,65)
+      var r2 = Math.round(255 - t * 227);
+      var g2 = Math.round(255 - t * 90);
+      var b2 = Math.round(255 - t * 190);
       return 'rgb('+r2+','+g2+','+b2+')';
     }
-    return '#b0b0b0';
   }
 
   var provList = [];
