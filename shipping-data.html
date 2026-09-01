@@ -251,10 +251,18 @@
         .legend-inline { display:flex;gap:16px;align-items:center;font-size:11px;color:var(--text2);margin-bottom:4px; }
         .legend-inline .dot { display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px; }
 
-        .css-bars { display: flex; align-items: stretch; gap: 8px; height: 300px; padding: 0 12px; }
-        .css-bars .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-width: 60px; }
-        .css-bars .bars-row { position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%); display: flex; gap: 3px; align-items: flex-end; height: 240px; }
-        .css-bars .bar { width: 22px; border-radius: 4px 4px 0 0; position: relative; cursor: pointer; }
+        .css-bars { display: flex; align-items: center; gap: 8px; height: 300px; padding: 0 12px 36px; position: relative; }
+        .css-bars::before { content:''; position: absolute; left: 12px; right: 12px; top: calc(50% - 18px); height: 1px; background: var(--border); z-index: 0; }
+        .css-bars .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-width: 60px; height: 240px; }
+        .css-bars .bar { width: 22px; position: absolute; cursor: pointer; transition: height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .css-bars .bar.otc { left: calc(50% - 25px); }
+        .css-bars .bar.r { left: calc(50% + 3px); }
+        .css-bars .bar.pos { bottom: 50%; border-radius: 4px 4px 0 0; margin-bottom: -1px; }
+        .css-bars .bar.neg { top: 50%; border-radius: 0 0 4px 4px; background: transparent !important; border-style: dashed; border-width: 2px; border-top: none; margin-top: -1px; }
+        .css-bars .bar.otc.pos { background: var(--primary); }
+        .css-bars .bar.r.pos { background: #f72585; }
+        .css-bars .bar.otc.neg { border-color: #4361ee; }
+        .css-bars .bar.r.neg { border-color: #f72585; }
         .css-bars .bar:hover { filter: brightness(0.8); }
         .css-bars .bar:hover::after {
           content: attr(data-tooltip);
@@ -267,9 +275,7 @@
           content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
           border: 5px solid transparent; border-top-color: rgba(30,30,40,0.95); z-index: 100;
         }
-        .css-bars .bar.otc { background: var(--primary); }
-        .css-bars .bar.r { background: #f72585; }
-        .css-bars .bar-label { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 10px; color: var(--text2); line-height: 1.4; }
+        .css-bars .bar-label { position: absolute; bottom: -32px; left: 0; right: 0; text-align: center; font-size: 10px; color: var(--text2); line-height: 1.4; }
         .css-bars .bar-label .note { font-size: 8px; opacity: 0.7; }
 
         /* Month Pills */
@@ -701,24 +707,25 @@ function renderMonthly(month) {
   var data = monthlyData[month];
   var channels = data.channels;
   
-  // --- CSS bars ---
-  var maxVal = 0;
-  channels.forEach(function(ch) { 
-    if (ch.otc > maxVal) maxVal = ch.otc;
-    if (ch.r > maxVal) maxVal = ch.r;
+  // --- CSS bars (正负对称，负值用虚线向下延伸) ---
+  var maxAbs = 0;
+  channels.forEach(function(ch) {
+    if (Math.abs(ch.otc) > maxAbs) maxAbs = Math.abs(ch.otc);
+    if (Math.abs(ch.r) > maxAbs) maxAbs = Math.abs(ch.r);
   });
+  if (maxAbs === 0) maxAbs = 1; // 防御
   var barHtml = '';
   channels.forEach(function(ch) {
-    var oH = ch.otc > 0 ? Math.max(3, ch.otc / maxVal * 235) : 0;
-    var rH = ch.r > 0 ? Math.max(3, ch.r / maxVal * 235) : 0;
+    var oH = Math.abs(ch.otc) / maxAbs * 115;
+    var rH = Math.abs(ch.r) / maxAbs * 115;
+    var oCls = ch.otc >= 0 ? 'pos' : 'neg';
+    var rCls = ch.r >= 0 ? 'pos' : 'neg';
     var name = ch.name.replace('（药品）','').replace('事业部','');
     var notePart = ch.note ? '<br><span class="note">'+ch.note+'</span>' : '';
     barHtml += '<div class="bar-group">' +
-      '<div class="bars-row">' +
-      (oH > 0 ? '<div class="bar otc" style="height:0" data-h="'+oH+'" data-tooltip="OTC复方阿胶浆: '+ch.otc.toFixed(1)+'万"></div>' : '') +
-      (rH > 0 ? '<div class="bar r" style="height:0" data-h="'+rH+'" data-tooltip="R复方阿胶浆: '+ch.r.toFixed(1)+'万"></div>' : '') +
-      '</div>' +
-      '<div class="bar-label">'+name+notePart+'</div>' +
+      (Math.abs(ch.otc) > 0.01 ? '<div class="bar otc ' + oCls + '" style="height:0" data-h="' + oH + '" data-tooltip="OTC复方阿胶浆: ' + ch.otc.toFixed(1) + '万"></div>' : '') +
+      (Math.abs(ch.r) > 0.01 ? '<div class="bar r ' + rCls + '" style="height:0" data-h="' + rH + '" data-tooltip="R复方阿胶浆: ' + ch.r.toFixed(1) + '万"></div>' : '') +
+      '<div class="bar-label">' + name + notePart + '</div>' +
       '</div>';
   });
   // Animate bars: render at height:0, then grow to data-h
@@ -777,7 +784,7 @@ function renderMonthly(month) {
 
 // Init
 renderMonthly('7月');
-renderInsight('5月');
+renderInsight('7月');
 
 
 function fmt(n) { return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
