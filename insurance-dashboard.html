@@ -138,9 +138,10 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
   <div class="topbar">
     <div>
       <h1>复方阿胶浆 · 医保政策数据</h1>
-      <span style="color:var(--text2);font-size:14px;">全国30个省区 · 323个城市 · OTC零售渠道 · 1-3月累计</span>
+      <span style="color:var(--text2);font-size:14px;">全国30个省区 · 322个城市 · OTC零售渠道 · 1-6月累计</span>
+      <span style="margin-left:12px;font-size:12px;color:#b45309;background:#fefce8;padding:2px 10px;border-radius:12px;">注：宁夏5城数据截至3月</span>
     </div>
-    <span class="badge">2026年3月更新</span>
+    <span class="badge">2026年6月更新</span>
   </div>
 
   <!-- Tabs -->
@@ -160,10 +161,10 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
         <div class="stat-card">
           <div class="label">可统筹报销城市</div>
           <div class="value" id="stat-pooling">-</div>
-          <div class="sub">全国323个城市</div>
+          <div class="sub">全国 <span id="stat-total-cities">-</span> 个城市</div>
         </div>
         <div class="stat-card accent">
-          <div class="label">1-3月统筹报销总额</div>
+          <div class="label">1-6月统筹报销总额</div>
           <div class="value" id="stat-pooling-amt">-</div>
           <div class="sub">占全渠道 <span id="stat-pooling-pct">-</span></div>
         </div>
@@ -349,6 +350,7 @@ function getEffStats() {
 function renderAll() {
   const eff = getEffStats();
   document.getElementById('stat-pooling').textContent = eff.pooling_cities + ' 个 (' + eff.pooling_rate + '%)';
+  document.getElementById('stat-total-cities').textContent = eff.total_cities;
   document.getElementById('stat-pooling-amt').textContent = Math.round(eff.pooling_amount).toLocaleString() + ' 万';
   document.getElementById('stat-pooling-pct').textContent = eff.pooling_pct + '%';
   document.getElementById('stat-tightening').textContent = eff.tightening + ' 个';
