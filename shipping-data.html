@@ -775,34 +775,33 @@ function renderMonthly(month) {
   ];
 
   var html = '';
-  // 先算 grandCur / grandPrev（用于在 OTC装 小计 行内展示「合计」双值）
   var grandCur = 0, grandPrev = 0;
   groups.forEach(function(g) {
-    g.rows.forEach(function(ch) {
-      grandCur += g.pick(ch);
-      var pv = prevSumByName(ch.name);
-      if (pv !== null) grandPrev += pv;
-    });
-  });
-
-  var isFirstGroup = true;
-  groups.forEach(function(g) {
     if (!g.rows.length) return;
+
+    // 先算本组合计与上月同组合计（供标题行展示，并累加进总计）
     var gCur = 0, gPrev = 0;
-
-    // 分组标题行（色点 + 名称 + 单月合计，与「累计看板」视觉一致）
-    var gSum = g.rows.reduce(function(s, c) { return s + g.pick(c); }, 0);
-    html += '<tr class="group-row"><td colspan="4">' +
-      '<span class="group-dot" style="background:' + g.dot + ';"></span>' + g.key +
-      '<span class="group-sub">| ' + g.prod + ' · 单月合计 ' + gSum.toFixed(2) + '万</span>' +
-      '</td></tr>';
-
-    // 渠道行
     g.rows.forEach(function(ch) {
-      var cur = g.pick(ch);
-      gCur += cur;
+      gCur += g.pick(ch);
       var pv = prevSumByName(ch.name);
       if (pv !== null) gPrev += pv;
+    });
+    grandCur += gCur;
+    grandPrev += gPrev;
+
+    // 分组标题行 = 该类的第一行，直接给出本类「合计 / 同比 / 环比」
+    html += '<tr class="group-row">' +
+      '<td><span class="group-dot" style="background:' + g.dot + ';"></span><b>' + g.key + '</b>' +
+      '<span class="group-sub">' + g.prod + '</span></td>' +
+      '<td class="num"><b>' + gCur.toFixed(2) + '</b></td>' +
+      '<td class="num" style="font-size:12px;">—</td>' +
+      '<td class="num" style="font-size:12px;">' + momCell(gCur, gPrev) + '</td>' +
+      '</tr>';
+
+    // 渠道明细行
+    g.rows.forEach(function(ch) {
+      var cur = g.pick(ch);
+      var pv = prevSumByName(ch.name);
       var note = ch.note ? ' <span style="font-size:11px;color:var(--text2);">' + ch.note + '</span>' : '';
       html += '<tr>' +
         '<td>' + ch.name + note + '</td>' +
@@ -811,27 +810,16 @@ function renderMonthly(month) {
         '<td class="num" style="font-size:12px;">' + momCell(cur, pv) + '</td>' +
         '</tr>';
     });
-
-    // 小计行：OTC装组附加「合计」双值（节省一行底部独立合计行）；其他组正常
-    if (isFirstGroup) {
-      var sepStyle = 'color:var(--text2);font-weight:400;font-size:11px;margin-left:6px;';
-      html += '<tr class="subtotal">' +
-        '<td><b>' + g.key + ' 小计</b><span style="' + sepStyle + '">/ 合计</span></td>' +
-        '<td class="num"><b>' + gCur.toFixed(2) + '</b><span style="' + sepStyle + '">/ ' + grandCur.toFixed(2) + '</span></td>' +
-        '<td class="num">—</td>' +
-        '<td class="num" style="font-size:12px;">' + momCell(gCur, gPrev) + '<span style="' + sepStyle + '">/ ' + momCell(grandCur, grandPrev) + '</span></td>' +
-        '</tr>';
-      isFirstGroup = false;
-    } else {
-      html += '<tr class="subtotal">' +
-        '<td><b>' + g.key + ' 小计</b></td>' +
-        '<td class="num"><b>' + gCur.toFixed(2) + '</b></td>' +
-        '<td class="num">—</td>' +
-        '<td class="num" style="font-size:12px;">' + momCell(gCur, gPrev) + '</td>' +
-        '</tr>';
-    }
   });
-  // 不再渲染底部独立的「合计」行 —— 已合并到 OTC装 小计 行内（用户优化节省空间）
+  // 小计行已取消 —— 数据已上移到各类第一行（标题行）
+
+  // 总计行
+  html += '<tr class="total">' +
+    '<td><b>合计</b></td>' +
+    '<td class="num"><b>' + grandCur.toFixed(2) + '</b></td>' +
+    '<td class="num">—</td>' +
+    '<td class="num" style="font-size:12px;">' + momCell(grandCur, grandPrev) + '</td>' +
+    '</tr>';
 
   document.querySelector('#channelTable tbody').innerHTML = html;
 }
