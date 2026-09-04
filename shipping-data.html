@@ -775,7 +775,17 @@ function renderMonthly(month) {
   ];
 
   var html = '';
+  // 先算 grandCur / grandPrev（用于在 OTC装 小计 行内展示「合计」双值）
   var grandCur = 0, grandPrev = 0;
+  groups.forEach(function(g) {
+    g.rows.forEach(function(ch) {
+      grandCur += g.pick(ch);
+      var pv = prevSumByName(ch.name);
+      if (pv !== null) grandPrev += pv;
+    });
+  });
+
+  var isFirstGroup = true;
   groups.forEach(function(g) {
     if (!g.rows.length) return;
     var gCur = 0, gPrev = 0;
@@ -802,24 +812,26 @@ function renderMonthly(month) {
         '</tr>';
     });
 
-    // 分组小计行
-    grandCur += gCur;
-    grandPrev += gPrev;
-    html += '<tr class="subtotal">' +
-      '<td><b>' + g.key + ' 小计</b></td>' +
-      '<td class="num"><b>' + gCur.toFixed(2) + '</b></td>' +
-      '<td class="num">—</td>' +
-      '<td class="num" style="font-size:12px;">' + momCell(gCur, gPrev) + '</td>' +
-      '</tr>';
+    // 小计行：OTC装组附加「合计」双值（节省一行底部独立合计行）；其他组正常
+    if (isFirstGroup) {
+      var sepStyle = 'color:var(--text2);font-weight:400;font-size:11px;margin-left:6px;';
+      html += '<tr class="subtotal">' +
+        '<td><b>' + g.key + ' 小计</b><span style="' + sepStyle + '">/ 合计</span></td>' +
+        '<td class="num"><b>' + gCur.toFixed(2) + '</b><span style="' + sepStyle + '">/ ' + grandCur.toFixed(2) + '</span></td>' +
+        '<td class="num">—</td>' +
+        '<td class="num" style="font-size:12px;">' + momCell(gCur, gPrev) + '<span style="' + sepStyle + '">/ ' + momCell(grandCur, grandPrev) + '</span></td>' +
+        '</tr>';
+      isFirstGroup = false;
+    } else {
+      html += '<tr class="subtotal">' +
+        '<td><b>' + g.key + ' 小计</b></td>' +
+        '<td class="num"><b>' + gCur.toFixed(2) + '</b></td>' +
+        '<td class="num">—</td>' +
+        '<td class="num" style="font-size:12px;">' + momCell(gCur, gPrev) + '</td>' +
+        '</tr>';
+    }
   });
-
-  // 总计行
-  html += '<tr class="total">' +
-    '<td><b>合计</b></td>' +
-    '<td class="num"><b>' + grandCur.toFixed(2) + '</b></td>' +
-    '<td class="num">—</td>' +
-    '<td class="num" style="font-size:12px;">' + momCell(grandCur, grandPrev) + '</td>' +
-    '</tr>';
+  // 不再渲染底部独立的「合计」行 —— 已合并到 OTC装 小计 行内（用户优化节省空间）
 
   document.querySelector('#channelTable tbody').innerHTML = html;
 }
