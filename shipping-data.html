@@ -168,6 +168,15 @@
         tr:last-child td { border-bottom: none; }
         .num { text-align: right; font-variant-numeric: tabular-nums; }
         .total td { font-weight: 700; background: rgba(67,97,238,0.03); border-top: 2px solid var(--primary); }
+        /* 分渠道明细：OTC装 / R装 分组标题行（格式参考「累计看板」） */
+        .group-row td {
+            background: #f8fafc; font-weight: 700; font-size: 13px;
+            padding: 10px 16px; border-top: 1px solid var(--border);
+        }
+        .group-row .group-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; }
+        .group-row .group-sub { font-size: 12px; color: var(--text2); font-weight: 400; margin-left: 6px; }
+        /* 分组小计行 */
+        .subtotal td { font-weight: 700; background: rgba(67,97,238,0.05); }
 
         /* Progress bar */
         .progress-cell { min-width: 160px; }
@@ -738,47 +747,80 @@ function renderMonthly(month) {
     });
   });
   
-  // --- Data table ---
+  // --- Data table（按 OTC装 / R装 分组，格式参考「累计看板」）---
   var prevData = null;
   var months = Object.keys(monthlyData);
   var mi = months.indexOf(month);
   if (mi > 0) prevData = monthlyData[months[mi-1]];
-  
-  var totalOtc = 0, totalR = 0;
+
+  // 按渠道名取上月同渠道合计（分组后不再依赖数组下标）
+  function prevSumByName(name) {
+    if (!prevData) return null;
+    var hit = prevData.channels.filter(function(p) { return p.name === name; })[0];
+    return hit ? (hit.otc + hit.r) : null;
+  }
+  function momCell(cur, prev) {
+    if (prev === null || prev === 0) return '—';
+    var chg = (cur - prev) / Math.abs(prev) * 100;
+    return (chg >= 0 ? '🟢 ' : '🔴 ') + (chg >= 0 ? '+' : '') + chg.toFixed(1) + '%';
+  }
+
+  // 分组口径：医疗事业部 = R装；其余 5 个渠道 = OTC装（按业务归属，不按数值正负）
+  function isR(ch) { return ch.name.indexOf('医疗') >= 0; }
+  var groups = [
+    { key: 'OTC装', dot: '#4361ee', prod: '复方阿胶浆（OTC）',
+      rows: channels.filter(function(c) { return !isR(c); }), pick: function(c) { return c.otc; } },
+    { key: 'R装',   dot: '#f72585', prod: '复方阿胶浆（R）',
+      rows: channels.filter(function(c) { return isR(c); }),   pick: function(c) { return c.r; } }
+  ];
+
   var html = '';
-  channels.forEach(function(ch, i) {
-    var sum = ch.otc + ch.r;
-    totalOtc += ch.otc;
-    totalR += ch.r;
-    
-    var mom = '—';
-    if (prevData && prevData.channels[i]) {
-      var prev = prevData.channels[i];
-      var prevSum = prev.otc + prev.r;
-      if (prevSum > 0) {
-        var chg = ((sum - prevSum) / prevSum * 100);
-        mom = (chg >= 0 ? '🟢 ' : '🔴 ') + (chg >= 0 ? '+' : '') + chg.toFixed(1) + '%';
-      }
-    }
-    
-    var note = ch.note ? ' <span style="font-size:11px;color:var(--text2);">' + ch.note + '</span>' : '';
-    var yoy = '—';  // 需去年同期数据
-    html += '<tr>' +
-      '<td>' + ch.name + note + '</td>' +
-      '<td class="num"><b>' + sum.toFixed(2) + '</b></td>' +
-      '<td class="num" style="font-size:12px;">' + yoy + '</td>' +
-      '<td class="num" style="font-size:12px;">' + mom + '</td>' +
+  var grandCur = 0, grandPrev = 0;
+  groups.forEach(function(g) {
+    if (!g.rows.length) return;
+    var gCur = 0, gPrev = 0;
+
+    // 分组标题行（色点 + 名称 + 单月合计，与「累计看板」视觉一致）
+    var gSum = g.rows.reduce(function(s, c) { return s + g.pick(c); }, 0);
+    html += '<tr class="group-row"><td colspan="4">' +
+      '<span class="group-dot" style="background:' + g.dot + ';"></span>' + g.key +
+      '<span class="group-sub">| ' + g.prod + ' · 单月合计 ' + gSum.toFixed(2) + '万</span>' +
+      '</td></tr>';
+
+    // 渠道行
+    g.rows.forEach(function(ch) {
+      var cur = g.pick(ch);
+      gCur += cur;
+      var pv = prevSumByName(ch.name);
+      if (pv !== null) gPrev += pv;
+      var note = ch.note ? ' <span style="font-size:11px;color:var(--text2);">' + ch.note + '</span>' : '';
+      html += '<tr>' +
+        '<td>' + ch.name + note + '</td>' +
+        '<td class="num"><b>' + cur.toFixed(2) + '</b></td>' +
+        '<td class="num" style="font-size:12px;">—</td>' +
+        '<td class="num" style="font-size:12px;">' + momCell(cur, pv) + '</td>' +
+        '</tr>';
+    });
+
+    // 分组小计行
+    grandCur += gCur;
+    grandPrev += gPrev;
+    html += '<tr class="subtotal">' +
+      '<td><b>' + g.key + ' 小计</b></td>' +
+      '<td class="num"><b>' + gCur.toFixed(2) + '</b></td>' +
+      '<td class="num">—</td>' +
+      '<td class="num" style="font-size:12px;">' + momCell(gCur, gPrev) + '</td>' +
       '</tr>';
   });
-  
-  var grandTotal = totalOtc + totalR;
+
+  // 总计行
   html += '<tr class="total">' +
     '<td><b>合计</b></td>' +
-    '<td class="num"><b>' + grandTotal.toFixed(2) + '</b></td>' +
+    '<td class="num"><b>' + grandCur.toFixed(2) + '</b></td>' +
     '<td class="num">—</td>' +
-    '<td class="num">—</td>' +
+    '<td class="num" style="font-size:12px;">' + momCell(grandCur, grandPrev) + '</td>' +
     '</tr>';
-  
+
   document.querySelector('#channelTable tbody').innerHTML = html;
 }
 
