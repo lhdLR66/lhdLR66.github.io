@@ -262,9 +262,9 @@
 
         .css-bars { display: flex; align-items: center; gap: 8px; height: 300px; padding: 0 12px 36px; position: relative; }
         .css-bars::before { content:''; position: absolute; left: 12px; right: 12px; top: calc(50% - 18px); height: 1px; background: var(--border); z-index: 0; }
-        .css-bars .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-width: 60px; height: 240px; }
-        .css-bars .bar { width: 22px; position: absolute; cursor: pointer; transition: height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .css-bars .bar.otc { left: calc(50% - 25px); }
+        .css-bars .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-width: 46px; height: 340px; }
+        .css-bars .bar { width: 28px; position: absolute; cursor: pointer; transition: height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .css-bars .bar.otc { left: calc(50% - 31px); }
         .css-bars .bar.r { left: calc(50% + 3px); }
         .css-bars .bar.pos { bottom: 50%; border-radius: 4px 4px 0 0; margin-bottom: -1px; }
         .css-bars .bar.neg { top: 50%; border-radius: 0 0 4px 4px; background: transparent !important; border-style: dashed; border-width: 2px; border-top: none; margin-top: -1px; }
@@ -326,20 +326,19 @@
         .mini-trend-stat { font-size: 11px; color: var(--text2); white-space: nowrap; }
         .mini-trend-stat .big { font-size: 15px; font-weight: 600; color: var(--text); }
 
-        /* === Overview 双栏布局 === */
-        .overview-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: stretch; }
-        .overview-left { display: flex; flex-direction: column; gap: 12px; height: 100%; }
-        .overview-left .section-title { margin-bottom: 0; }
-        .kpi-col { display: flex; flex-direction: column; gap: 14px; height: 100%; }
-        .kpi-col .kpi-card { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .kpi-col .kpi-card .kpi-value { font-size: 24px; }
-        .kpi-col .kpi-card .kpi-value span[style] { font-size: 12px !important; }
-        .kpi-col .kpi-badge { display: block; margin: 4px 0 0 0; text-align: center; width: fit-content; }
-        .overview-right { display: flex; flex-direction: column; gap: 12px; }
-        @media (max-width: 900px) {
-          .overview-layout { grid-template-columns: 1fr; }
-          .overview-left { flex-direction: row; flex-wrap: wrap; }
-          .overview-left .kpi-card { flex: 1; min-width: 200px; }
+        /* === Overview 三段式布局：顶部产品汇总横排 / 下部左图右表 === */
+        .overview-top { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .overview-top .kpi-card { padding-top: 26px; min-width: 0; }
+        .overview-top .kpi-card .kpi-value { font-size: 26px; }
+        .overview-top .kpi-card .kpi-value span[style] { font-size: 13px !important; }
+        .overview-top .kpi-badge { display: block; margin: 6px 0 0 0; width: fit-content; }
+        .overview-bottom { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; align-items: stretch; }
+        .overview-bottom > .table-card { min-width: 0; display: flex; flex-direction: column; }
+        @media (max-width: 1100px) {
+          .overview-bottom { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 820px) {
+          .overview-top { grid-template-columns: 1fr; }
         }
 
         /* === Collapsible Section === */
@@ -413,14 +412,10 @@
 <!-- Tab: 发货总览 -->
 <div id="tab-overview" class="tab-content active">
 
-<!-- ====== KPI + 月度看板 双栏布局 ====== -->
+<!-- ====== 产品汇总（顶部横排，全宽 3 等分） ====== -->
 <div class="section">
-<div class="overview-layout">
-
-<!-- 左栏：产品汇总 KPI -->
-<div class="overview-left">
     <div class="section-title"><i class="fas fa-boxes"></i> 产品汇总</div>
-    <div class="kpi-col">
+    <div class="overview-top">
                 <div class="kpi-card" style="--dot-color: var(--primary);">
             <div class="kpi-label">OTC复方阿胶浆</div>
             <div class="kpi-value">90,876<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">8月 +2,616.6万 &middot; 环比 +681.6%</span></div>
@@ -454,8 +449,8 @@
     </div>
 </div>
 
-<!-- 右栏：月度看板 -->
-<div class="overview-right">
+<!-- ====== 月度看板（下部：左柱状图 + 右分渠道明细） ====== -->
+<div class="section">
     <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
         <span><i class="fas fa-calendar-check"></i> 月度看板
         <span class="month-pills">
@@ -468,7 +463,8 @@
     </div>
     <div class="insight" id="monthlyInsight"></div>
 
-    <!-- 柱状图 -->
+    <div class="overview-bottom">
+    <!-- 左侧：柱状图 -->
     <div class="table-card">
         <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
             <i class="fas fa-chart-bar" style="color:var(--primary);margin-right:6px;"></i>各渠道 · 两种品规月度完成
@@ -477,7 +473,7 @@
             <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--primary);margin-right:3px;"></span>OTC复方阿胶浆</span>
             <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f72585;margin-right:3px;"></span>R复方阿胶浆</span>
         </div>
-        <div class="css-bars" id="monthlyBars" style="height:280px;"></div>
+        <div class="css-bars" id="monthlyBars" style="height:400px;"></div>
     </div>
     <!-- 数据表 -->
     <div class="table-card">
@@ -486,15 +482,13 @@
         </div>
         <table id="channelTable" style="table-layout:fixed;width:100%;">
             <thead>
-                <tr><th style="width:40%;">渠道/部门</th><th class="num" style="width:22%;">合计<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num" style="width:18%;">同比变化</th><th class="num" style="width:20%;">环比上月</th></tr>
+                <tr><th style="width:34%;">渠道/部门</th><th class="num" style="width:22%;">合计<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num" style="width:22%;">同比变化</th><th class="num" style="width:22%;">环比上月</th></tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
-</div>
-
-</div>
-</div>
+    </div><!-- end overview-bottom -->
+</div><!-- end section 月度看板 -->
 
 <!-- ====== 累计看板 + 全年完成进度 ====== -->
 <div class="section">
@@ -736,8 +730,8 @@ function renderMonthly(month) {
   if (maxAbs === 0) maxAbs = 1; // 防御
   var barHtml = '';
   channels.forEach(function(ch) {
-    var oH = Math.abs(ch.otc) / maxAbs * 115;
-    var rH = Math.abs(ch.r) / maxAbs * 115;
+    var oH = Math.abs(ch.otc) / maxAbs * 165;
+    var rH = Math.abs(ch.r) / maxAbs * 165;
     var oCls = ch.otc >= 0 ? 'pos' : 'neg';
     var rCls = ch.r >= 0 ? 'pos' : 'neg';
     var name = ch.name.replace('（药品）','').replace('事业部','');
