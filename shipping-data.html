@@ -467,7 +467,7 @@
     <!-- 左侧：柱状图 -->
     <div class="table-card">
         <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
-            <i class="fas fa-chart-bar" style="color:var(--primary);margin-right:6px;"></i>各渠道 · 两种品规月度完成
+            <i class="fas fa-chart-bar" style="color:var(--primary);margin-right:6px;"></i>各部门完成情况
         </div>
         <div style="display:flex;align-items:center;gap:8px;padding:4px 16px 0;font-size:10px;color:var(--text2);">
             <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--primary);margin-right:3px;"></span>OTC复方阿胶浆</span>
@@ -478,11 +478,11 @@
     <!-- 数据表 -->
     <div class="table-card">
         <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;">
-            <span><i class="fas fa-table" style="color:var(--primary);margin-right:6px;"></i>分渠道明细</span>
+            <span><i class="fas fa-table" style="color:var(--primary);margin-right:6px;"></i>各部门明细</span>
         </div>
         <table id="channelTable" style="table-layout:fixed;width:100%;">
             <thead>
-                <tr><th style="width:34%;">渠道/部门</th><th class="num" style="width:22%;">合计<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num" style="width:22%;">同比变化</th><th class="num" style="width:22%;">环比上月</th></tr>
+                <tr><th style="width:34%;">部门</th><th class="num" style="width:22%;">合计<br><span style="font-size:10px;color:var(--text2);">（万元）</span></th><th class="num" style="width:22%;">同比变化</th><th class="num" style="width:22%;">环比上月</th></tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -690,6 +690,11 @@ function switchMonthlyMonth(month) {
 }
 
 
+// 部门名称统一口径：去掉「（药品）」与「 零售」后缀，保留「事业部」
+function deptName(n) { return String(n).replace('（药品）','').replace(' 零售','').replace(/\s+$/,''); }
+// 万元数值格式：千分位 + 1 位小数
+function fmtWan(n) { return n.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
 function renderInsight(month) {
   var c = document.getElementById('monthlyInsight');
   if (!c) return;
@@ -700,7 +705,7 @@ function renderInsight(month) {
   chs.forEach(function(ch) { total += ch.otc + ch.r; });
   var top = chs[0]; var topV = top.otc + top.r;
   chs.forEach(function(ch) { var s = ch.otc + ch.r; if (s > topV) { topV = s; top = ch; } });
-  var topName = top.name.replace('（药品）','').replace('事业部','').replace(' 零售','').trim();
+  var topName = deptName(top.name);
   var monthKeys = Object.keys(monthlyData);
   var mi = monthKeys.indexOf(month);
   var prevKey = mi > 0 ? monthKeys[mi-1] : null;
@@ -710,10 +715,12 @@ function renderInsight(month) {
     monthlyData[prevKey].channels.forEach(function(ch) { prevTotal += ch.otc + ch.r; });
     if (prevTotal > 0) {
       var mom = ((total - prevTotal) / prevTotal * 100);
-      momText = '&middot; 环比 <span class="'+(mom>=0?'up':'down')+'">'+(mom>=0?'+':'')+mom.toFixed(1)+'%</span>';
+      momText = '，环比 <span class="'+(mom>=0?'up':'down')+'">'+(mom>=0?'+':'')+mom.toFixed(1)+'%</span>';
     }
   }
-  c.innerHTML = '<b>'+topName+'</b> 以 <b>'+topV.toFixed(0)+'万</b> 领跑，贡献 '+(topV/total*100).toFixed(0)+'% '+momText;
+  // 「环比」紧跟「整体完成」，明确该环比为整体口径，避免被误读为领跑部门的环比
+  c.innerHTML = '<b>'+month+'</b> 整体完成 <b>'+fmtWan(total)+'万</b>'+momText+
+    '；其中 <b>'+topName+'</b> '+fmtWan(topV)+'万 领跑，占整体 '+(topV/total*100).toFixed(0)+'%';
 }
 
 function renderMonthly(month) {
@@ -734,12 +741,11 @@ function renderMonthly(month) {
     var rH = Math.abs(ch.r) / maxAbs * 165;
     var oCls = ch.otc >= 0 ? 'pos' : 'neg';
     var rCls = ch.r >= 0 ? 'pos' : 'neg';
-    var name = ch.name.replace('（药品）','').replace('事业部','');
-    var notePart = ch.note ? '<br><span class="note">'+ch.note+'</span>' : '';
+    var name = deptName(ch.name);
     barHtml += '<div class="bar-group">' +
       (Math.abs(ch.otc) > 0.01 ? '<div class="bar otc ' + oCls + '" style="height:0" data-h="' + oH + '" data-tooltip="OTC复方阿胶浆: ' + ch.otc.toFixed(1) + '万"></div>' : '') +
       (Math.abs(ch.r) > 0.01 ? '<div class="bar r ' + rCls + '" style="height:0" data-h="' + rH + '" data-tooltip="R复方阿胶浆: ' + ch.r.toFixed(1) + '万"></div>' : '') +
-      '<div class="bar-label">' + name + notePart + '</div>' +
+      '<div class="bar-label">' + name + '</div>' +
       '</div>';
   });
   // Animate bars: render at height:0, then grow to data-h
@@ -807,9 +813,8 @@ function renderMonthly(month) {
     g.rows.forEach(function(ch) {
       var cur = g.pick(ch);
       var pv = prevSumByName(ch.name);
-      var note = ch.note ? ' <span style="font-size:11px;color:var(--text2);">' + ch.note + '</span>' : '';
       html += '<tr>' +
-        '<td>' + ch.name + note + '</td>' +
+        '<td>' + deptName(ch.name) + '</td>' +
         '<td class="num"><b>' + cur.toFixed(2) + '</b></td>' +
         '<td class="num" style="font-size:12px;">—</td>' +
         '<td class="num" style="font-size:12px;">' + momCell(cur, pv) + '</td>' +
