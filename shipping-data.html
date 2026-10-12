@@ -355,15 +355,7 @@
         .kpi-yoy .val { font-weight: 600; }
         .kpi-yoy.down .val { color: var(--success); }
         .kpi-yoy.up .val { color: var(--danger); }
-        .css-barchart { display:flex; flex-wrap:wrap; gap:4px; align-items:flex-end; justify-content:center; min-height:300px; padding-bottom:40px; }
-        .css-bar-wrap { display:flex; flex-direction:column; align-items:center; width:60px; }
-        .css-bar-pair { display:flex; align-items:flex-end; gap:2px; height:240px; position:relative; }
-        .css-bar-val { width:26px; border-radius:3px 3px 0 0; transition:height 0.5s cubic-bezier(0.34,1.56,0.64,1); position:relative; cursor:pointer; }
-        .css-bar-val:hover::after { content:attr(data-tip); position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:#fff; font-size:11px; padding:3px 8px; border-radius:4px; white-space:nowrap; margin-bottom:4px; z-index:10; }
-        .css-bar-label { font-size:10px; color:var(--text2); text-align:center; margin-top:6px; line-height:1.3; }
-        .css-bar-yoy { font-size:9px; margin-top:2px; text-align:center; }
-        .css-bar-yoy.up { color:var(--danger); }
-        .css-bar-yoy.down { color:var(--success); }
+        /* (原「8月单月」纯 CSS 柱状图样式已移除，改用 Chart.js 组合图 #otcMonthlyMix) */
         /* Province bars */
         .prov-bars { display:flex; flex-direction:column; gap:2px; }
         .prov-row { display:flex; align-items:center; gap:4px; font-size:12px; }
@@ -895,12 +887,14 @@ function rateClass(rate) {
   </div>
 </div>
 
-<!-- 8月单月 -->
+<!-- 1-8月分月数据：柱=完成额（左轴） + 曲线=同比（右轴） -->
 <div class="section">
-  <div class="section-title"><i class="fas fa-calendar-alt"></i> 8月单月数据</div>
+  <div class="section-title"><i class="fas fa-calendar-alt"></i> 1-8月分月数据
+    <span class="hint">柱 = 各维度完成额（左轴·万元）｜ 曲线 = 各维度同比（右轴·%）｜ 悬浮查看明细</span>
+  </div>
   <div class="table-card" style="padding:20px;">
-    <div style="height:400px;position:relative;">
-      <div class="css-barchart" id="otcBars" style="padding:10px 0;"></div>
+    <div style="height:420px;position:relative;">
+      <canvas id="otcMonthlyMix"></canvas>
     </div>
   </div>
 </div>
@@ -1218,44 +1212,105 @@ function toggleTable(bodyId, iconId) {
   var icon = document.getElementById(iconId);
   if (body.style.display === 'none') { body.style.display = ''; icon.textContent = '▾'; }
   else { body.style.display = 'none'; icon.textContent = '▸'; }
-}/* 8月单月数据由 renderOtcMonthBars 内 groups 定义 */function initOtcCharts() {
+}
+
+/* ===== 1-8月分月数据：柱 = 完成额（左轴·万元） / 平滑曲线 = 同比（右轴·%） =====
+   数据源：1-6月 ← OTC事业部1-6月复方阿胶浆整体月度发货、配送、纯销.xlsx（含去年同月，同比自算）
+           7、8月 ← 1-7月 / 1-8月 OTC事业部指标完成报表 总表「N月完成 / N月同期」
+   校验：1-6月累计与 1-6月报表逐项一致；8月值与看板 KPI 现值一致；"终端配送"取「省区终端配送」口径 */
+const otcMonthlyMix = {
+  months: ["1月","2月","3月","4月","5月","6月","7月","8月"],
+  series: [
+    { name:"发货", color:"#4361ee",
+      amount:[6096.24,2948.45,31798.40,1569.37,3641.36,24810.47,-87.86,2156.18],
+      yoy:[-82.9,4.1,-7.7,38.1,33.2,-19.7,-109.5,-2.1] },
+    { name:"终端配送", color:"#06d6a0",
+      amount:[5729.79,2546.31,14322.17,3870.47,6683.72,37970.75,1281.48,1987.04],
+      yoy:[-62.2,-47.5,-22.3,55.9,-3.7,73.9,-64.3,-62.4] },
+    { name:"KA50纯销", color:"#f72585",
+      amount:[6092.15,7211.07,6665.51,4359.50,6249.53,6628.06,3965.33,3923.54],
+      yoy:[-21.2,54.7,-0.1,-7.7,-1.3,14.2,-2.7,-24.2] }
+  ]
+};
+
+let otcMonthChart = null;
+function renderOtcMonthlyMix() {
+  var cv = document.getElementById('otcMonthlyMix');
+  if (!cv || typeof Chart === 'undefined') return;
+  if (otcMonthChart) { otcMonthChart.destroy(); otcMonthChart = null; }
+  var D = otcMonthlyMix, datasets = [];
+  // 先全部柱、再全部线 —— 保证图例按「三个维度 + 三条同比」分组排列，且曲线绘制在柱之上
+  D.series.forEach(function(s) {
+    datasets.push({
+      type: 'bar', label: s.name, data: s.amount, backgroundColor: s.color,
+      borderRadius: 4, yAxisID: 'y', barPercentage: 0.85, categoryPercentage: 0.76,
+      datalabels: { display: false }
+    });
+  });
+  D.series.forEach(function(s) {
+    // 每月按三条曲线的相对高低自动错开标签方向：最高朝上、最低朝下、中间朝右
+    function pickAlign(di, mi) {
+      var arr = [
+        { k: 0, v: D.series[0].yoy[mi] },
+        { k: 1, v: D.series[1].yoy[mi] },
+        { k: 2, v: D.series[2].yoy[mi] }
+      ].sort(function(a, b) { return b.v - a.v; });
+      if (arr[0].k === di) return 'top';
+      if (arr[2].k === di) return 'bottom';
+      return 'right';
+    }
+    datasets.push({
+      type: 'line', label: s.name + ' 同比', data: s.yoy,
+      borderColor: s.color, backgroundColor: s.color,
+      borderWidth: 2, borderDash: [5, 4], tension: 0.4,
+      pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#fff',
+      pointBorderColor: s.color, pointBorderWidth: 2,
+      fill: false, yAxisID: 'y1', spanGaps: true,
+      datalabels: {
+        display: true, clamp: true, clip: false, offset: 6,
+        align: function(ctx) { return pickAlign(ctx.datasetIndex - 3, ctx.dataIndex); },
+        color: s.color, backgroundColor: 'rgba(255,255,255,0.82)',
+        borderRadius: 3, padding: { top: 1, bottom: 1, left: 3, right: 3 },
+        font: { size: 10, weight: '600' },
+        formatter: function(v) { return v == null ? '' : (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
+      }
+    });
+  });
+  otcMonthChart = new Chart(cv.getContext('2d'), {
+    data: { labels: D.months, datasets: datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, boxHeight: 12, padding: 12, font: { size: 12 } } },
+        tooltip: { callbacks: { label: function(ctx) {
+          var v = ctx.parsed.y;
+          if (ctx.dataset.type === 'line') return ctx.dataset.label + '：' + (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+          return ctx.dataset.label + '：' + v.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' 万';
+        } } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+        y: { position: 'left', min: -1000, max: 40000,
+             title: { display: true, text: '完成额（万元）', font: { size: 12 } },
+             ticks: { font: { size: 11 }, callback: function(v) { return v.toLocaleString('zh-CN'); } },
+             grid: { color: 'rgba(128,128,128,0.15)' } },
+        y1: { position: 'right',
+              title: { display: true, text: '同比（%）', font: { size: 12 } },
+              ticks: { font: { size: 11 }, callback: function(v) { return v + '%'; } },
+              grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+function initOtcCharts() {
   if (otcChartsReady) return;
-  renderOtcMonthBars();
+  renderOtcMonthlyMix();
   renderProvinceBars('shipBars', shipData, '📦 发货');
   renderProvinceBars('deliveryBars', deliveryData, '🚚 终端配送');
   renderProvinceBars('ka50Bars', ka50Data, '🏪 KA50纯销');
   otcChartsReady = true;
-}
-
-function renderOtcMonthBars() {
-  var container = document.getElementById('otcBars');
-  if (!container) return;
-  var groups = [
-    {name:'发货', amount:2156.2, yoy:-2.1, color:'#4361ee'},
-    {name:'配送', amount:1987.0, yoy:-62.4, color:'#06d6a0'},
-    {name:'KA50', amount:3923.5, yoy:-24.2, color:'#f72585'}
-  ];
-  var maxVal = 4000;
-  var html = '';
-  groups.forEach(function(g){
-    var hVal = Math.max(4, g.amount/maxVal*240);
-    var yoyCls = g.yoy>=0 ? 'up' : 'down';
-    var yoyStr = (g.yoy>=0 ? '+' : '') + g.yoy + '%';
-    html += '<div class="css-bar-wrap">' +
-      '<div class="css-bar-pair">' +
-      '<div class="css-bar-val" style="background:'+g.color+';height:0;" data-h="'+hVal+'" data-tip="'+g.name+':'+g.amount+'万&#10;同比:'+yoyStr+'"></div>' +
-      '</div>' +
-      '<div class="css-bar-label">'+g.name+'<br>'+g.amount+'万</div>' +
-      '<div class="css-bar-yoy '+yoyCls+'">'+yoyStr+'</div>' +
-      '</div>';
-  });
-  container.innerHTML = html;
-  requestAnimationFrame(function(){
-    var bars = container.querySelectorAll('.css-bar-val');
-    bars.forEach(function(b){
-      b.style.height = b.getAttribute('data-h') + 'px';
-    });
-  });
 }
 
 // ====== KA50归属总部渲染 ======
