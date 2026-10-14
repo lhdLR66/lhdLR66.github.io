@@ -372,18 +372,24 @@
         .prov-row .prov-caret { width:10px; flex-shrink:0; font-size:8px; color:var(--text2); text-align:center; transition:transform .18s; }
         .prov-row.open .prov-caret { transform:rotate(90deg); color:var(--primary); }
         .prov-row .prov-name { width:38px; text-align:right; flex-shrink:0; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
-        .prov-months { margin:2px 0 8px 14px; padding:7px 9px 8px; background:#f7f8fc; border:1px solid var(--border); border-radius:6px; }
+        /* 展开面板：外层只负责「高度 + 透明度」过渡，内层负责外观，避免 margin/padding 抖动 */
+        .prov-months { max-height:0; opacity:0; overflow:hidden; transform:translateY(-6px);
+          transition:max-height .38s cubic-bezier(.4,0,.2,1), opacity .3s ease, transform .38s cubic-bezier(.4,0,.2,1); }
+        .prov-months.show { opacity:1; transform:none; }
+        .prov-months .pm-inner { margin:2px 0 8px 14px; padding:7px 9px 8px; background:#f7f8fc; border:1px solid var(--border); border-radius:6px; }
         .prov-months .pm-title { display:flex; justify-content:space-between; font-size:10px; color:var(--text2); margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid var(--border); }
         .prov-months .pm-title span:first-child { font-weight:600; color:var(--text); }
-        .prov-months .pm-row { display:flex; align-items:center; gap:5px; height:17px; font-size:10px; }
+        .prov-months .pm-row { display:flex; align-items:center; gap:5px; height:17px; font-size:10px;
+          animation:pmRowIn .3s cubic-bezier(.25,.8,.3,1) both; }
+        @keyframes pmRowIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
         .prov-months .pm-m { width:24px; flex-shrink:0; text-align:right; color:var(--text2); font-variant-numeric:tabular-nums; }
         .prov-months .pm-bar { flex:1; min-width:16px; height:8px; background:#e8eaf0; border-radius:2px; overflow:hidden; }
-        .prov-months .pm-bar i { display:block; height:100%; border-radius:2px; transition:width .3s ease; }
+        .prov-months .pm-bar i { display:block; height:100%; width:0; border-radius:2px; background:#4361ee;
+          transition:width .5s cubic-bezier(.25,.8,.3,1); }
         .prov-months .pm-v { width:52px; flex-shrink:0; text-align:right; color:var(--text); font-variant-numeric:tabular-nums; }
         .prov-months .pm-y { width:44px; flex-shrink:0; text-align:right; font-variant-numeric:tabular-nums; }
         .prov-months .pm-na { color:#b8b8b8; }
-        .prov-months .pm-foot { margin-top:6px; padding-top:5px; border-top:1px dashed var(--border); font-size:9.5px; color:var(--text2); line-height:1.55; }
-        .prov-months .pm-row .pm-v.pm-na, .prov-months .pm-row .pm-y.pm-na { font-style:normal; }
+        .prov-months .pm-flag { margin-top:6px; padding-top:5px; border-top:1px dashed var(--border); font-size:9.5px; color:#b8860b; line-height:1.55; }
         .prov-row .prov-bar-wrap { flex:1; min-width:30px; height:18px; background:transparent; border-radius:3px; position:relative; overflow:hidden; }
         .prov-row .prov-bar-fill { height:100%; border-radius:3px; position:absolute; left:0; top:0; transition:width 0.5s ease; min-width:2px; }
         .prov-row .prov-metric { width:48px; text-align:right; font-size:10px; color:var(--text2); flex-shrink:0; }
@@ -1182,17 +1188,18 @@ function pmFmt(v, d) {
 function provMonthPanel(dimKey, provName) {
   var dm = (typeof provinceMonth !== 'undefined' && provinceMonth) ? provinceMonth[dimKey] : null;
   var rec = dm ? dm[provName] : null;
-  if (!rec) return '<div class="pm-title"><span>' + provName + ' · 1-8月分月</span><span>' + dimKey + '</span></div>' +
-                   '<div class="pm-na" style="font-size:10px;padding:4px 0;">该省区暂无分月数据</div>';
+  if (!rec) return '<div class="pm-inner"><div class="pm-title"><span>' + provName + ' · 1-8月分月</span><span>' + dimKey + '</span></div>' +
+                   '<div class="pm-na" style="font-size:10px;padding:4px 0;">该省区暂无分月数据</div></div>';
   var maxAbs = 0;
   rec.m.forEach(function(v) { if (v != null) maxAbs = Math.max(maxAbs, Math.abs(v)); });
   if (!maxAbs) maxAbs = 1;
-  var html = '<div class="pm-title"><span>' + provName + ' · 1-8月分月</span><span>' + dimKey + ' · 万元</span></div>';
+  var html = '<div class="pm-inner"><div class="pm-title"><span>' + provName + ' · 1-8月分月</span><span>' + dimKey + ' · 万元</span></div>';
   PROV_MONTH_LABELS.forEach(function(mm, i) {
     var mi = PROV_MI[i], si = PROV_SI[i];
     var v = mi == null ? null : rec.m[mi];
+    var dly = ' style="animation-delay:' + (60 + i * 32) + 'ms;"';
     if (v == null) {
-      html += '<div class="pm-row"><span class="pm-m">' + mm + '</span>' +
+      html += '<div class="pm-row"' + dly + '><span class="pm-m">' + mm + '</span>' +
               '<span class="pm-bar"></span>' +
               '<span class="pm-v pm-na">无源</span>' +
               '<span class="pm-y pm-na">—</span></div>';
@@ -1201,19 +1208,14 @@ function provMonthPanel(dimKey, provName) {
     var sv = rec.s[si];
     var yoy = (sv != null && sv !== 0) ? (v - sv) / Math.abs(sv) * 100 : null;
     var w = Math.abs(v) / maxAbs * 100;
-    // 柱色只表达「金额大小」，不参与涨跌语义（涨跌由右侧同比列的红/绿承担）
-    var barClr = v >= 0 ? '#4361ee' : '#aab2bd';
     var yoyClr = yoy == null ? '' : (yoy >= 0 ? '#e74c3c' : '#27ae60');
-    html += '<div class="pm-row"><span class="pm-m">' + mm + '</span>' +
-            '<span class="pm-bar"><i style="width:' + w.toFixed(1) + '%;background:' + barClr + ';"></i></span>' +
+    html += '<div class="pm-row"' + dly + '><span class="pm-m">' + mm + '</span>' +
+            '<span class="pm-bar"><i data-w="' + w.toFixed(1) + '"></i></span>' +
             '<span class="pm-v">' + pmFmt(v) + '</span>' +
             '<span class="pm-y" style="color:' + yoyClr + ';font-weight:600;">' +
               (yoy == null ? '—' : (yoy >= 0 ? '+' : '') + yoy.toFixed(1) + '%') + '</span></div>';
   });
-  html += '<div class="pm-foot"><b>2-4月无源</b>（本机缺《1-2月》《1-3月》期报表）' +
-          (rec.q2_4 != null ? '，2-4月合计 <b>' + pmFmt(rec.q2_4) + '</b> 万' : '') + '<br>' +
-          '1-8月累计 <b>' + pmFmt(rec.cum8) + '</b> 万 &nbsp;|&nbsp; 分月值 = 各期报表累计差分' +
-          provMonthFootnote(dimKey) + '</div>';
+  html += provMonthFootnote(dimKey) + '</div>';
   return html;
 }
 
@@ -1239,11 +1241,22 @@ function provMonthFootnote(dimKey) {
       var d = sum - nat;
       if (Math.abs(d) > 300) bad.push(mm + ' ' + (d >= 0 ? '+' : '') + pmFmt(d, 0));
     });
-    if (bad.length) res = '<br><span style="color:#b8860b;">△ 各省相加与全国合计存差：' + bad.join('、') +
-                          ' 万（源报表跨期调整省区归集口径所致，非本页计算错误）</span>';
+    if (bad.length) res = '<div class="pm-flag">△ 各省相加与全国合计存差：' + bad.join('、') + ' 万</div>';
   }
   _provFootCache[dimKey] = res;
   return res;
+}
+
+// 收起一块面板（先锁当前高度 → 过渡到 0 → 过渡结束再移除）
+function collapseProvPanel(box) {
+  if (!box || box.__closing) return;
+  box.__closing = true;
+  box.style.maxHeight = box.scrollHeight + 'px';
+  box.classList.remove('show');
+  requestAnimationFrame(function() {
+    box.style.maxHeight = '0px';
+    setTimeout(function() { if (box.parentNode) box.parentNode.removeChild(box); }, 420);
+  });
 }
 
 // 点击省区行 → 展开/收起分月面板（同一张图内只保留一个）
@@ -1251,19 +1264,31 @@ function toggleProvMonth(rowEl, containerId) {
   var dimKey = PROV_DIM[containerId];
   var next = rowEl.nextElementSibling;
   if (next && next.classList && next.classList.contains('prov-months')) {
-    next.parentNode.removeChild(next);
+    collapseProvPanel(next);
     rowEl.classList.remove('open');
     return;
   }
   var wrap = rowEl.parentNode;
-  Array.prototype.forEach.call(wrap.querySelectorAll('.prov-months'), function(b) { b.parentNode.removeChild(b); });
   Array.prototype.forEach.call(wrap.querySelectorAll('.prov-row.open'), function(r) { r.classList.remove('open'); });
+  Array.prototype.forEach.call(wrap.querySelectorAll('.prov-months'), function(b) { collapseProvPanel(b); });
   var div = document.createElement('div');
   div.className = 'prov-months';
   div.innerHTML = provMonthPanel(dimKey, rowEl.getAttribute('data-prov'));
   wrap.insertBefore(div, rowEl.nextSibling);
   rowEl.classList.add('open');
-  if (div.scrollIntoView) { try { div.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+  requestAnimationFrame(function() {
+    var h = div.querySelector('.pm-inner');
+    var full = (h ? h.offsetHeight : div.scrollHeight) + 8;
+    div.style.maxHeight = full + 'px';
+    div.classList.add('show');
+    // 横条从 0 长出（逐行延迟在 CSS 里以 data-w + 行 animation-delay 控制）
+    Array.prototype.forEach.call(div.querySelectorAll('.pm-bar i'), function(b) {
+      b.style.width = (b.getAttribute('data-w') || 0) + '%';
+    });
+  });
+  setTimeout(function() {
+    if (div.scrollIntoView) { try { div.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+  }, 260);
 }
 
 // On page load, activate tab based on URL hash
