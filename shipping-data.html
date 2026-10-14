@@ -366,8 +366,24 @@
         /* (原「8月单月」纯 CSS 柱状图样式已移除，改用 Chart.js 组合图 #otcMonthlyMix) */
         /* Province bars */
         .prov-bars { display:flex; flex-direction:column; gap:2px; }
-        .prov-row { display:flex; align-items:center; gap:4px; font-size:12px; }
-        .prov-row .prov-name { width:48px; text-align:right; flex-shrink:0; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
+        .prov-row { display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; border-radius:4px; padding:1px 2px; transition:background .15s; }
+        .prov-row:hover { background:rgba(67,97,238,0.07); }
+        .prov-row.open { background:rgba(67,97,238,0.11); }
+        .prov-row .prov-caret { width:10px; flex-shrink:0; font-size:8px; color:var(--text2); text-align:center; transition:transform .18s; }
+        .prov-row.open .prov-caret { transform:rotate(90deg); color:var(--primary); }
+        .prov-row .prov-name { width:38px; text-align:right; flex-shrink:0; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
+        .prov-months { margin:2px 0 8px 14px; padding:7px 9px 8px; background:#f7f8fc; border:1px solid var(--border); border-radius:6px; }
+        .prov-months .pm-title { display:flex; justify-content:space-between; font-size:10px; color:var(--text2); margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid var(--border); }
+        .prov-months .pm-title span:first-child { font-weight:600; color:var(--text); }
+        .prov-months .pm-row { display:flex; align-items:center; gap:5px; height:17px; font-size:10px; }
+        .prov-months .pm-m { width:24px; flex-shrink:0; text-align:right; color:var(--text2); font-variant-numeric:tabular-nums; }
+        .prov-months .pm-bar { flex:1; min-width:16px; height:8px; background:#e8eaf0; border-radius:2px; overflow:hidden; }
+        .prov-months .pm-bar i { display:block; height:100%; border-radius:2px; transition:width .3s ease; }
+        .prov-months .pm-v { width:52px; flex-shrink:0; text-align:right; color:var(--text); font-variant-numeric:tabular-nums; }
+        .prov-months .pm-y { width:44px; flex-shrink:0; text-align:right; font-variant-numeric:tabular-nums; }
+        .prov-months .pm-na { color:#b8b8b8; }
+        .prov-months .pm-foot { margin-top:6px; padding-top:5px; border-top:1px dashed var(--border); font-size:9.5px; color:var(--text2); line-height:1.55; }
+        .prov-months .pm-row .pm-v.pm-na, .prov-months .pm-row .pm-y.pm-na { font-style:normal; }
         .prov-row .prov-bar-wrap { flex:1; min-width:30px; height:18px; background:transparent; border-radius:3px; position:relative; overflow:hidden; }
         .prov-row .prov-bar-fill { height:100%; border-radius:3px; position:absolute; left:0; top:0; transition:width 0.5s ease; min-width:2px; }
         .prov-row .prov-metric { width:48px; text-align:right; font-size:10px; color:var(--text2); flex-shrink:0; }
@@ -915,7 +931,7 @@ function rateClass(rate) {
 <!-- 省区明细三图：发货 | 终端配送 | KA50纯销 -->
 <div class="section">
   <div class="section-title"><i class="fas fa-chart-bar"></i> 复方阿胶浆 · 省区明细（1-8月累计）
-    <span class="hint">按完成金额降序 | 红柱 = 同比增长 · 绿柱 = 同比下滑 | 悬浮查看详情</span>
+    <span class="hint">按完成金额降序 | 红柱 = 同比增长 · 绿柱 = 同比下滑 | <b>点击任一行展开该省区 1-8月分月数据及同比</b>（2/3/4月源报表缺失，显示「无源」）</span>
   </div>
 
   <div class="three-col" style="margin-bottom:16px;">
@@ -1138,6 +1154,117 @@ var ka50ProvChains = {
 var shipMomData = { "山东": 580.0, "广东": null, "湖南": -238.2, "四川": -71.6, "陕西": 13.3, "江苏": null, "冀晋": null, "甘青宁": -100.0, "东北": 120.2, "安徽": null, "重庆": null, "湖北": 55.5, "贵州": null, "云南": -1696.9, "京津": null, "福建": -245.0, "浙江": 362.3, "新疆": -100.0, "江西": null, "广西": null, "河南": -81.9, "海南": null, "上海": -100.0 };
 var deliveryMomData = { "山东": 427.5, "广东": -462.7, "湖南": 597.0, "四川": -82.9, "陕西": 84.6, "江苏": 351.5, "冀晋": -41.4, "甘青宁": 520.9, "东北": 494.9, "安徽": -5284.2, "重庆": -22.2, "湖北": 784.4, "贵州": -76.7, "云南": 294.0, "京津": -20.3, "福建": 0.7, "浙江": 135.5, "新疆": 69.8, "江西": 40.7, "广西": 742.9, "河南": 112.2, "海南": null, "上海": 44.4 };
 var ka50MomData = { "江苏": -31.3, "山东": 85.8, "广东": -8.3, "浙沪": 0.1, "安徽": 6.3, "湖北": -9.9, "冀晋": 18.6, "四川": -66.5, "甘青宁": -14.6, "湖南": 68.9, "陕西": 51.0, "贵州": 31.7, "河南": 1.4, "东北": -15.5, "京津": -9.3, "云南": 3.6, "新疆": 43.3, "重庆": 23.0, "江西": 22.3, "福建": -70.2, "广西": -0.4, "海南": 34.7 };
+
+// ====== 省区 × 月末分月数据（点击省区行展开用） ======
+// 来源：各期《2026年1-N月OTC事业部指标完成报表》「发货 / 终端配送 / KA50纯销」sheet 复方阿胶浆类块
+//   可得月：1月、5月、6月、7月、8月（相邻期报表「本期」累计相减 = 单月）
+//   2/3/4月 无源（本机无《1-2月》《1-3月》期报表）→ null，页面显示「无源」
+//   q2_4 = 2-4月合计（1-4月累计 − 1月），供无源月备查
+//   s = 各月「同期」值，用于算单月同比
+// 校验：每省 cum8 已与看板柱形数值逐省核对一致；各省 1月/5月/7月 差分与看板月度吻合
+// 生成脚本：dashboard-pipeline/extract_province_month_js.py
+// ⚠️ 已知口径瑕疵（源报表自身问题，非计算错误）：终端配送/KA50纯销 的 1-4月、1-5月 期报表
+//    省区明细合计比全国合计少 1,120.83 / 0 等，跨期相减后 5月、6月 会有约 ±1,100 万的偏移
+var provinceMonth = /*@PROV_MONTH_JSON@*/ {"发货":{"山东":{"m":[12.02,null,null,null,427.06,8264.66,190.7,1296.65],"s":[4007.68,781.12,10654.2,28.39,196.8],"q2_4":2212.2,"cum8":12403.29},"广东":{"m":[3825.91,null,null,null,2263.44,2373.02,-1.7,0.46],"s":[3583.63,221.56,2354.3,91.95,-111.5],"q2_4":973.23,"cum8":9434.38},"陕西":{"m":[0,null,null,null,-68.13,231.3,235.0,266.22],"s":[4480.23,77.1,456.23,126.44,18.35],"q2_4":4565.33,"cum8":5229.72},"四川":{"m":[39,null,null,null,96.38,3796.03,56.21,15.99],"s":[2066.68,1.83,2048.77,140.17,135.6],"q2_4":1157.4,"cum8":5161.01},"湖南":{"m":[940.62,null,null,null,-75.04,2326.42,169.65,-234.38],"s":[-530.13,-87.17,-115.98,-127.46,-206.56],"q2_4":1880.03,"cum8":5007.29},"江苏":{"m":[159.34,null,null,null,92.65,1491.06,0.0,13.36],"s":[3574.77,1.54,1158.45,0.0,34.85],"q2_4":2568.82,"cum8":4325.23},"冀晋":{"m":[203.54,null,null,null,281.57,842.11,-2.21,1.49],"s":[2506.12,-22.67,2224.44,173.49,57.05],"q2_4":2810.17,"cum8":4136.67},"甘青宁":{"m":[0,null,null,null,78.9,317.82,38.67,0.0],"s":[1496.17,0.85,57.81,78.44,27.45],"q2_4":2680.8,"cum8":3116.18},"东北":{"m":[251.17,null,null,null,487.64,712.35,28.09,61.86],"s":[1554.91,19.6,510.09,29.45,86.42],"q2_4":1508.4,"cum8":3049.51},"安徽":{"m":[0,null,null,null,0.0,308.4,-0.05,0.0],"s":[2832.28,847.62,1999.83,208.85,690.0],"q2_4":2333.16,"cum8":2641.51},"贵州":{"m":[508.86,null,null,null,2.18,1080.66,1.23,367.32],"s":[825.61,1.16,775.37,3.72,3.34],"q2_4":552.01,"cum8":2512.26},"湖北":{"m":[-212.74,null,null,null,15.11,-1950.78,56.3,87.53],"s":[3051.44,42.71,3130.25,21.31,0.15],"q2_4":4307.5,"cum8":2302.92},"重庆":{"m":[0,null,null,null,36.08,925.2,0.0,0.0],"s":[1737.93,0.0,1556.96,0.0,53.97],"q2_4":1274.55,"cum8":2235.82},"云南":{"m":[0,null,null,null,67.61,1697.65,-6.6,105.47],"s":[231.3,-0.14,26.68,57.81,131.76],"q2_4":346.03,"cum8":2210.16},"福建":{"m":[389.9,null,null,null,6.32,1302.37,-300.69,436.08],"s":[530.85,7.71,362.8,19.5,99.04],"q2_4":320.79,"cum8":2154.77},"京津":{"m":[1.95,null,null,null,0.0,327.36,0.0,0.58],"s":[175.62,36.62,263.72,59.21,34.9],"q2_4":1601.14,"cum8":1931.03},"浙江":{"m":[null,null,null,null,1.95,16.5,8.17,37.78],"s":[null,9.1,1870.8,31.92,15.55],"q2_4":null,"cum8":1610.36},"新疆":{"m":[0,null,null,null,0.0,653.81,21.59,0.0],"s":[1069.53,1.23,724.74,3.08,80.59],"q2_4":739.04,"cum8":1414.43},"江西":{"m":[77.1,null,null,null,0.1,0.13,1.93,0.98],"s":[1215.92,45.4,207.93,0.41,0.31],"q2_4":844.04,"cum8":924.28},"广西":{"m":[0,null,null,null,4.93,806.59,4.32,14.19],"s":[254.5,4.16,5.71,8.48,67.14],"q2_4":26.68,"cum8":856.71},"河南":{"m":[0,null,null,null,0.85,5.58,7.09,1.28],"s":[305.88,0.31,410.01,1.0,541.78],"q2_4":650.23,"cum8":665.03},"海南":{"m":[0,null,null,null,0,0,0,0],"s":[0,0,0,0,0],"q2_4":0,"cum8":0},"上海":{"m":[null,null,null,null,-78.23,-717.76,-595.55,0.0],"s":[null,744.94,222.18,-30.84,244.69],"q2_4":null,"cum8":-73.25}},"终端配送":{"山东":{"m":[207.16,null,null,null,477.51,7605.04,74.53,393.13],"s":[3190.11,1690.56,4534.85,466.02,1277.84],"q2_4":4321.16,"cum8":13078.54},"广东":{"m":[189.74,null,null,null,808.95,2685.3,-12.33,44.73],"s":[2052.36,478.21,1037.47,241.35,706.93],"q2_4":1827.24,"cum8":5543.62},"冀晋":{"m":[837.01,null,null,null,214.92,2900.43,51.59,30.21],"s":[1048.09,325.8,1215.45,244.09,373.62],"q2_4":1426.07,"cum8":5460.23},"四川":{"m":[233.43,null,null,null,352.47,3368.04,985.57,168.62],"s":[629.82,590.65,1912.39,334.08,357.85],"q2_4":283.35,"cum8":5391.48},"湖北":{"m":[197.67,null,null,null,1359.99,3372.04,15.35,135.71],"s":[1022.84,311.83,2182.99,35.93,86.07],"q2_4":281.59,"cum8":5362.34},"江苏":{"m":[311.8,null,null,null,222.61,2641.56,15.34,69.29],"s":[395.13,221.14,1277.88,88.97,-488.94],"q2_4":2006.49,"cum8":5267.09},"湖南":{"m":[457.37,null,null,null,3.84,2859.84,-33.09,-230.64],"s":[-441.18,-74.51,111.05,-155.92,-170.54],"q2_4":2009.6,"cum8":5066.92},"重庆":{"m":[137.07,null,null,null,210.69,2822.91,10.1,7.85],"s":[-9.51,1.67,1406.6,344.8,-90.83],"q2_4":1365.56,"cum8":4554.18},"陕西":{"m":[675.51,null,null,null,517.6,817.58,70.02,129.26],"s":[2954.79,261.4,425.87,175.74,204.5],"q2_4":1017.67,"cum8":3227.63},"甘青宁":{"m":[571.91,null,null,null,462.65,1134.41,15.42,95.74],"s":[638.48,117.49,357.87,89.13,338.24],"q2_4":925.01,"cum8":3205.14},"京津":{"m":[1064.89,null,null,null,345.43,353.12,36.13,28.81],"s":[1379.34,279.47,115.72,129.22,146.47],"q2_4":1178.39,"cum8":3006.77},"浙江":{"m":[null,null,null,null,263.48,1201.22,63.46,149.46],"s":[null,346.7,958.37,-0.98,244.62],"q2_4":null,"cum8":2824.01},"安徽":{"m":[111.87,null,null,null,131.43,1878.11,-7.75,401.66],"s":[750.13,876.92,2567.99,-92.91,991.5],"q2_4":-54.02,"cum8":2461.29},"东北":{"m":[219.63,null,null,null,34.74,1019.88,49.0,291.5],"s":[330.64,194.38,797.48,80.77,161.46],"q2_4":402.03,"cum8":2016.78},"贵州":{"m":[6.89,null,null,null,314.02,1126.04,24.78,5.77],"s":[28.76,437.1,320.12,57.84,5.24],"q2_4":136.3,"cum8":1613.79},"新疆":{"m":[335.62,null,null,null,129.52,510.72,35.85,60.88],"s":[683.22,190.36,289.07,70.44,190.51],"q2_4":431.87,"cum8":1504.46},"云南":{"m":[40.7,null,null,null,93.83,578.26,11.72,46.16],"s":[42.91,52.88,45.4,64.3,116.41],"q2_4":316.65,"cum8":1087.31},"河南":{"m":[29.69,null,null,null,75.65,680.24,48.76,103.46],"s":[75.72,126.93,688.26,53.23,533.09],"q2_4":134.12,"cum8":1071.91},"福建":{"m":[54.84,null,null,null,23.32,648.08,39.33,39.61],"s":[85.01,47.65,440.53,25.87,22.4],"q2_4":76.81,"cum8":882.0},"广西":{"m":[29.96,null,null,null,34.96,148.81,12.07,101.77],"s":[77.56,40.0,90.22,32.12,124.79],"q2_4":508.1,"cum8":835.67},"上海":{"m":[null,null,null,null,-255.14,60.15,52.3,75.55],"s":[null,557.48,735.1,405.36,170.5],"q2_4":null,"cum8":594.63},"江西":{"m":[49.48,null,null,null,52.56,583.91,-106.46,-149.82],"s":[291.14,17.74,245.21,10.45,-33.79],"q2_4":-62.26,"cum8":367.42},"海南":{"m":[0,null,null,null,4.29,95.86,1.08,3.08],"s":[0,31.69,12.99,28.61,13.32],"q2_4":50.18,"cum8":154.5}},"KA50纯销":{"山东":{"m":[667.78,null,null,null,1315.28,714.05,390.81,725.95],"s":[1115.69,1563.0,701.79,507.63,730.89],"q2_4":2399.3,"cum8":6213.17},"江苏":{"m":[965.65,null,null,null,741.05,1026.41,470.54,323.07],"s":[713.07,398.21,647.18,332.27,427.96],"q2_4":2396.96,"cum8":5923.69},"广东":{"m":[698.37,null,null,null,734.55,819.76,398.88,365.77],"s":[697.19,437.67,562.78,516.37,695.63],"q2_4":2094.49,"cum8":5111.82},"浙沪":{"m":[560.86,null,null,null,365.2,756.87,345.69,346.03],"s":[911.74,492.96,470.69,528.04,578.63],"q2_4":2019.81,"cum8":4394.46},"安徽":{"m":[427.7,null,null,null,418.89,524.14,267.76,284.71],"s":[1288.44,683.54,522.84,301.7,457.92],"q2_4":1925.61,"cum8":3848.81},"湖北":{"m":[145.71,null,null,null,413.73,483.09,379.65,342.13],"s":[221.82,243.83,323.23,98.38,117.96],"q2_4":875.84,"cum8":2640.15},"冀晋":{"m":[312.67,null,null,null,286.37,356.94,179.11,212.37],"s":[466.72,268.54,347.21,239.54,311.06],"q2_4":1052.89,"cum8":2400.34},"四川":{"m":[171.71,null,null,null,247.25,379.87,218.54,73.2],"s":[265.87,303.56,244.95,158.16,232.65],"q2_4":658.44,"cum8":1749.01},"陕西":{"m":[108.2,null,null,null,231.45,167.41,164.65,248.67],"s":[221.35,257.36,210.02,184.47,203.78],"q2_4":686.2,"cum8":1606.58},"甘青宁":{"m":[48.1,null,null,null,235.9,134.14,100.5,85.86],"s":[129.83,94.58,97.05,92.99,110.11],"q2_4":943.43,"cum8":1547.94},"湖南":{"m":[152.6,null,null,null,162.0,238.17,95.33,160.99],"s":[178.85,107.73,172.47,114.1,149.25],"q2_4":732.83,"cum8":1541.93},"贵州":{"m":[222.79,null,null,null,137.74,202.27,189.6,249.61],"s":[106.23,220.25,189.8,74.66,101.39],"q2_4":439.18,"cum8":1441.19},"河南":{"m":[127.27,null,null,null,143.65,135.68,118.13,119.76],"s":[243.42,240.48,212.93,199.4,266.3],"q2_4":500.43,"cum8":1144.93},"东北":{"m":[100.13,null,null,null,106.28,168.73,128.33,108.38],"s":[310.19,241.86,277.54,179.29,159.44],"q2_4":410.85,"cum8":1022.71},"云南":{"m":[48.64,null,null,null,113.89,104.86,98.53,102.11],"s":[182.89,129.1,215.81,95.89,141.36],"q2_4":367.56,"cum8":835.59},"京津":{"m":[79.65,null,null,null,99.23,148.87,45.15,40.95],"s":[185.19,133.74,130.2,134.77,171.09],"q2_4":420.01,"cum8":833.86},"新疆":{"m":[81.61,null,null,null,84.79,105.29,46.56,66.73],"s":[106.76,65.17,102.27,63.84,74.02],"q2_4":367.04,"cum8":752.02},"重庆":{"m":[30.47,null,null,null,100.9,255.46,27.68,34.05],"s":[76.12,42.41,98.29,23.21,26.16],"q2_4":152.15,"cum8":600.71},"江西":{"m":[57.06,null,null,null,36.8,130.1,47.27,57.8],"s":[97.61,53.15,247.29,52.33,60.8],"q2_4":142.7,"cum8":471.72},"福建":{"m":[39.28,null,null,null,41.57,103.44,65.65,19.54],"s":[52.74,61.25,71.75,18.65,51.09],"q2_4":151.32,"cum8":420.81},"广西":{"m":[41.0,null,null,null,53.35,43.1,42.07,41.89],"s":[112.57,186.8,81.53,59.29,86.74],"q2_4":194.5,"cum8":415.91},"海南":{"m":[0,null,null,null,13.7,14.93,14.04,18.91],"s":[0,27.22,23.82,23.52,22.33],"q2_4":89.85,"cum8":151.44}}};
+
+// 省区容器 → 维度名
+var PROV_DIM = { shipBars: '发货', deliveryBars: '终端配送', ka50Bars: 'KA50纯销' };
+var PROV_MONTH_LABELS = ['1月','2月','3月','4月','5月','6月','7月','8月'];
+var PROV_MI = [0, null, null, null, 4, 5, 6, 7];   // 月份 → m[] 下标（null = 无源）
+var PROV_SI = [0, null, null, null, 1, 2, 3, 4];   // 月份 → s[]（同期）下标
+
+function pmFmt(v, d) {
+  if (v == null) return '—';
+  return v.toLocaleString('zh-CN', { minimumFractionDigits: d == null ? 1 : d, maximumFractionDigits: d == null ? 1 : d });
+}
+
+// 某省区「1-8月分月」面板 HTML
+function provMonthPanel(dimKey, provName) {
+  var dm = (typeof provinceMonth !== 'undefined' && provinceMonth) ? provinceMonth[dimKey] : null;
+  var rec = dm ? dm[provName] : null;
+  if (!rec) return '<div class="pm-title"><span>' + provName + ' · 1-8月分月</span><span>' + dimKey + '</span></div>' +
+                   '<div class="pm-na" style="font-size:10px;padding:4px 0;">该省区暂无分月数据</div>';
+  var maxAbs = 0;
+  rec.m.forEach(function(v) { if (v != null) maxAbs = Math.max(maxAbs, Math.abs(v)); });
+  if (!maxAbs) maxAbs = 1;
+  var html = '<div class="pm-title"><span>' + provName + ' · 1-8月分月</span><span>' + dimKey + ' · 万元</span></div>';
+  PROV_MONTH_LABELS.forEach(function(mm, i) {
+    var mi = PROV_MI[i], si = PROV_SI[i];
+    var v = mi == null ? null : rec.m[mi];
+    if (v == null) {
+      html += '<div class="pm-row"><span class="pm-m">' + mm + '</span>' +
+              '<span class="pm-bar"></span>' +
+              '<span class="pm-v pm-na">无源</span>' +
+              '<span class="pm-y pm-na">—</span></div>';
+      return;
+    }
+    var sv = rec.s[si];
+    var yoy = (sv != null && sv !== 0) ? (v - sv) / Math.abs(sv) * 100 : null;
+    var w = Math.abs(v) / maxAbs * 100;
+    // 柱色只表达「金额大小」，不参与涨跌语义（涨跌由右侧同比列的红/绿承担）
+    var barClr = v >= 0 ? '#4361ee' : '#aab2bd';
+    var yoyClr = yoy == null ? '' : (yoy >= 0 ? '#e74c3c' : '#27ae60');
+    html += '<div class="pm-row"><span class="pm-m">' + mm + '</span>' +
+            '<span class="pm-bar"><i style="width:' + w.toFixed(1) + '%;background:' + barClr + ';"></i></span>' +
+            '<span class="pm-v">' + pmFmt(v) + '</span>' +
+            '<span class="pm-y" style="color:' + yoyClr + ';font-weight:600;">' +
+              (yoy == null ? '—' : (yoy >= 0 ? '+' : '') + yoy.toFixed(1) + '%') + '</span></div>';
+  });
+  html += '<div class="pm-foot"><b>2-4月无源</b>（本机缺《1-2月》《1-3月》期报表）' +
+          (rec.q2_4 != null ? '，2-4月合计 <b>' + pmFmt(rec.q2_4) + '</b> 万' : '') + '<br>' +
+          '1-8月累计 <b>' + pmFmt(rec.cum8) + '</b> 万 &nbsp;|&nbsp; 分月值 = 各期报表累计差分' +
+          provMonthFootnote(dimKey) + '</div>';
+  return html;
+}
+
+// 各省相加 vs 全国合计 的偏差提示（缓存，按维度算一次）
+var _provFootCache = {};
+function provMonthFootnote(dimKey) {
+  if (_provFootCache[dimKey] !== undefined) return _provFootCache[dimKey];
+  var dm = (typeof provinceMonth !== 'undefined' && provinceMonth) ? provinceMonth[dimKey] : null;
+  var ds = null;
+  if (dm && typeof otcMonthlyMix !== 'undefined') {
+    otcMonthlyMix.series.forEach(function(s) { if (s.name === dimKey) ds = s; });
+  }
+  var res = '';
+  if (dm && ds) {
+    var bad = [];
+    PROV_MONTH_LABELS.forEach(function(mm, i) {
+      var mi = PROV_MI[i];
+      if (mi == null) return;
+      var nat = ds.amount[mi];
+      if (nat == null) return;
+      var sum = 0;
+      Object.keys(dm).forEach(function(k) { var v = dm[k].m[mi]; if (v != null) sum += v; });
+      var d = sum - nat;
+      if (Math.abs(d) > 300) bad.push(mm + ' ' + (d >= 0 ? '+' : '') + pmFmt(d, 0));
+    });
+    if (bad.length) res = '<br><span style="color:#b8860b;">△ 各省相加与全国合计存差：' + bad.join('、') +
+                          ' 万（源报表跨期调整省区归集口径所致，非本页计算错误）</span>';
+  }
+  _provFootCache[dimKey] = res;
+  return res;
+}
+
+// 点击省区行 → 展开/收起分月面板（同一张图内只保留一个）
+function toggleProvMonth(rowEl, containerId) {
+  var dimKey = PROV_DIM[containerId];
+  var next = rowEl.nextElementSibling;
+  if (next && next.classList && next.classList.contains('prov-months')) {
+    next.parentNode.removeChild(next);
+    rowEl.classList.remove('open');
+    return;
+  }
+  var wrap = rowEl.parentNode;
+  Array.prototype.forEach.call(wrap.querySelectorAll('.prov-months'), function(b) { b.parentNode.removeChild(b); });
+  Array.prototype.forEach.call(wrap.querySelectorAll('.prov-row.open'), function(r) { r.classList.remove('open'); });
+  var div = document.createElement('div');
+  div.className = 'prov-months';
+  div.innerHTML = provMonthPanel(dimKey, rowEl.getAttribute('data-prov'));
+  wrap.insertBefore(div, rowEl.nextSibling);
+  rowEl.classList.add('open');
+  if (div.scrollIntoView) { try { div.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+}
 
 // On page load, activate tab based on URL hash
 (function() {
@@ -1599,7 +1726,8 @@ function renderProvinceBars(containerId, dataArr, chartTitle) {
     // 年度进度 → 迷你进度条+百分比
     var ap = d.annualProgress != null ? d.annualProgress : 0;
     var apClr = ap >= 60 ? '#27ae60' : (ap >= 30 ? '#f39c12' : '#e74c3c');
-    html += '<div class="prov-row">' +
+    html += '<div class="prov-row" data-prov="'+d.name+'" onclick="toggleProvMonth(this, \''+containerId+'\')" title="点击展开 '+d.name+' 1-8月分月数据">' +
+      '<span class="prov-caret">▶</span>' +
       '<span class="prov-name" title="'+d.name+'">'+d.name+'</span>' +
       '<span class="prov-bar-wrap"><span class="prov-bar-fill" style="width:0;background:'+barColor+';" data-w="'+pct+'"></span></span>' +
       '<span class="prov-metric">'+progressVal+'</span>' +
