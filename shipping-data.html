@@ -903,7 +903,7 @@ function rateClass(rate) {
 <!-- 1-8月分月数据：柱=完成额（左轴） + 曲线=同比（右轴） -->
 <div class="section">
   <div class="section-title"><i class="fas fa-calendar-alt"></i> 1-8月分月数据
-    <span class="hint">柱 = 各维度完成额（左轴·万元）｜ 紫色柱 = 渠道库存月末余额（第二条右轴·万元，2月无源留空）｜ 虚线 = 各维度同比（右轴·%）｜ 悬浮查看明细</span>
+    <span class="hint">柱 = 各维度完成额（左轴·万元）｜ 紫色水位带 = 渠道库存月末余额（第二条右轴·万元，2月无源断开）｜ 虚线 = 各维度同比（右轴·%）｜ 悬浮查看明细</span>
   </div>
   <div class="table-card" style="padding:20px;">
     <div style="height:460px;position:relative;">
@@ -1233,7 +1233,10 @@ function toggleTable(bodyId, iconId) {
            渠道库存 ← 各期报表 总表「渠道库存」复方阿胶浆行「本期」= 月末余额
                      （1月报表 67608.79 / 1-4月报表 83558.48 及其「上月」列 3月 84533.46 / 5-8月报表）
    校验：1-6月累计与 1-6月报表逐项一致；8月值与看板 KPI 现值一致；"终端配送"取「省区终端配送」口径
-   口径：渠道库存为月末余额（存量），与当月发生额不同量级，故单独走第二条右轴；2月源表无余额数据，如实留空 */
+   口径：渠道库存为月末余额（存量），与当月发生额不同量级，故单独走第二条右轴；
+        表现形式 = 「水位背景带」——面积填充置于流量柱之后（fill:'origin'，底色 rgba(114,9,183,0.16)），
+        用一眼可辨的高低水位表达库存松紧；2月源表无余额数据，如实留空（spanGaps:false，水位带断开不插值）
+   注：y2 轴 min 取 -2200 而非 0，是为让「水位带」底边与左轴柱形基线（y=0）对齐；负刻度标签已隐藏 */
 const otcMonthlyMix = {
   months: ["1月","2月","3月","4月","5月","6月","7月","8月"],
   series: [
@@ -1258,9 +1261,9 @@ function renderOtcMonthlyMix() {
   if (!cv || typeof Chart === 'undefined') return;
   if (otcMonthChart) { otcMonthChart.destroy(); otcMonthChart = null; }
   var D = otcMonthlyMix, datasets = [];
-  var barSeries = D.series;
+  var barSeries = D.series.filter(function(s) { return !s.stock; });
+  var stockSeries = D.series.filter(function(s) { return s.stock; });
   var lineSeries = D.series.filter(function(s) { return s.yoy; });
-  var barCount = barSeries.length;
 
   // 每组曲线的标签方向：按当月各曲线相对高低排序，最高朝上、最低朝下、其余左右交错
   function pickAlign(si, mi) {
@@ -1279,19 +1282,47 @@ function renderOtcMonthlyMix() {
     return (rank % 2 === 1) ? 'right' : 'left';
   }
 
-  // 1) 各维度完成额 + 渠道库存月末余额（柱·渠道库存独立走第二条右轴）
+  // 0) 渠道库存月末余额：水位背景带（面积填充·独立走第二条右轴），置最底层衬托流量柱
+  //    Chart.js 按 datasets 数组顺序自下而上绘制，故"水位带"必须排在柱之前才不会被柱盖住
+  stockSeries.forEach(function(s) {
+    datasets.push({
+      type: 'line', label: s.name + '（月末余额）', data: s.amount,
+      yAxisID: 'y2', stockBand: true,
+      fill: 'origin',
+      backgroundColor: 'rgba(114,9,183,0.16)',
+      borderColor: 'rgba(114,9,183,0.85)',
+      borderWidth: 2, tension: 0.35,
+      pointRadius: 3, pointHoverRadius: 5,
+      pointBackgroundColor: '#fff', pointBorderColor: '#7209b7', pointBorderWidth: 2,
+      spanGaps: false,
+      // 仅「孤立点」（前后月均无源，如 1月）标注数值；连续段不标，避免与同比标签打架
+      datalabels: {
+        display: true, clamp: true, clip: false, offset: 7, align: 'top',
+        color: '#7209b7', backgroundColor: 'rgba(255,255,255,0.85)',
+        borderRadius: 3, padding: { top: 1, bottom: 1, left: 3, right: 3 },
+        font: { size: 10, weight: '700' },
+        formatter: function(v, ctx) {
+          if (v == null) return '';
+          var arr = ctx.dataset.data;
+          var prev = ctx.dataIndex > 0 ? arr[ctx.dataIndex - 1] : null;
+          var next = ctx.dataIndex < arr.length - 1 ? arr[ctx.dataIndex + 1] : null;
+          return (prev == null && next == null) ? '月末 ' + Math.round(v).toLocaleString('zh-CN') : '';
+        }
+      }
+    });
+  });
+  // 1) 各维度完成额（柱·左轴）
   barSeries.forEach(function(s) {
     datasets.push({
       type: 'bar', label: s.name, data: s.amount,
-      backgroundColor: s.stock ? 'rgba(114,9,183,0.72)' : s.color,
-      borderColor: s.stock ? '#7209b7' : 'transparent',
-      borderWidth: s.stock ? 1.5 : 0,
-      borderRadius: 4, yAxisID: s.stock ? 'y2' : 'y',
+      backgroundColor: s.color, borderWidth: 0,
+      borderRadius: 4, yAxisID: 'y',
       barPercentage: 0.85, categoryPercentage: 0.76,
       datalabels: { display: false }
     });
   });
-  // 2) 各维度同比（平滑虚线·右轴·带标签）
+  // 2) 各维度同比（平滑虚线·右轴·带标签·置于最上层）
+  var lineOffset = datasets.length;
   lineSeries.forEach(function(s, si) {
     var lc = s.yoyColor || s.color;
     datasets.push({
@@ -1303,7 +1334,7 @@ function renderOtcMonthlyMix() {
       fill: false, yAxisID: 'y1', spanGaps: true,
       datalabels: {
         display: true, clamp: true, clip: false, offset: 6,
-        align: function(ctx) { return pickAlign(ctx.datasetIndex - barCount, ctx.dataIndex); },
+        align: function(ctx) { return pickAlign(ctx.datasetIndex - lineOffset, ctx.dataIndex); },
         color: lc, backgroundColor: 'rgba(255,255,255,0.82)',
         borderRadius: 3, padding: { top: 1, bottom: 1, left: 3, right: 3 },
         font: { size: 10, weight: '600' },
@@ -1319,12 +1350,14 @@ function renderOtcMonthlyMix() {
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { position: 'top', labels: { boxWidth: 12, boxHeight: 12, padding: 12, font: { size: 12 } } },
-        tooltip: { callbacks: { label: function(ctx) {
-          var v = ctx.parsed.y;
-          if (v == null) return null;
-          if (ctx.dataset.type === 'line') return ctx.dataset.label + '：' + (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
-          return ctx.dataset.label + '：' + v.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' 万';
-        } } }
+        tooltip: { callbacks: {
+          filter: function(item) { return item.parsed.y != null; },
+          label: function(ctx) {
+            var v = ctx.parsed.y;
+            if (v == null) return null;
+            if (ctx.dataset.yAxisID === 'y1') return ctx.dataset.label + '：' + (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+            return ctx.dataset.label + '：' + v.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' 万';
+          } } }
       },
       scales: {
         x: { grid: { display: false }, ticks: { font: { size: 12 } } },
@@ -1336,9 +1369,10 @@ function renderOtcMonthlyMix() {
               title: { display: true, text: '同比（%）', font: { size: 12 } },
               ticks: { font: { size: 11 }, callback: function(v) { return v + '%'; } },
               grid: { drawOnChartArea: false } },
-        y2: { position: 'right', min: 0, max: 90000,
-              title: { display: true, text: '渠道库存（万元）', font: { size: 12 }, color: '#7209b7' },
-              ticks: { font: { size: 11 }, color: '#7209b7', callback: function(v) { return v.toLocaleString('zh-CN'); } },
+        y2: { position: 'right', min: -2200, max: 90000,
+              title: { display: true, text: '渠道库存（万元·月末余额）', font: { size: 12 }, color: '#7209b7' },
+              ticks: { font: { size: 11 }, color: '#7209b7',
+                       callback: function(v) { return v < 0 ? '' : v.toLocaleString('zh-CN'); } },
               grid: { drawOnChartArea: false } }
       }
     }
