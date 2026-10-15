@@ -398,6 +398,18 @@
         .mini-bar-bg { display:block; height:4px; background:#f0f0f0; border-radius:2px; margin-bottom:1px; overflow:hidden; }
         .mini-bar-fill { display:block; height:100%; border-radius:2px; transition:width 0.5s ease; }
         .mini-bar-pct { font-size:9px; font-weight:600; }
+        /* 渠道完成情况：横向堆叠条（四渠道） */
+        .ch-legend { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; font-size:11px; color:var(--text2); margin-bottom:8px; }
+        .ch-legend span { display:inline-flex; align-items:center; gap:4px; }
+        .ch-legend i { width:9px; height:9px; border-radius:2px; display:inline-block; }
+        .prov-row .ch-stack { flex:1; min-width:30px; display:flex; height:18px; border-radius:3px; overflow:hidden; background:#f4f5f8; }
+        .prov-row .ch-stack i { display:block; height:100%; width:0; transition:width .5s cubic-bezier(.25,.8,.3,1); }
+        .ch-drow { display:flex; align-items:center; gap:4px; height:18px; font-size:10px; }
+        .prov-months .ch-drow { animation:pmRowIn .3s cubic-bezier(.25,.8,.3,1) both; }
+        .ch-dn { width:86px; flex-shrink:0; display:flex; align-items:center; gap:4px; color:var(--text2); }
+        .ch-dn em { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+        .ch-dv { width:64px; flex-shrink:0; text-align:right; font-variant-numeric:tabular-nums; }
+        .ch-drow.ch-dh { color:var(--text2); font-weight:600; }
         .prov-header-row { display:flex; align-items:center; gap:4px; padding:2px 0 4px; border-bottom:1px solid var(--border); margin-bottom:4px; }
         .prov-header-row .prov-hdr { width:48px; text-align:right; font-size:9px; color:var(--text2); flex-shrink:0; font-weight:500; }
   </style>
@@ -971,6 +983,20 @@ function rateClass(rate) {
     <div class="progress-bar-bg" style="height:8px;"><div id="ka50TtBar" class="progress-bar-fill" style="height:100%;border-radius:4px;"></div></div>
   </div>
 
+  <!-- 渠道完成情况（全产品口径 · 四子表整合） -->
+  <div class="section-title" style="margin-top:20px;"><i class="fas fa-layer-group"></i> 渠道完成情况 · 省区明细（1-8月累计 · <span style="color:#c1121f;">全产品</span>）
+    <span class="hint">四渠道整合 ｜ <b>点击任一行展开四渠道明细</b></span>
+  </div>
+  <div style="max-width:900px;margin:0 auto 16px;">
+    <div class="table-card" style="padding:12px;">
+      <div id="channelBars"></div>
+      <div style="margin-top:8px;padding-top:7px;border-top:1px dashed var(--border);font-size:10px;color:var(--text2);line-height:1.6;">
+        数据源：2026年1-8月 OTC事业部指标完成报表 四子表（KA50购进 / 重点连锁购进 / 医馆礼品店 / 广阔市场）· <b>全产品</b>口径「本期」= 1-8月完成金额<br>
+        色条长度 = 该省四渠道合计（最大省 = 满格）｜ 医馆礼品店仅 福建 / 广东 / 江苏 / 山东 / 四川 / 云南 / 浙沪 7 省有业务，其余省区不计入该段
+      </div>
+    </div>
+  </div>
+
 </div>
 
 </div><!-- end tab-otc -->
@@ -1178,6 +1204,15 @@ var PROV_DIM = { shipBars: '发货', deliveryBars: '终端配送', ka50Bars: 'KA
 var PROV_MONTH_LABELS = ['1月','2月','3月','4月','5月','6月','7月','8月'];
 var PROV_MI = [0, null, null, null, 4, 5, 6, 7];   // 月份 → m[] 下标（null = 无源）
 var PROV_SI = [0, null, null, null, 1, 2, 3, 4];   // 月份 → s[]（同期）下标
+
+/* ===== 渠道完成情况（全产品口径 · 1-8月）=====
+   数据源：2026年1-8月OTC事业部指标完成报表 四个子表（KA50购进 / 重点连锁购进 / 医馆礼品店 / 广阔市场）
+           取值：全产品块「本期」= 1-8月完成金额（万元）、同比、完成率、年度进度、累计指标、年度指标
+   ⚠️ 口径：**全产品**（上方三张省区图为复方阿胶浆），勿混用
+   ⚠️ 医馆礼品店仅 7 省（福建/广东/江苏/山东/四川/云南/浙沪）有业务，其余省区该段不显示
+   生成脚本：dashboard-pipeline/build_channel_js.py（源 channel_completion.json ← extract_channel_completion.py）
+   注入脚本：dashboard-pipeline/inject_channel.py（幂等）*/
+var channelData = /*@CHANNEL_JSON@*/ {"channels":[{"key":"ka50","name":"KA50购进","color":"#4361ee"},{"key":"chain","name":"重点连锁购进","color":"#7209b7"},{"key":"yiguan","name":"医馆礼品店","color":"#f72585"},{"key":"broad","name":"广阔市场","color":"#06d6a0"}],"provinces":[{"name":"山东","amt":26347.76,"yoy":-0.1986,"rate":0.6407,"prog":0.3759,"parts":{"ka50":{"amt":13858.75,"yoy":-0.2005,"rate":0.7758,"prog":0.4552},"chain":{"amt":2516.49,"yoy":-0.2112,"rate":0.6336,"prog":0.3717},"yiguan":{"amt":7239.59,"yoy":-0.2203,"rate":0.4307,"prog":0.2527},"broad":{"amt":2732.93,"yoy":-0.1089,"rate":1.1008,"prog":0.6458}}},{"name":"广东","amt":12809.64,"yoy":-0.3538,"rate":0.29,"prog":0.1701,"parts":{"ka50":{"amt":7882.91,"yoy":-0.4016,"rate":0.3342,"prog":0.1961},"chain":{"amt":4114.27,"yoy":0.1396,"rate":0.3979,"prog":0.2334},"yiguan":{"amt":-17.5,"yoy":-1.0226,"rate":-0.0046,"prog":-0.0027},"broad":{"amt":829.96,"yoy":-0.6336,"rate":0.1289,"prog":0.0756}}},{"name":"浙沪","amt":9935.66,"yoy":-0.2376,"rate":0.2635,"prog":0.1546,"parts":{"ka50":{"amt":2105.4,"yoy":-0.6388,"rate":0.2392,"prog":0.1404},"chain":{"amt":222.12,"yoy":-0.7766,"rate":0.0548,"prog":0.0322},"yiguan":{"amt":2194.45,"yoy":-0.5658,"rate":0.1264,"prog":0.0741},"broad":{"amt":5413.69,"yoy":3.6859,"rate":0.7226,"prog":0.4239}}},{"name":"江苏","amt":9879.42,"yoy":0.3704,"rate":0.442,"prog":0.2593,"parts":{"ka50":{"amt":9352.17,"yoy":0.5313,"rate":0.5904,"prog":0.3464},"chain":{"amt":330.04,"yoy":-0.5754,"rate":0.1298,"prog":0.0761},"yiguan":{"amt":14.16,"yoy":-0.765,"rate":null,"prog":null},"broad":{"amt":183.05,"yoy":-0.3076,"rate":0.0461,"prog":0.0271}}},{"name":"冀晋","amt":9135.68,"yoy":0.5116,"rate":0.9653,"prog":0.5663,"parts":{"ka50":{"amt":3230.57,"yoy":-0.1028,"rate":0.6517,"prog":0.3823},"chain":{"amt":2514.73,"yoy":0.6684,"rate":1.1455,"prog":0.672},"yiguan":null,"broad":{"amt":3390.38,"yoy":2.6239,"rate":1.4668,"prog":0.8605}}},{"name":"湖南","amt":8770.12,"yoy":1.0956,"rate":0.7966,"prog":0.4673,"parts":{"ka50":{"amt":3538.19,"yoy":-0.0416,"rate":0.3924,"prog":0.2302},"chain":{"amt":598.36,"yoy":0.8241,"rate":0.4594,"prog":0.2695},"yiguan":null,"broad":{"amt":4633.57,"yoy":27.0138,"rate":6.7161,"prog":3.9401}}},{"name":"重庆","amt":7259.58,"yoy":1.2818,"rate":0.6493,"prog":0.3809,"parts":{"ka50":{"amt":1925.93,"yoy":5.6616,"rate":0.4104,"prog":0.2408},"chain":{"amt":5131.65,"yoy":1.6552,"rate":1.1935,"prog":0.7002},"yiguan":null,"broad":{"amt":202.0,"yoy":-0.7895,"rate":0.0923,"prog":0.0542}}},{"name":"四川","amt":7009.15,"yoy":0.2495,"rate":0.4163,"prog":0.2442,"parts":{"ka50":{"amt":1881.29,"yoy":-0.1534,"rate":0.2915,"prog":0.171},"chain":{"amt":4245.66,"yoy":0.2694,"rate":0.4973,"prog":0.2918},"yiguan":{"amt":5.12,"yoy":-0.5,"rate":0.0113,"prog":0.0066},"broad":{"amt":877.08,"yoy":25.7787,"rate":0.6295,"prog":0.3693}}},{"name":"湖北","amt":4982.69,"yoy":-0.357,"rate":0.4025,"prog":0.2362,"parts":{"ka50":{"amt":2966.0,"yoy":-0.5011,"rate":0.4754,"prog":0.2789},"chain":{"amt":1316.98,"yoy":0.3774,"rate":0.6392,"prog":0.375},"yiguan":null,"broad":{"amt":699.71,"yoy":-0.1746,"rate":0.1715,"prog":0.1006}}},{"name":"贵州","amt":4583.92,"yoy":0.2413,"rate":0.9076,"prog":0.5325,"parts":{"ka50":{"amt":4525.71,"yoy":0.254,"rate":1.1688,"prog":0.6857},"chain":{"amt":24.66,"yoy":-0.1916,"rate":0.0497,"prog":0.0292},"yiguan":null,"broad":{"amt":33.55,"yoy":-0.3698,"rate":0.0492,"prog":0.0288}}},{"name":"江西","amt":4308.33,"yoy":-0.382,"rate":0.4409,"prog":0.2587,"parts":{"ka50":{"amt":3556.09,"yoy":0.0255,"rate":0.619,"prog":0.3632},"chain":{"amt":374.48,"yoy":-0.8924,"rate":0.1035,"prog":0.0607},"yiguan":null,"broad":{"amt":377.76,"yoy":14.8722,"rate":0.9292,"prog":0.5451}}},{"name":"京津","amt":4159.25,"yoy":0.3005,"rate":0.7463,"prog":0.4378,"parts":{"ka50":{"amt":1472.12,"yoy":-0.3038,"rate":0.6523,"prog":0.3827},"chain":{"amt":589.54,"yoy":-0.0885,"rate":0.3173,"prog":0.1862},"yiguan":null,"broad":{"amt":2097.59,"yoy":3.799,"rate":1.4382,"prog":0.8438}}},{"name":"云南","amt":4053.76,"yoy":3.0174,"rate":0.6078,"prog":0.3566,"parts":{"ka50":{"amt":2607.5,"yoy":2.204,"rate":0.6838,"prog":0.4012},"chain":{"amt":215.21,"yoy":1.584,"rate":0.16,"prog":0.0939},"yiguan":{"amt":1059.11,"yoy":73.0777,"rate":2.473,"prog":1.4508},"broad":{"amt":171.94,"yoy":0.7609,"rate":0.1588,"prog":0.0931}}},{"name":"甘青宁","amt":3657.2,"yoy":0.3221,"rate":0.6374,"prog":0.3739,"parts":{"ka50":{"amt":2078.44,"yoy":0.3134,"rate":0.5869,"prog":0.3443},"chain":{"amt":1154.48,"yoy":0.6963,"rate":0.8872,"prog":0.5205},"yiguan":null,"broad":{"amt":424.28,"yoy":-0.1565,"rate":0.4739,"prog":0.278}}},{"name":"安徽","amt":3639.6,"yoy":-0.6771,"rate":0.2217,"prog":0.13,"parts":{"ka50":{"amt":2756.73,"yoy":-0.6071,"rate":0.3448,"prog":0.2023},"chain":{"amt":1622.23,"yoy":-0.1704,"rate":0.4796,"prog":0.2814},"yiguan":null,"broad":{"amt":-739.36,"yoy":-1.3214,"rate":-0.1466,"prog":-0.086}}},{"name":"陕西","amt":3451.44,"yoy":-0.2553,"rate":0.3888,"prog":0.2281,"parts":{"ka50":{"amt":1081.55,"yoy":-0.4293,"rate":0.2751,"prog":0.1614},"chain":{"amt":1125.4,"yoy":-0.0234,"rate":0.4985,"prog":0.2925},"yiguan":null,"broad":{"amt":1244.49,"yoy":-0.2159,"rate":0.463,"prog":0.2716}}},{"name":"福建","amt":3283.18,"yoy":0.2612,"rate":0.6291,"prog":0.3691,"parts":{"ka50":{"amt":1877.54,"yoy":0.6672,"rate":0.9239,"prog":0.542},"chain":{"amt":1079.26,"yoy":-0.2335,"rate":0.5182,"prog":0.304},"yiguan":{"amt":3.72,"yoy":null,"rate":0.0161,"prog":0.0095},"broad":{"amt":322.66,"yoy":3.6822,"rate":0.3694,"prog":0.2167}}},{"name":"河南","amt":3024.82,"yoy":-0.0757,"rate":0.4238,"prog":0.2486,"parts":{"ka50":{"amt":2608.71,"yoy":0.0086,"rate":0.4883,"prog":0.2865},"chain":{"amt":21.66,"yoy":-0.5736,"rate":0.0331,"prog":0.0194},"yiguan":null,"broad":{"amt":394.45,"yoy":-0.3792,"rate":0.346,"prog":0.203}}},{"name":"东北","amt":2536.99,"yoy":-0.1783,"rate":0.3162,"prog":0.1855,"parts":{"ka50":{"amt":1172.57,"yoy":-0.4981,"rate":0.4237,"prog":0.2486},"chain":{"amt":798.03,"yoy":0.5055,"rate":0.3536,"prog":0.2074},"yiguan":null,"broad":{"amt":566.39,"yoy":1.5593,"rate":0.1889,"prog":0.1108}}},{"name":"新疆","amt":2490.54,"yoy":0.0218,"rate":0.7514,"prog":0.4408,"parts":{"ka50":{"amt":1097.74,"yoy":0.0384,"rate":0.7485,"prog":0.4391},"chain":{"amt":1231.41,"yoy":0.1653,"rate":0.8136,"prog":0.4773},"yiguan":null,"broad":{"amt":161.39,"yoy":-0.5014,"rate":0.4826,"prog":0.2831}}},{"name":"广西","amt":2379.6,"yoy":3.166,"rate":0.4477,"prog":0.2627,"parts":{"ka50":{"amt":1378.21,"yoy":18.8896,"rate":0.7831,"prog":0.4594},"chain":{"amt":726.81,"yoy":0.1479,"rate":0.4583,"prog":0.2689},"yiguan":null,"broad":{"amt":274.58,"yoy":17.2603,"rate":0.1395,"prog":0.0818}}}]};
 
 function pmFmt(v, d) {
   if (v == null) return '—';
@@ -1537,6 +1572,7 @@ function initOtcCharts() {
   renderProvinceBars('shipBars', shipData, '📦 发货');
   renderProvinceBars('deliveryBars', deliveryData, '🚚 终端配送');
   renderProvinceBars('ka50Bars', ka50Data, '🏪 KA50纯销');
+  renderChannelBars();
   otcChartsReady = true;
 }
 
@@ -1776,6 +1812,106 @@ function renderProvinceBars(containerId, dataArr, chartTitle) {
       m.style.width = m.getAttribute('data-w2') + '%';
     });
   });
+}
+
+/* ===== 渠道完成情况：横向堆叠条 + 点击展开四渠道明细 ===== */
+function chFmtW(v) { return v == null ? '—' : v.toFixed(1); }
+function chFmtP(v, sign) { return v == null ? '—' : (sign && v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%'; }
+
+function renderChannelBars() {
+  var D = channelData, box = document.getElementById('channelBars');
+  if (!D || !box) return;
+  var CHS = D.channels, provs = D.provinces;
+  var absMax = 1;
+  provs.forEach(function(p) { if (p.amt > absMax) absMax = p.amt; });
+
+  var html = '<div class="ch-legend">';
+  CHS.forEach(function(ch) { html += '<span><i style="background:' + ch.color + '"></i>' + ch.name + '</span>'; });
+  html += '</div>';
+  html += '<div class="prov-header-row">' +
+    '<span class="prov-hdr" style="width:10px;"></span>' +
+    '<span class="prov-hdr" style="width:38px;"></span>' +
+    '<span class="prov-hdr" style="flex:1;min-width:30px;">四渠道结构</span>' +
+    '<span class="prov-hdr">合计</span><span class="prov-hdr">同比</span>' +
+    '<span class="prov-hdr">完成率</span><span class="prov-hdr">进度</span></div>';
+
+  html += '<div class="prov-bars">';
+  provs.forEach(function(p) {
+    var segs = '';
+    CHS.forEach(function(ch) {
+      var d = p.parts[ch.key];
+      var a = d ? (d.amt || 0) : 0;
+      if (a <= 0) return;
+      segs += '<i style="width:0;background:' + ch.color + ';" data-w="' + (a / absMax * 100) +
+              '" title="' + ch.name + ' ' + chFmtW(a) + '万"></i>';
+    });
+    var rateClr = p.rate == null ? 'var(--text2)' : (p.rate >= 0.6 ? '#27ae60' : (p.rate >= 0.3 ? '#f39c12' : '#e74c3c'));
+    var yoyCls = p.yoy == null ? '' : (p.yoy >= 0 ? 'red' : 'green');
+    html += '<div class="prov-row" data-chprov="' + p.name + '" onclick="toggleChannelDetail(this)" title="点击展开 ' + p.name + ' 四渠道明细">' +
+      '<span class="prov-caret">▶</span>' +
+      '<span class="prov-name" title="' + p.name + '">' + p.name + '</span>' +
+      '<span class="ch-stack">' + segs + '</span>' +
+      '<span class="prov-metric">' + chFmtW(p.amt) + '万</span>' +
+      '<span class="prov-metric ' + yoyCls + '">' + chFmtP(p.yoy, true) + '</span>' +
+      '<span class="prov-metric" style="color:' + rateClr + ';">' + chFmtP(p.rate) + '</span>' +
+      '<span class="prov-metric">' + chFmtP(p.prog) + '</span>' +
+      '</div>';
+  });
+  html += '</div>';
+  box.innerHTML = html;
+  requestAnimationFrame(function() {
+    Array.prototype.forEach.call(box.querySelectorAll('.ch-stack i'), function(el) {
+      el.style.width = (el.getAttribute('data-w') || 0) + '%';
+    });
+  });
+}
+
+function channelPanel(p) {
+  var rows = '<div class="ch-drow ch-dh"><span class="ch-dn">渠道</span><span class="ch-dv">1-8月完成</span>' +
+             '<span class="ch-dv">同比</span><span class="ch-dv">完成率</span><span class="ch-dv">进度</span></div>';
+  channelData.channels.forEach(function(ch) {
+    var d = p.parts[ch.key];
+    var cls = (d && d.yoy != null) ? (d.yoy >= 0 ? 'red' : 'green') : '';
+    rows += '<div class="ch-drow" data-chrow>' +
+      '<span class="ch-dn"><em style="background:' + ch.color + '"></em>' + ch.name + '</span>' +
+      '<span class="ch-dv">' + chFmtW(d ? d.amt : null) + '</span>' +
+      '<span class="ch-dv ' + cls + '">' + chFmtP(d ? d.yoy : null, true) + '</span>' +
+      '<span class="ch-dv">' + chFmtP(d ? d.rate : null) + '</span>' +
+      '<span class="ch-dv">' + chFmtP(d ? d.prog : null) + '</span></div>';
+  });
+  return '<div class="pm-inner"><div class="pm-title"><span>' + p.name + ' · 四渠道明细（1-8月 · 全产品）</span>' +
+         '<span>合计 ' + p.amt.toFixed(1) + ' 万</span></div>' + rows + '</div>';
+}
+
+function toggleChannelDetail(rowEl) {
+  var next = rowEl.nextElementSibling;
+  if (next && next.classList && next.classList.contains('prov-months')) {
+    collapseProvPanel(next);
+    rowEl.classList.remove('open');
+    return;
+  }
+  var wrap = rowEl.parentNode;
+  Array.prototype.forEach.call(wrap.querySelectorAll('.prov-row.open'), function(r) { r.classList.remove('open'); });
+  Array.prototype.forEach.call(wrap.querySelectorAll('.prov-months'), function(b) { collapseProvPanel(b); });
+  var name = rowEl.getAttribute('data-chprov'), p = null;
+  channelData.provinces.forEach(function(x) { if (x.name === name) p = x; });
+  if (!p) return;
+  var div = document.createElement('div');
+  div.className = 'prov-months';
+  div.innerHTML = channelPanel(p);
+  wrap.insertBefore(div, rowEl.nextSibling);
+  rowEl.classList.add('open');
+  requestAnimationFrame(function() {
+    var h = div.querySelector('.pm-inner');
+    div.style.maxHeight = ((h ? h.offsetHeight : div.scrollHeight) + 8) + 'px';
+    div.classList.add('show');
+    Array.prototype.forEach.call(div.querySelectorAll('[data-chrow]'), function(r, i) {
+      r.style.animationDelay = (40 + i * 45) + 'ms';
+    });
+  });
+  setTimeout(function() {
+    if (div.scrollIntoView) { try { div.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+  }, 260);
 }
 </script>
 
