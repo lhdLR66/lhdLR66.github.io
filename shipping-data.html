@@ -222,6 +222,13 @@
         .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
         @media (max-width: 1200px) { .three-col { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 768px)  { .three-col { grid-template-columns: 1fr; } }
+        /* 省区四图同行：横向滚动（放不下时可左右拖） */
+        .four-col-scroll { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: thin; }
+        .four-col-scroll > .fc-item { flex: 0 0 400px; min-width: 400px; }
+        .four-col-scroll > .fc-item::-webkit-scrollbar { width: 6px; }
+        .four-col-scroll::-webkit-scrollbar { height: 9px; }
+        .four-col-scroll::-webkit-scrollbar-thumb { background: #c8ccd8; border-radius: 5px; }
+        .four-col-scroll::-webkit-scrollbar-track { background: #f0f2f5; border-radius: 5px; }
 
         /* 各省KA50 TOP5 折叠网格 */
         .province-top5-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -948,23 +955,32 @@ function rateClass(rate) {
 
 <!-- 省区明细三图：发货 | 终端配送 | KA50纯销 -->
 <div class="section">
-  <div class="section-title"><i class="fas fa-chart-bar"></i> 复方阿胶浆 · 省区明细（1-8月累计）
-    <span class="hint">按完成金额降序 | 红柱 = 同比增长 · 绿柱 = 同比下滑 | <b>点击任一行展开该省区 1-8月分月数据及同比</b>（2/3/4月源报表缺失，显示「无源」）</span>
+  <div class="section-title"><i class="fas fa-chart-bar"></i> 复方阿胶浆 · 省区明细（1-8月累计）＋ 渠道库存（8月底）
+    <span class="hint">按金额降序 ｜ 红柱 = 同比增长 · 绿柱 = 同比下滑（深浅表示幅度）｜ <b>点击任一行展开该省分月数据</b> ｜ 图较宽，可左右拖动</span>
   </div>
 
-  <div class="three-col" style="margin-bottom:16px;">
+  <div class="four-col-scroll" style="margin-bottom:12px;">
     <!-- 发货 -->
-    <div class="table-card" style="padding:12px;">
+    <div class="table-card fc-item" style="padding:12px;">
       <div style="height:580px;overflow-y:auto;" id="shipBars"></div>
     </div>
     <!-- 终端配送 -->
-    <div class="table-card" style="padding:12px;">
+    <div class="table-card fc-item" style="padding:12px;">
       <div style="height:580px;overflow-y:auto;" id="deliveryBars"></div>
     </div>
     <!-- KA50纯销 -->
-    <div class="table-card" style="padding:12px;">
+    <div class="table-card fc-item" style="padding:12px;">
       <div style="height:580px;overflow-y:auto;" id="ka50Bars"></div>
     </div>
+    <!-- 渠道库存（复方阿胶浆类 · 8月底时点） -->
+    <div class="table-card fc-item" style="padding:12px;">
+      <div style="height:580px;overflow-y:auto;" id="inventoryBars"></div>
+    </div>
+  </div>
+
+  <div style="padding-top:8px;border-top:1px dashed var(--border);font-size:10px;color:var(--text2);line-height:1.7;">
+    前三图：复方阿胶浆「本期」= 1-8月<b>累计</b>金额（色条长度 = 金额，色按同比：<b>红=增长 · 绿=下滑</b>，深浅表示幅度）；2/3/4月源报表缺失，展开面板显示「无源」<br>
+    第四图：渠道库存（复方阿胶浆类）= <b>8月底时点余额</b>（一二级商在库 + 已采购未入库在途）｜ 周转天数 = 渠道库存 ÷ MAT月均配送 × 30 ｜ 展开面板为该省 1-8月分月余额（<b>2月无源，留空待补</b>）
   </div>
 
   <!-- 共享悬浮提示 -->
@@ -981,20 +997,6 @@ function rateClass(rate) {
     <div style="font-size:11px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between;">
       <span>年度进度</span><span id="ka50TtProgressPct" style="font-weight:600;"></span></div>
     <div class="progress-bar-bg" style="height:8px;"><div id="ka50TtBar" class="progress-bar-fill" style="height:100%;border-radius:4px;"></div></div>
-  </div>
-
-  <!-- 渠道库存 · 省区明细（复方阿胶浆类 · 8月底时点） -->
-  <div class="section-title" style="margin-top:20px;"><i class="fas fa-warehouse"></i> 渠道库存 · 省区明细（8月底 · 复方阿胶浆类）
-    <span class="hint">条形 = 库存金额（色按同比：红=增长 绿=下滑）｜ 右侧细条 = 周转天数 ｜ <b>点击任一行展开省份明细</b></span>
-  </div>
-  <div style="max-width:900px;margin:0 auto 16px;">
-    <div class="table-card" style="padding:12px;">
-      <div id="inventoryBars"></div>
-      <div style="margin-top:8px;padding-top:7px;border-top:1px dashed var(--border);font-size:10px;color:var(--text2);line-height:1.6;">
-        数据源：2026年1-8月报表「渠道库存」· 复方阿胶浆类「本期」= 8月底渠道库存金额（一二级商在库 + 已采购未入库在途）<br>
-        周转天数 = 渠道库存 ÷ MAT月均配送 × 30 ｜ 周转天数条色：≤90 天绿 · 90-180 黄绿 · 180-270 橙 · &gt;270 红（越长越重）
-      </div>
-    </div>
   </div>
 
 </div>
@@ -1225,7 +1227,7 @@ var PROV_SI = [0, null, null, null, 1, 2, 3, 4];   // 月份 → s[]（同期）
    行：省区合计行（c3 非空、c4 空）为主数据；省份明细行（c4 非空）归入所属省区作展开内容
    ⚠️ 口径：复方阿胶浆类（与顶部月度图的库存水位带同源：全国 8月底 67,339.49 万）
    生成脚本：dashboard-pipeline/extract_inventory_js.py；注入：inject_inventory.py（幂等）*/
-var inventoryData = /*@INVENTORY_JSON@*/ {"month":"8月底","provinces":[{"name":"山东","amt":11750.09,"days":156.63,"yoy":-0.1314,"mom":0.0899,"last":13527.41,"mat":2250.47,"parts":[{"name":"山东省","amt":11750.09,"days":156.63,"yoy":-0.1314,"mom":0.0899,"last":13527.41,"mat":2250.47}]},{"name":"广东","amt":6923.6,"days":171.67,"yoy":0.2324,"mom":0.0082,"last":5618.11,"mat":1209.91,"parts":[{"name":"广东省","amt":6923.6,"days":173.82,"yoy":0.2336,"mom":0.0082,"last":5612.39,"mat":1194.94},{"name":"海南省","amt":0,"days":0,"yoy":-1,"mom":null,"last":5.72,"mat":14.97}]},{"name":"江苏","amt":6575.21,"days":190.13,"yoy":-0.2041,"mom":-0.0183,"last":8260.88,"mat":1037.5,"parts":[{"name":"江苏省","amt":6575.21,"days":190.13,"yoy":-0.2041,"mom":-0.0183,"last":8260.88,"mat":1037.5}]},{"name":"陕西","amt":5986.13,"days":294.73,"yoy":0.7213,"mom":0.0174,"last":3477.76,"mat":609.33,"parts":[{"name":"陕西省","amt":5986.13,"days":294.73,"yoy":0.7213,"mom":0.0174,"last":3477.76,"mat":609.33}]},{"name":"安徽","amt":5884.59,"days":210.45,"yoy":1.0414,"mom":-0.0662,"last":2882.57,"mat":838.86,"parts":[{"name":"安徽省","amt":5884.59,"days":210.45,"yoy":1.0414,"mom":-0.0662,"last":2882.57,"mat":838.86}]},{"name":"湖北","amt":3291.33,"days":50.77,"yoy":-0.2236,"mom":-0.0195,"last":4238.96,"mat":1944.91,"parts":[{"name":"湖北省","amt":3291.33,"days":50.77,"yoy":-0.2236,"mom":-0.0195,"last":4238.96,"mat":1944.91}]},{"name":"四川","amt":2945.39,"days":69.31,"yoy":0.0121,"mom":0.0251,"last":2910.21,"mat":1274.95,"parts":[{"name":"四川省","amt":2945.33,"days":72.16,"yoy":0.0121,"mom":0.0252,"last":2910.21,"mat":1224.58},{"name":"西藏自治区","amt":0.05,"days":0.03,"yoy":null,"mom":-0.619,"last":0,"mat":50.37}]},{"name":"冀晋","amt":2770.62,"days":118.2,"yoy":-0.2955,"mom":-0.0117,"last":3932.49,"mat":703.21,"parts":[{"name":"河北省","amt":2565.06,"days":150.57,"yoy":-0.2221,"mom":-0.0024,"last":3297.51,"mat":511.08},{"name":"山西省","amt":205.56,"days":32.1,"yoy":-0.6763,"mom":-0.1147,"last":634.98,"mat":192.13}]},{"name":"东北","amt":2705.8,"days":247.11,"yoy":0.4463,"mom":-0.0804,"last":1870.9,"mat":328.5,"parts":[{"name":"黑龙江省","amt":674.68,"days":204.25,"yoy":4.8217,"mom":-0.0418,"last":115.89,"mat":99.09},{"name":"吉林省","amt":79.41,"days":62.48,"yoy":-0.6345,"mom":-0.0749,"last":217.26,"mat":38.13},{"name":"辽宁省","amt":1831.15,"days":526.61,"yoy":0.6387,"mom":-0.0175,"last":1117.41,"mat":104.32},{"name":"内蒙古自治区","amt":120.56,"days":41.59,"yoy":-0.7132,"mom":-0.5826,"last":420.35,"mat":86.96}]},{"name":"云南","amt":2696.06,"days":417.84,"yoy":5.3539,"mom":0.0142,"last":424.32,"mat":193.57,"parts":[{"name":"云南省","amt":2696.06,"days":417.84,"yoy":5.3539,"mom":0.0142,"last":424.32,"mat":193.57}]},{"name":"甘青宁","amt":2464.98,"days":159.54,"yoy":2.6033,"mom":-0.0279,"last":684.08,"mat":463.52,"parts":[{"name":"甘肃省","amt":2338.65,"days":181.18,"yoy":3.2729,"mom":-0.0432,"last":547.32,"mat":387.23},{"name":"宁夏回族自治区","amt":73.75,"days":56.96,"yoy":0.6211,"mom":0.0595,"last":45.5,"mat":38.84},{"name":"青海省","amt":52.58,"days":42.13,"yoy":-0.4239,"mom":1.385,"last":91.27,"mat":37.44}]},{"name":"河南","amt":1949.73,"days":230.07,"yoy":1.611,"mom":-0.0485,"last":746.73,"mat":254.23,"parts":[{"name":"河南省","amt":1949.73,"days":230.07,"yoy":1.611,"mom":-0.0485,"last":746.73,"mat":254.23}]},{"name":"贵州","amt":1558.97,"days":144.66,"yoy":0.7606,"mom":0.2968,"last":885.46,"mat":323.3,"parts":[{"name":"贵州省","amt":1558.97,"days":144.66,"yoy":0.7606,"mom":0.2968,"last":885.46,"mat":323.3}]},{"name":"新疆","amt":1546.59,"days":193.22,"yoy":1.5805,"mom":-0.0433,"last":599.35,"mat":240.13,"parts":[{"name":"新疆维吾尔自治区","amt":1546.59,"days":193.22,"yoy":1.5805,"mom":-0.0433,"last":599.35,"mat":240.13}]},{"name":"浙沪","amt":1469.64,"days":39.06,"yoy":-0.6674,"mom":-0.1598,"last":4418.08,"mat":1128.85,"parts":[{"name":"上海直辖市","amt":536.21,"days":26.75,"yoy":1.2121,"mom":-0.1218,"last":242.4,"mat":601.26},{"name":"浙江省","amt":933.44,"days":53.08,"yoy":-0.7765,"mom":-0.1802,"last":4175.68,"mat":527.58}]},{"name":"京津","amt":1437.14,"days":193.18,"yoy":0.6371,"mom":-0.0315,"last":877.86,"mat":223.18,"parts":[{"name":"北京直辖市","amt":617.24,"days":121.98,"yoy":0.6669,"mom":-0.1009,"last":370.3,"mat":151.81},{"name":"天津直辖市","amt":819.9,"days":344.65,"yoy":0.6154,"mom":0.0282,"last":507.56,"mat":71.37}]},{"name":"福建","amt":1341.72,"days":125.22,"yoy":1.8333,"mom":0.0881,"last":473.56,"mat":321.45,"parts":[{"name":"福建省","amt":1341.72,"days":125.22,"yoy":1.8333,"mom":0.0881,"last":473.56,"mat":321.45}]},{"name":"重庆","amt":1266.98,"days":70.17,"yoy":-0.6117,"mom":-0.0133,"last":3262.89,"mat":541.64,"parts":[{"name":"重庆直辖市","amt":1266.98,"days":70.17,"yoy":-0.6117,"mom":-0.0133,"last":3262.89,"mat":541.64}]},{"name":"广西","amt":1232.88,"days":280.26,"yoy":0.2344,"mom":-0.0643,"last":998.81,"mat":131.97,"parts":[{"name":"广西壮族自治区","amt":1232.88,"days":280.26,"yoy":0.2344,"mom":-0.0643,"last":998.81,"mat":131.97}]},{"name":"江西","amt":1218.07,"days":139.52,"yoy":1.4021,"mom":0.1425,"last":507.08,"mat":261.91,"parts":[{"name":"江西省","amt":1218.07,"days":139.52,"yoy":1.4021,"mom":0.1425,"last":507.08,"mat":261.91}]},{"name":"湖南","amt":323.97,"days":8.75,"yoy":-0.485,"mom":-0.0024,"last":629.12,"mat":1110.19,"parts":[{"name":"湖南省","amt":323.97,"days":8.75,"yoy":-0.485,"mom":-0.0024,"last":629.12,"mat":1110.19}]}]};
+var inventoryData = /*@INVENTORY_JSON@*/ {"month":"8月底","months":["1月","2月","3月","4月","5月","6月","7月","8月"],"provinces":[{"name":"山东","amt":11750.09,"days":156.63,"yoy":-0.1314,"mom":0.0899,"mat":2250.47,"m":[{"amt":11325.47,"days":149.37},null,{"amt":10926.44,"days":-0.09},{"amt":9928.48,"days":134.96},{"amt":9872.99,"days":140.79},{"amt":10689.96,"days":135.57},{"amt":10781.12,"days":138.5},{"amt":11750.09,"days":156.63}],"parts":[{"name":"山东省","amt":11750.09,"days":156.63,"yoy":-0.1314,"mom":0.0899}]},{"name":"广东","amt":6923.6,"days":171.67,"yoy":0.2324,"mom":0.0082,"mat":1209.91,"m":[{"amt":7138.98,"days":213.51},null,{"amt":6391.21,"days":-0.04},{"amt":6118.41,"days":163.1},{"amt":7689.97,"days":200.81},{"amt":7058.96,"days":163.55},{"amt":6867.08,"days":162.58},{"amt":6923.6,"days":171.67}],"parts":[{"name":"广东省","amt":6923.6,"days":173.82,"yoy":0.2336,"mom":0.0082},{"name":"海南省","amt":0,"days":0,"yoy":-1,"mom":null}]},{"name":"江苏","amt":6575.21,"days":190.13,"yoy":-0.2041,"mom":-0.0183,"mat":1037.5,"m":[{"amt":7072.13,"days":261.26},null,{"amt":7690.02,"days":-0.0},{"amt":7673.83,"days":252.06},{"amt":7553.65,"days":254.91},{"amt":6672.33,"days":201.46},{"amt":6692.79,"days":202.86},{"amt":6575.21,"days":190.13}],"parts":[{"name":"江苏省","amt":6575.21,"days":190.13,"yoy":-0.2041,"mom":-0.0183}]},{"name":"陕西","amt":5986.13,"days":294.73,"yoy":0.7213,"mom":0.0174,"mat":609.33,"m":[{"amt":3558.89,"days":201.7},null,{"amt":6310.37,"days":0.07},{"amt":6749.76,"days":347.52},{"amt":6232.45,"days":305.33},{"amt":5719.05,"days":274.83},{"amt":5883.5,"days":287.73},{"amt":5986.13,"days":294.72}],"parts":[{"name":"陕西省","amt":5986.13,"days":294.73,"yoy":0.7213,"mom":0.0174}]},{"name":"安徽","amt":5884.59,"days":210.45,"yoy":1.0414,"mom":-0.0662,"mat":838.86,"m":[{"amt":6352.19,"days":149.26},null,{"amt":8021.2,"days":-0.0},{"amt":8020.48,"days":237.36},{"amt":7878.86,"days":247.45},{"amt":6440.88,"days":232.41},{"amt":6301.72,"days":213.85},{"amt":5884.59,"days":210.45}],"parts":[{"name":"安徽省","amt":5884.59,"days":210.45,"yoy":1.0414,"mom":-0.0662}]},{"name":"湖北","amt":3291.33,"days":50.77,"yoy":-0.2236,"mom":-0.0195,"mat":1944.91,"m":[{"amt":6033.58,"days":173.04},null,{"amt":10546.27,"days":-0.05},{"amt":10027.61,"days":236.88},{"amt":8690.41,"days":192.89},{"amt":3376.08,"days":69.84},{"amt":3356.83,"days":51.85},{"amt":3291.33,"days":50.77}],"parts":[{"name":"湖北省","amt":3291.33,"days":50.77,"yoy":-0.2236,"mom":-0.0195}]},{"name":"四川","amt":2945.39,"days":69.31,"yoy":0.0121,"mom":0.0251,"mat":1274.95,"m":[{"amt":3026.13,"days":72.08},null,{"amt":3513.27,"days":0.27},{"amt":4466.38,"days":129.21},{"amt":3574.08,"days":100.48},{"amt":3790.89,"days":94.65},{"amt":2873.14,"days":66.72},{"amt":2945.39,"days":69.31}],"parts":[{"name":"四川省","amt":2945.33,"days":72.16,"yoy":0.0121,"mom":0.0252},{"name":"西藏自治区","amt":0.05,"days":0.03,"yoy":null,"mom":-0.619}]},{"name":"冀晋","amt":2770.62,"days":118.2,"yoy":-0.2955,"mom":-0.0117,"mat":703.21,"m":[{"amt":3348.52,"days":161.92},null,{"amt":5579.41,"days":-0.24},{"amt":4251.52,"days":177.86},{"amt":4295.74,"days":200.17},{"amt":2843.29,"days":115.47},{"amt":2803.37,"days":115.65},{"amt":2770.62,"days":118.2}],"parts":[{"name":"河北省","amt":2565.06,"days":150.57,"yoy":-0.2221,"mom":-0.0024},{"name":"山西省","amt":205.56,"days":32.1,"yoy":-0.6763,"mom":-0.1147}]},{"name":"东北","amt":2705.8,"days":247.11,"yoy":0.4463,"mom":-0.0804,"mat":328.5,"m":[{"amt":1711.95,"days":158.76},null,{"amt":2837.18,"days":-0.01},{"amt":2810.13,"days":282.84},{"amt":3174.66,"days":332.32},{"amt":2956.63,"days":277.02},{"amt":2942.45,"days":280.19},{"amt":2705.8,"days":247.11}],"parts":[{"name":"黑龙江省","amt":674.68,"days":204.25,"yoy":4.8217,"mom":-0.0418},{"name":"吉林省","amt":79.41,"days":62.48,"yoy":-0.6345,"mom":-0.0749},{"name":"辽宁省","amt":1831.15,"days":526.61,"yoy":0.6387,"mom":-0.0175},{"name":"内蒙古自治区","amt":120.56,"days":41.59,"yoy":-0.7132,"mom":-0.5826}]},{"name":"云南","amt":2696.06,"days":417.84,"yoy":5.3539,"mom":0.0142,"mat":193.57,"m":[{"amt":1531.47,"days":290.34},null,{"amt":1605.25,"days":-0.01},{"amt":1595.81,"days":307.07},{"amt":1560.9,"days":293.6},{"amt":2686.58,"days":396.01},{"amt":2658.2,"days":399.95},{"amt":2696.06,"days":417.84}],"parts":[{"name":"云南省","amt":2696.06,"days":417.84,"yoy":5.3539,"mom":0.0142}]},{"name":"甘青宁","amt":2464.98,"days":159.54,"yoy":2.6033,"mom":-0.0279,"mat":463.52,"m":[{"amt":1796.37,"days":141.17},null,{"amt":3718.71,"days":-0.07},{"amt":3466.75,"days":271.96},{"amt":3047.0,"days":221.22},{"amt":2482.73,"days":152.63},{"amt":2535.85,"days":158.16},{"amt":2464.98,"days":159.54}],"parts":[{"name":"甘肃省","amt":2338.65,"days":181.18,"yoy":3.2729,"mom":-0.0432},{"name":"宁夏回族自治区","amt":73.75,"days":56.96,"yoy":0.6211,"mom":0.0595},{"name":"青海省","amt":52.58,"days":42.13,"yoy":-0.4239,"mom":1.385}]},{"name":"河南","amt":1949.73,"days":230.07,"yoy":1.611,"mom":-0.0485,"mat":254.23,"m":[{"amt":2309.61,"days":210.47},null,{"amt":2596.39,"days":0.09},{"amt":2817.75,"days":285.03},{"amt":2846.09,"days":292.33},{"amt":2176.85,"days":224.49},{"amt":2049.2,"days":212.03},{"amt":1949.73,"days":230.07}],"parts":[{"name":"河南省","amt":1949.73,"days":230.07,"yoy":1.611,"mom":-0.0485}]},{"name":"贵州","amt":1558.97,"days":144.66,"yoy":0.7606,"mom":0.2968,"mat":323.3,"m":[{"amt":1129.03,"days":117.33},null,{"amt":1534.9,"days":-0.0},{"amt":1533.61,"days":171.18},{"amt":1221.54,"days":141.8},{"amt":1169.4,"days":107.65},{"amt":1202.2,"days":111.53},{"amt":1558.97,"days":144.66}],"parts":[{"name":"贵州省","amt":1558.97,"days":144.66,"yoy":0.7606,"mom":0.2968}]},{"name":"新疆","amt":1546.59,"days":193.22,"yoy":1.5805,"mom":-0.0433,"mat":240.13,"m":[{"amt":1303.87,"days":160.86},null,{"amt":1636.19,"days":-0.02},{"amt":1605.52,"days":201.12},{"amt":1467.06,"days":187.61},{"amt":1610.82,"days":200.75},{"amt":1616.58,"days":193.51},{"amt":1546.59,"days":193.22}],"parts":[{"name":"新疆维吾尔自治区","amt":1546.59,"days":193.22,"yoy":1.5805,"mom":-0.0433}]},{"name":"浙沪","amt":1469.64,"days":39.06,"yoy":-0.6674,"mom":-0.1598,"mat":1128.85,"m":[{"amt":2798.38,"days":61.07},null,{"amt":3906.37,"days":0.1},{"amt":4284.31,"days":100.23},{"amt":4338.46,"days":106.75},{"amt":1444.03,"days":36.46},{"amt":1749.17,"days":45.47},{"amt":1469.64,"days":39.06}],"parts":[{"name":"上海直辖市","amt":536.21,"days":26.75,"yoy":1.2121,"mom":-0.1218},{"name":"浙江省","amt":933.44,"days":53.08,"yoy":-0.7765,"mom":-0.1802}]},{"name":"京津","amt":1437.14,"days":193.18,"yoy":0.6371,"mom":-0.0315,"mat":223.18,"m":[{"amt":797.56,"days":106.71},null,{"amt":826.64,"days":0.86},{"amt":1537.96,"days":231.5},{"amt":1400.5,"days":206.13},{"amt":1252.8,"days":166.03},{"amt":1483.93,"days":195.47},{"amt":1437.14,"days":193.18}],"parts":[{"name":"北京直辖市","amt":617.24,"days":121.98,"yoy":0.6669,"mom":-0.1009},{"name":"天津直辖市","amt":819.9,"days":344.65,"yoy":0.6154,"mom":0.0282}]},{"name":"福建","amt":1341.72,"days":125.22,"yoy":1.8333,"mom":0.0881,"mat":321.45,"m":[{"amt":428.37,"days":37.64},null,{"amt":652.82,"days":-0.01},{"amt":643.83,"days":62.41},{"amt":621.23,"days":60.62},{"amt":1251.91,"days":115.44},{"amt":1233.04,"days":113.68},{"amt":1341.72,"days":125.22}],"parts":[{"name":"福建省","amt":1341.72,"days":125.22,"yoy":1.8333,"mom":0.0881}]},{"name":"重庆","amt":1266.98,"days":70.17,"yoy":-0.6117,"mom":-0.0133,"mat":541.64,"m":[{"amt":3214.18,"days":248.26},null,{"amt":3388.24,"days":-0.12},{"amt":2990.37,"days":196.51},{"amt":2898.31,"days":200.24},{"amt":1271.47,"days":67.1},{"amt":1284.01,"days":72.31},{"amt":1266.98,"days":70.17}],"parts":[{"name":"重庆直辖市","amt":1266.98,"days":70.17,"yoy":-0.6117,"mom":-0.0133}]},{"name":"广西","amt":1232.88,"days":280.26,"yoy":0.2344,"mom":-0.0643,"mat":131.97,"m":[{"amt":1187.91,"days":322.35},null,{"amt":721.31,"days":-0.02},{"amt":706.14,"days":161.55},{"amt":676.98,"days":155.45},{"amt":1330.28,"days":294.08},{"amt":1317.53,"days":294.16},{"amt":1232.88,"days":280.26}],"parts":[{"name":"广西壮族自治区","amt":1232.88,"days":280.26,"yoy":0.2344,"mom":-0.0643}]},{"name":"江西","amt":1218.07,"days":139.52,"yoy":1.4021,"mom":0.1425,"mat":261.91,"m":[{"amt":672.92,"days":67.74},null,{"amt":1623.35,"days":-0.02},{"amt":1591.58,"days":191.02},{"amt":1536.55,"days":182.2},{"amt":955.66,"days":101.94},{"amt":1066.15,"days":117.81},{"amt":1218.07,"days":139.52}],"parts":[{"name":"江西省","amt":1218.07,"days":139.52,"yoy":1.4021,"mom":0.1425}]},{"name":"湖南","amt":323.97,"days":8.75,"yoy":-0.485,"mom":-0.0024,"mat":1110.19,"m":[{"amt":871.28,"days":41.01},null,{"amt":507.94,"days":0.45},{"amt":738.24,"days":26.36},{"amt":658.12,"days":23.34},{"amt":350.16,"days":9.43},{"amt":324.74,"days":8.75},{"amt":323.97,"days":8.75}],"parts":[{"name":"湖南省","amt":323.97,"days":8.75,"yoy":-0.485,"mom":-0.0024}]}]};
 
 /* ===== 渠道完成情况（全产品口径 · 1-8月）=====
    数据源：2026年1-8月OTC事业部指标完成报表 四个子表（KA50购进 / 重点连锁购进 / 医馆礼品店 / 广阔市场）
@@ -1371,18 +1373,15 @@ function toggleProvMonth(rowEl, containerId) {
 Chart.register(ChartDataLabels);
 
 /* ====== 渐变色生成（同比越大越红，越小越绿） ====== */
+/* 统一柱色（与 KA50「各省KA50纯销总览」同一套算法）：涨=红 / 跌=绿，深浅表示幅度；0 或缺失 = 浅灰
+   yoy = 百分数（如 23.2 / -13.1）；t = (|yoy|/100)^0.75 使小幅值也能拉开差异 */
 function yoyBarColor(yoy) {
-  var intensity = Math.min(Math.abs(yoy) / 80, 1);
-  if (yoy >= 0) {
-    var r = Math.round(252 - 32 * intensity);
-    var g = Math.round(120 - 80 * intensity);
-    var b = Math.round(100 - 70 * intensity);
-  } else {
-    var r = Math.round(70 - 50 * intensity);
-    var g = Math.round(190 + 52 * intensity);
-    var b = Math.round(100 - 50 * intensity);
+  if (yoy == null || yoy === 0) return 'rgb(214,217,226)';
+  var t = Math.min(Math.pow(Math.abs(yoy) / 100, 0.75), 1);
+  if (yoy > 0) {
+    return 'rgb(' + Math.round(255 - t * 40) + ',' + Math.round(255 - t * 223) + ',' + Math.round(255 - t * 215) + ')';
   }
-  return 'rgb('+r+','+g+','+b+')';
+  return 'rgb(' + Math.round(255 - t * 227) + ',' + Math.round(255 - t * 90) + ',' + Math.round(255 - t * 190) + ')';
 }
 function barColorSimple(yoy) {
   var a = Math.abs(yoy);
@@ -1611,25 +1610,8 @@ function renderKa50ProvChart() {
   var container = document.getElementById('ka50ProvChart');
   if (!container || !ka50ProvChains) return;
 
-  function yoyColor(yoy) {
-    // 0% = white; growth → red; decline → green; wider range for differentiation
-    if (yoy == null || yoy === 0) return 'rgb(255,255,255)';
-    var abs = Math.abs(yoy);
-    var t = Math.min(Math.pow(abs / 100, 0.75), 1); // power curve: small values more spread out
-    if (yoy > 0) {
-      // white(255,255,255) → red(215,32,40)
-      var r = Math.round(255 - t * 40);
-      var g = Math.round(255 - t * 223);
-      var b = Math.round(255 - t * 215);
-      return 'rgb('+r+','+g+','+b+')';
-    } else {
-      // white(255,255,255) → green(28,165,65)
-      var r2 = Math.round(255 - t * 227);
-      var g2 = Math.round(255 - t * 90);
-      var b2 = Math.round(255 - t * 190);
-      return 'rgb('+r2+','+g2+','+b2+')';
-    }
-  }
+  // 柱色统一走全局 yoyBarColor（涨=红 / 跌=绿，深浅表示幅度）
+  var yoyColor = yoyBarColor;
 
   var provList = [];
   Object.keys(ka50ProvChains).forEach(function(p){
@@ -1958,28 +1940,30 @@ function renderInventoryBars() {
     if (p.days != null && p.days > daysMax) daysMax = p.days;
   });
 
-  var html = '<div class="prov-header-row">' +
+  var html = '<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;text-align:center;">' +
+    '\uD83C\uDFEC 渠道库存 · 省区明细<span style="font-weight:400;font-size:11px;color:var(--text2);">（8月底 · 复方阿胶浆类）</span></div>';
+  html += '<div class="prov-header-row">' +
     '<span class="prov-hdr" style="width:10px;"></span>' +
     '<span class="prov-hdr" style="width:38px;"></span>' +
-    '<span class="prov-hdr" style="flex:1;min-width:30px;">渠道库存金额</span>' +
+    '<span class="prov-hdr" style="flex:1;min-width:30px;">库存金额</span>' +
     '<span class="prov-hdr">金额</span>' +
-    '<span class="prov-hdr" style="width:56px;">周转天数</span>' +
+    '<span class="prov-hdr" style="width:56px;">周转</span>' +
     '<span class="prov-hdr">同比</span><span class="prov-hdr">环比</span></div>';
 
   html += '<div class="prov-bars">';
   ps.forEach(function(p) {
     var w = p.amt / amtMax * 100;
-    var barClr = p.yoy == null ? '#9aa0b5' : (p.yoy >= 0 ? '#e74c3c' : '#27ae60');
+    var barClr = yoyBarColor(p.yoy == null ? null : p.yoy * 100);
     var dc = invDaysColor(p.days);
     var dw = p.days == null ? 0 : Math.min(p.days / daysMax * 100, 100);
-    html += '<div class="prov-row" data-invprov="' + p.name + '" onclick="toggleInventoryDetail(this)" title="点击展开 ' + p.name + ' 省份明细">' +
+    html += '<div class="prov-row" data-invprov="' + p.name + '" onclick="toggleInventoryDetail(this)" title="点击展开 ' + p.name + ' 1-8月分月余额">' +
       '<span class="prov-caret">▶</span>' +
       '<span class="prov-name" title="' + p.name + '">' + p.name + '</span>' +
       '<span class="prov-bar-wrap"><span class="prov-bar-fill" style="width:0;background:' + barClr + ';" data-w="' + w + '"></span></span>' +
       '<span class="prov-metric">' + invFmtW(p.amt) + '万</span>' +
       '<span class="prov-metric" style="width:56px;">' +
         '<span class="mini-bar-bg"><span class="mini-bar-fill" style="width:0;background:' + dc + ';" data-w2="' + dw + '"></span></span>' +
-        '<span class="mini-bar-pct" style="color:' + dc + ';">' + (p.days == null ? '—' : p.days.toFixed(0) + '天') + '</span>' +
+        '<span class="mini-bar-pct" style="color:' + dc + ';">' + (p.days == null ? '—' : ((Math.round(p.days) || 0) + '天')) + '</span>' +
       '</span>' +
       '<span class="prov-metric ' + (p.yoy == null ? '' : (p.yoy >= 0 ? 'red' : 'green')) + '">' + invFmtP(p.yoy, true) + '</span>' +
       '<span class="prov-metric ' + (p.mom == null ? '' : (p.mom >= 0 ? 'red' : 'green')) + '">' + invFmtP(p.mom, true) + '</span>' +
@@ -1998,19 +1982,23 @@ function renderInventoryBars() {
 }
 
 function inventoryPanel(p) {
-  var rows = '<div class="ch-drow ch-dh"><span class="ch-dn">省份</span><span class="ch-dv">库存金额</span>' +
-             '<span class="ch-dv">周转天数</span><span class="ch-dv">同比</span><span class="ch-dv">环比</span></div>';
-  var list = p.parts && p.parts.length ? p.parts : [{ name: p.name, amt: p.amt, days: p.days, yoy: p.yoy, mom: p.mom }];
-  list.forEach(function(x) {
-    rows += '<div class="ch-drow" data-chrow>' +
-      '<span class="ch-dn">' + x.name + '</span>' +
-      '<span class="ch-dv">' + invFmtW(x.amt) + '</span>' +
-      '<span class="ch-dv" style="color:' + invDaysColor(x.days) + ';">' + (x.days == null ? '—' : x.days.toFixed(1) + '天') + '</span>' +
-      '<span class="ch-dv ' + (x.yoy == null ? '' : (x.yoy >= 0 ? 'red' : 'green')) + '">' + invFmtP(x.yoy, true) + '</span>' +
-      '<span class="ch-dv ' + (x.mom == null ? '' : (x.mom >= 0 ? 'red' : 'green')) + '">' + invFmtP(x.mom, true) + '</span></div>';
+  var MS = inventoryData.months || ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月'];
+  var vals = p.m || [];
+  var mx = 1;
+  vals.forEach(function(v) { if (v && v.amt > mx) mx = v.amt; });
+  var rows = '<div class="pm-title"><span>' + p.name + ' · 1-8月渠道库存余额（复方阿胶浆类）</span>' +
+             '<span>8月底 ' + invFmtW(p.amt) + ' 万</span></div>';
+  MS.forEach(function(mn, i) {
+    var v = vals[i], na = !v;
+    rows += '<div class="pm-row">' +
+      '<span class="pm-m">' + mn + '</span>' +
+      '<span class="pm-bar"><i style="background:' + (na ? '#dfe2ea' : '#4361ee') + ';"' +
+        (na ? '' : ' data-w="' + (v.amt / mx * 100) + '"') + '></i></span>' +
+      '<span class="pm-v' + (na ? ' pm-na' : '') + '">' + (na ? '—' : invFmtW(v.amt)) + '</span>' +
+      '<span class="pm-y' + (na ? ' pm-na' : '') + '">' + (na ? '无源' : (v.days == null ? '—' : ((Math.round(v.days) || 0) + '天'))) + '</span>' +
+      '</div>';
   });
-  return '<div class="pm-inner"><div class="pm-title"><span>' + p.name + ' · 省份明细（8月底 · 复方阿胶浆类）</span>' +
-         '<span>合计 ' + invFmtW(p.amt) + ' 万</span></div>' + rows + '</div>';
+  return '<div class="pm-inner">' + rows + '</div>';
 }
 
 function toggleInventoryDetail(rowEl) {
@@ -2035,8 +2023,12 @@ function toggleInventoryDetail(rowEl) {
     var h = div.querySelector('.pm-inner');
     div.style.maxHeight = ((h ? h.offsetHeight : div.scrollHeight) + 8) + 'px';
     div.classList.add('show');
-    Array.prototype.forEach.call(div.querySelectorAll('[data-chrow]'), function(r, i) {
-      r.style.animationDelay = (40 + i * 45) + 'ms';
+    Array.prototype.forEach.call(div.querySelectorAll('.pm-row'), function(r, i) {
+      r.style.animationDelay = (30 + i * 35) + 'ms';
+    });
+    Array.prototype.forEach.call(div.querySelectorAll('.pm-bar i'), function(b) {
+      var w = b.getAttribute('data-w');
+      if (w) b.style.width = w + '%';
     });
   });
   setTimeout(function() {
