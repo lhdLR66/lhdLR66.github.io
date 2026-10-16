@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KA50 筛选区改版 · 4 方案 demo</title>
+<style>
+  :root{--primary:#4361ee;--border:#dee2e6;--text:#212529;--text2:#6c757d;--text3:#b0b4c0;--soft:#f8f9fc;}
+  *{box-sizing:border-box}
+  body{margin:0;background:#eef1f6;color:var(--text);font:14px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+  .page{max-width:1180px;margin:0 auto;padding:26px 22px 70px}
+  .page > h1{font-size:19px;margin:0 0 4px}
+  .page > p.sub{color:var(--text2);font-size:13px;margin:0 0 22px}
+  .demo{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px 22px;margin-bottom:26px}
+  .demo-h{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #eef0f5;flex-wrap:wrap}
+  .demo-h b{font-size:15px}
+  .demo-h span{font-size:12px;color:var(--text2)}
+  .demo-h em{margin-left:auto;font-style:normal;font-size:11px;color:var(--text3)}
+  .st{font-size:11.5px;color:var(--text3);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+  .st::after{content:"";height:1px;background:#eef0f5;flex:1}
+  .blk{background:var(--soft);border:1px solid #e9ecf4;border-radius:10px;padding:14px 16px;margin-bottom:18px}
+
+  .row{display:flex;gap:12px;align-items:flex-start}
+  .lbl{width:52px;flex:0 0 52px;font-size:12px;color:var(--text2);padding-top:10px}
+  .cbox{flex:1;min-width:0}
+  .hint{font-size:11px;color:var(--text3);margin-left:auto}
+  .sec-title{font-size:13.5px;font-weight:500;display:flex;align-items:center;gap:8px;margin:0 0 11px}
+
+  .ms{position:relative;border:1.5px solid var(--border);border-radius:8px;background:#fff;min-height:40px;
+      display:flex;align-items:center;gap:6px;padding:4px 32px 4px 9px;flex-wrap:wrap}
+  .ms.focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(67,97,238,.12)}
+  .ms .ph{color:var(--text3);font-size:13px;padding:4px 0}
+  .tg{display:inline-flex;align-items:center;gap:5px;background:#eef2ff;color:#2f4bc9;border:1px solid #d3dcff;
+      border-radius:13px;padding:2px 8px;font-size:12px}
+  .tg i{font-style:normal;color:#8b9ae8;font-size:13px;line-height:1}
+  .ms .caret{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#a9aebc;font-size:10px}
+  .ms .more{color:var(--text3);font-size:12px}
+
+  .pop{background:#fff;border:1px solid #e3e7f0;border-radius:10px;box-shadow:0 8px 22px rgba(20,30,70,.10);padding:9px}
+  .pop.plain{box-shadow:none;background:#fff}
+  .pop .search{width:100%;border:1px solid #e6e9f1;border-radius:7px;padding:6px 9px;font-size:12.5px;margin-bottom:7px;outline:none;background:#fff}
+  .pop .ops{display:flex;gap:12px;font-size:11.5px;color:var(--primary);padding:0 4px 7px;border-bottom:1px solid #f0f2f7;margin-bottom:6px}
+  .pop .ops u{margin-left:auto;text-decoration:none;color:var(--text3)}
+  .list{max-height:214px;overflow:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2px 6px}
+  .list.one{grid-template-columns:1fr}
+  .it{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:6px;font-size:12.5px}
+  .it:hover{background:#f4f6ff}
+  .it.on{background:#eef2ff;color:#2f4bc9;font-weight:500}
+  .it.dis{opacity:.34}
+  .it .bx{width:14px;height:14px;border:1.5px solid #c6ccd9;border-radius:4px;flex:0 0 14px;position:relative}
+  .it.on .bx{background:var(--primary);border-color:var(--primary)}
+  .it.on .bx::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;border:2px solid #fff;border-top:0;border-left:0;transform:rotate(42deg)}
+
+  .btn-dd > button,.date-btn > button{font:inherit;font-size:12.5px;background:#fff;border:1.5px solid var(--border);
+      border-radius:8px;padding:8px 30px 8px 12px;color:var(--text);position:relative;min-height:40px;cursor:pointer}
+  .btn-dd > button.focus,.date-btn > button.focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(67,97,238,.12)}
+  .btn-dd > button::after,.date-btn > button::after{content:"▾";position:absolute;right:11px;color:#a9aebc;font-size:10px}
+  .cnt{display:inline-block;background:var(--primary);color:#fff;border-radius:9px;font-size:11px;padding:0 6px;margin-left:5px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .chip{padding:5px 13px;border-radius:16px;border:1.5px solid var(--border);font-size:12px;background:#fff}
+  .chip.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .chip small{font-weight:400;opacity:.8}
+
+  .cal{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .cal .c{width:50px;height:46px;border:1.5px solid var(--border);border-radius:8px;background:#fff;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12.5px;line-height:1.15}
+  .cal .c.dash{border-style:dashed;color:var(--text3);background:#fbfbfd}
+  .cal .c.in{background:#e6f1fb;border-color:#85b7eb}
+  .cal .c.edge{background:var(--primary);border-color:var(--primary);color:#fff}
+  .cal .c s{font-size:10px;text-decoration:none;opacity:.85}
+  .clr{font-size:11.5px;color:var(--primary);border:1px solid #c9d4ff;background:#f2f5ff;border-radius:12px;padding:2px 9px}
+
+  .date-btn .pop,.btn-dd .pop{width:330px}
+  .qg{font-size:11px;color:var(--text3);margin:2px 0 6px}
+  .mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:9px}
+  .mgrid .m{text-align:center;border:1.5px solid var(--border);border-radius:7px;padding:9px 0;font-size:12.5px;background:#fff}
+  .mgrid .m.dash{border-style:dashed;color:var(--text3)}
+  .mgrid .m.in{background:#e6f1fb;border-color:#85b7eb;color:#185fa5}
+  .mgrid .m.edge{background:var(--primary);border-color:var(--primary);color:#fff}
+  .popf{display:flex;align-items:center;gap:10px;border-top:1px solid #f0f2f7;padding-top:9px;font-size:12px;color:var(--text2)}
+  .popf b{color:var(--text)}
+  .popf .r{margin-left:auto;display:flex;gap:8px}
+  .popf button{font:inherit;font-size:12px;border-radius:7px;padding:5px 12px;border:1px solid var(--border);background:#fff}
+  .popf button.p{background:var(--primary);border-color:var(--primary);color:#fff}
+  .sum{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--text2);
+      background:var(--soft);border:1px solid #e9ecf4;border-radius:8px;padding:8px 12px;margin-top:12px}
+  .sum b{color:var(--text)}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .note{font-size:11.5px;color:var(--text3);margin-top:9px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>KA50 页签 · 筛选区改版 4 方案</h1>
+  <p class="sub">省区 = 下拉多选（≤5）｜渠道 = chips（维持现状）｜时间 = 月份日历。每个方案分「常态 / 展开态」两屏。</p>
+  <div id="wrap"></div>
+</div>
+
+<script>
+var PROVS = ['安徽','江苏','浙沪','福建','广东','广西','湖北','湖南','江西','山东','甘青宁','贵州','陕西','四川','新疆','云南','重庆','东北','河南','冀晋','京津'];
+var SELS = ['山东','江苏'], MAX = 5, P = 0;
+var CHIPS = [['KA','（购进 + 纯销）',1],['重点连锁','',1],['医馆 / 礼品店','',0],['广阔市场','',0]];
+
+function provList(id, cols) {
+  var full = SELS.length >= MAX;
+  document.getElementById(id).innerHTML = PROVS.map(function (p) {
+    var on = SELS.indexOf(p) >= 0;
+    return '<div class="it' + (on ? ' on' : '') + (full && !on ? ' dis' : '') + '"><span class="bx"></span>' + p + '</div>';
+  }).join('');
+  document.getElementById(id).className = 'list' + (cols === 1 ? ' one' : '');
+}
+function panel(idList, cols) {
+  return '<div class="pop plain"><input class="search" placeholder="搜索省区" readonly>' +
+    '<div class="ops"><span>全选</span><span>清空</span><u>已选 2 / 5</u></div>' +
+    '<div class="list" id="' + idList + '"></div></div>';
+}
+function chips() {
+  return '<div class="chips">' + CHIPS.map(function (c) {
+    return '<span class="chip' + (c[2] ? ' on' : '') + '">' + c[0] + (c[1] ? ' <small>' + c[1] + '</small>' : '') + '</span>';
+  }).join('') + '</div>';
+}
+function calRow() {
+  return '<div class="cal">' + [1,2,3,4,5,6,7,8].map(function (m) {
+    var cls = 'c' + ((m === 2 || m === 3) ? ' dash' : '') + (m === 1 || m === 8 ? ' edge' : ' in');
+    var tag = m === 1 ? '<s>起</s>' : (m === 8 ? '<s>止</s>' : '');
+    return '<div class="' + cls + '">' + m + '月' + ((m === 6 || m === 7) ? '<s style="color:#e67e22">⚠</s>' : '') + tag + '</div>';
+  }).join('') + '<span class="clr">清空</span></div>';
+}
+function monthGrid(id) {
+  document.getElementById(id).innerHTML = [1,2,3,4,5,6,7,8].map(function (m) {
+    var cls = 'm' + ((m === 2 || m === 3) ? ' dash' : '') + (m === 1 || m === 8 ? ' edge' : (m > 1 && m < 8 ? ' in' : ''));
+    return '<div class="' + cls + '">' + m + '月' + ((m === 6 || m === 7) ? ' <s style="color:#e67e22">⚠</s>' : '') + '</div>';
+  }).join('');
+}
+function calPop(id) {
+  return '<div class="pop plain"><div class="qg">2026 年</div><div class="mgrid" id="' + id + '"></div>' +
+    '<div class="popf"><span>已选 <b>1月 – 8月</b></span><span class="r"><button>清除</button><button class="p">确定</button></span></div></div>';
+}
+
+var HTML =
+'<div class="demo">' +
+  '<div class="demo-h"><b>方案 A · 标签式多选下拉 + 单行月历</b>' +
+    '<span>已选省区以标签排在框内，一眼看到选了谁</span><em>参考：Ant Design / 飞书多维表格</em></div>' +
+  '<div class="st">① 常态</div>' +
+  '<div class="blk"><div class="row" style="margin-bottom:12px"><div class="lbl">省区</div><div class="cbox">' +
+    '<div class="ms"><span class="tg">山东<i>×</i></span><span class="tg">江苏<i>×</i></span>' +
+    '<span class="more">再选 3 个</span><span class="caret">▾</span></div></div></div>' +
+    '<div class="row" style="margin-bottom:12px"><div class="lbl">渠道</div><div class="cbox">' + chips() + '</div></div>' +
+    '<div class="row"><div class="lbl">时间</div><div class="cbox">' + calRow() + '</div></div></div>' +
+  '<div class="st">② 展开态（点开省区下拉）</div>' +
+  '<div class="blk" style="padding-bottom:18px"><div class="row"><div class="lbl">省区</div><div class="cbox" style="max-width:560px">' +
+    '<div class="ms focus"><span class="tg">山东<i>×</i></span><span class="tg">江苏<i>×</i></span><span class="caret">▾</span></div>' +
+    '<div style="margin-top:7px">' + panel('listA', 3) + '</div></div></div>' +
+    '<div class="note">框内标签可直接 × 删除；面板内 3 列网格复选，已选 5 个后其余置灰。</div></div>' +
+'</div>' +
+
+'<div class="demo">' +
+  '<div class="demo-h"><b>方案 B · 窄按钮下拉 + 日历弹层（季度分组）</b>' +
+    '<span>常态只占一行文字宽度，选完自动收起，最省空间</span><em>参考：SaaS 后台筛选栏 / Notion</em></div>' +
+  '<div class="st">① 常态</div>' +
+  '<div class="blk"><div class="toolbar">' +
+    '<span class="btn-dd"><button>省区<span class="cnt">2</span></button></span>' + chips() +
+    '<span style="margin-left:auto" class="date-btn"><button>1月 – 8月</button></span></div>' +
+    '<div class="sum">当前筛选：<span class="tg">山东</span><span class="tg">江苏</span><b>｜</b>KA + 重点连锁<b>｜</b>1月 – 8月' +
+    '<span class="hint">清空全部</span></div></div>' +
+  '<div class="st">② 展开态（左：省区面板 ／ 右：日历弹层）</div>' +
+  '<div class="blk" style="display:flex;gap:18px;flex-wrap:wrap">' +
+    '<div style="flex:1 1 340px;min-width:300px"><div style="font-size:11.5px;color:var(--text3);margin-bottom:6px">省区下拉面板</div>' +
+      '<span class="btn-dd"><button class="focus">省区<span class="cnt">2</span></button></span>' +
+      '<div style="margin-top:7px">' + panel('listB', 2) + '</div></div>' +
+    '<div style="flex:1 1 340px;min-width:300px"><div style="font-size:11.5px;color:var(--text3);margin-bottom:6px">时间日历弹层</div>' +
+      '<span class="date-btn"><button class="focus">1月 – 8月</button></span>' +
+      '<div style="margin-top:7px">' + calPop('mgridB') + '</div></div></div>' +
+'</div>' +
+
+'<div class="demo">' +
+  '<div class="demo-h"><b>方案 C · 紧凑工具栏（三控件同行）</b>' +
+    '<span>垂直空间最省，结果矩阵能整体上移一屏</span><em>参考：销售后台数据筛选条</em></div>' +
+  '<div class="st">① 常态</div>' +
+  '<div class="blk"><div class="toolbar">' +
+    '<span class="ms" style="width:236px"><span class="tg">山东<i>×</i></span><span class="tg">江苏<i>×</i></span><span class="caret">▾</span></span>' +
+    '<span class="btn-dd"><button>渠道<span class="cnt">2</span></button></span>' +
+    '<span class="date-btn"><button>1月 – 8月</button></span>' +
+    '<span class="hint">省区 ≤5 · 渠道可多选</span></div></div>' +
+  '<div class="st">② 展开态</div>' +
+  '<div class="blk" style="display:flex;gap:18px;flex-wrap:wrap">' +
+    '<div style="flex:1 1 300px;min-width:280px"><div style="font-size:11.5px;color:var(--text3);margin-bottom:6px">省区（标签式）</div>' +
+      panel('listC', 3) + '</div>' +
+    '<div style="flex:1 1 300px;min-width:280px"><div style="font-size:11.5px;color:var(--text3);margin-bottom:6px">渠道（多选）</div>' +
+      '<div class="pop plain"><div class="list one" id="listCh"></div></div></div>' +
+    '<div style="flex:1 1 300px;min-width:280px"><div style="font-size:11.5px;color:var(--text3);margin-bottom:6px">时间日历弹层</div>' +
+      calPop('mgridC') + '</div></div>' +
+'</div>' +
+
+'<div class="demo">' +
+  '<div class="demo-h"><b>方案 D · 下拉 + 常用省区快捷标签（改动最小）</b>' +
+    '<span>保留下拉做全量选择，常用 5 省一键点选</span><em>参考：现状布局微调</em></div>' +
+  '<div class="st">① 常态</div>' +
+  '<div class="blk"><div class="row" style="margin-bottom:12px"><div class="lbl">省区</div>' +
+    '<div class="cbox" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">' +
+    '<span class="ms" style="width:262px"><span class="tg">山东<i>×</i></span><span class="tg">江苏<i>×</i></span><span class="caret">▾</span></span>' +
+    '<span style="font-size:11.5px;color:var(--text3)">常用</span>' +
+    '<div class="chips"><span class="chip">广东</span><span class="chip">四川</span><span class="chip">浙江</span><span class="chip">湖南</span><span class="chip">安徽</span></div>' +
+    '</div></div>' +
+    '<div class="row" style="margin-bottom:12px"><div class="lbl">渠道</div><div class="cbox">' + chips() + '</div></div>' +
+    '<div class="row"><div class="lbl">时间</div><div class="cbox">' + calRow() + '</div></div></div>' +
+  '<div class="st">② 展开态</div>' +
+  '<div class="blk"><div class="row"><div class="lbl">省区</div><div class="cbox" style="max-width:420px">' +
+    panel('listD', 1) + '</div></div></div>' +
+'</div>';
+
+document.getElementById('wrap').innerHTML = HTML;
+provList('listA', 3); provList('listB', 2); provList('listC', 3); provList('listD', 1);
+document.getElementById('listCh').innerHTML = ['KA 购进 + 纯销','重点连锁','医馆 / 礼品店','广阔市场']
+  .map(function (v, i) { return '<div class="it' + (i < 2 ? ' on' : '') + '"><span class="bx"></span>' + v + '</div>'; }).join('');
+monthGrid('mgridB'); monthGrid('mgridC');
+</script>
+</body>
+</html>
