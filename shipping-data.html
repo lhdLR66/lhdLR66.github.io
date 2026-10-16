@@ -464,7 +464,7 @@
         .kc-search { margin-left:auto; font-size:10px; padding:1px 6px; border:1px solid var(--border);
           border-radius:4px; width:130px; outline:none; }
         .kc-search:focus { border-color:var(--primary); }
-        .kc-row { display:grid; grid-template-columns:20px 1fr 58px 112px 62px 44px 52px; gap:4px; font-size:10px;
+        .kc-row { display:grid; grid-template-columns:20px 1fr 104px 62px 46px 54px; gap:4px; font-size:10px;
           height:18px; align-items:center; animation:pmRowIn .28s cubic-bezier(.25,.8,.3,1) both; }
         .kc-row.kc-hd { color:var(--text2); font-weight:600; animation:none; }
         .kc-row .kc-cn { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -554,6 +554,27 @@
         .kf-tip-s { font-size:10.5px; color:var(--text2); margin-bottom:5px; }
         .kf-tip-r b { font-variant-numeric:tabular-nums; }
         .kf-tip-f { margin-top:5px; padding-top:4px; border-top:1px dashed var(--border); font-size:10.5px; color:var(--primary); }
+
+        /* ===== 涨跌配色（全局）：红=涨 / 绿=跌（中国惯例） ===== */
+        .red { color:#e74c3c; }
+        .green { color:#27ae60; }
+
+        /* ===== 客户明细（按归属总部归集）+ 逐月柱图 ===== */
+        .kc-row .kc-pv { color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .kc-row .kc-cn em.kc-n { font-style:normal; font-size:9px; color:#b0b4c0; margin-left:3px; }
+        .kf-mc { margin-top:10px; padding-top:8px; border-top:1px dashed var(--border); }
+        .kf-mc-t { font-size:10.5px; color:var(--text2); margin-bottom:7px; }
+        .kf-mc-row { display:flex; align-items:stretch; gap:8px; }
+        .kf-mc-c { flex:1 1 0; min-width:0; text-align:center; font-size:10px; }
+        .kf-mc-c .v { display:block; font-variant-numeric:tabular-nums; color:var(--text); margin-bottom:2px; }
+        .kf-mc-c .plot { position:relative; display:block; height:92px; background:#f7f8fc; border-radius:3px; }
+        .kf-mc-c .plot i { position:absolute; left:14%; width:72%; }
+        .kf-mc-c .plot u { position:absolute; left:0; right:0; height:0; border-top:1px dashed #ccd1de; }
+        .kf-mc-c .m { display:block; color:var(--text2); margin-top:3px; }
+        .kf-mc-c .y { display:block; font-variant-numeric:tabular-nums; }
+        .kf-mc-c.na .plot { border:1px dashed #e6e9f1; background:#fcfcfe; }
+        .kf-mc-c.na .y { color:#c8cad4; }
+        .kf-mc-w { font-style:normal; font-size:9px; color:#e67e22; margin-left:1px; }
         .prov-header-row { display:flex; align-items:center; gap:4px; padding:2px 0 4px; border-bottom:1px solid var(--border); margin-bottom:4px; }
         .prov-header-row .prov-hdr { width:48px; text-align:right; font-size:9px; color:var(--text2); flex-shrink:0; font-weight:500; }
   </style>
@@ -1193,7 +1214,7 @@ function rateClass(rate) {
   <!-- ② 结果矩阵（堆叠条 + 悬停 + 点色条行内展开客户明细） -->
   <div class="section" id="kfMatrixSec" style="display:none;" data-page-node-id="EZECDsfVtophryILVYPeme">
     <div class="section-title" data-page-node-id="CR78aNY63i7L2fVCuGHhlg"><i class="fas fa-chart-bar" data-page-node-id="c2hvAtoRiCDkOPNmCab53Z"></i> 结果矩阵（万元）
-      <span class="hint" data-page-node-id="Z94uH304MEjvaS1SHsAwo0">悬停色条看 金额 / 同比 / 完成率 / 年度进度 ｜ <b data-page-node-id="EYO5aOzzRAqHcMpO0agOUW">点击色条展开该省区 × 该指标客户明细（TOP5）</b></span>
+      <span class="hint" data-page-node-id="Z94uH304MEjvaS1SHsAwo0">悬停色条看 金额 / 同比 / 完成率 / 年度进度 ｜ <b data-page-node-id="EYO5aOzzRAqHcMpO0agOUW">点击色条展开该省区 × 该指标「归属总部」明细（TOP5）+ 逐月柱图</b></span>
     </div>
     <div class="mx-legend" id="kfLegend" data-page-node-id="kfLegend1"></div>
     <div class="mx-wrap" data-page-node-id="CfAIuvAbRkrz9Jtbi5Y5vJ">
@@ -2030,7 +2051,7 @@ function kfRenderLegend(dims, lo, hi) {
 function kfCustBlock(r, dimKey, lo, hi) {
   var dm = kfDimOf(dimKey);
   var v = kfVal(r, dimKey, lo, hi);
-  var headTx = '<div class="kc-title">客户明细 · ' + kfEsc(r.name) + ' × ' + kfEsc(dm.name) +
+  var headTx = '<div class="kc-title">客户明细（按归属总部归集） · ' + kfEsc(r.name) + ' × ' + kfEsc(dm.name) +
     '（' + kfRangeName(lo, hi) + '，默认 TOP5）' +
     '<span class="kc-sub">' + kfF(v ? v.a : null) + ' 万 · 同比 ' + kfP(v ? v.yoy : null) + '</span></div>';
   if (dimKey === 'broad') {
@@ -2039,26 +2060,82 @@ function kfCustBlock(r, dimKey, lo, hi) {
   }
   var list = kfCustList(r, dimKey, lo, hi);
   if (!list.length) return headTx + '<div class="kc-empty">该省区此指标在所选区间无客户数据</div>';
-  var rows = '<div class="kc-row kc-hd"><span>#</span><span>客户</span><span>省份</span>' +
-    '<span>归属总部</span><span class="kc-num">金额(万)</span><span class="kc-num">占比</span>' +
+  // 按「归属总部」归集（无总部则用客户名兜底）；行即总部 → 不再单列「归属总部」列
+  var gm = {};
+  list.forEach(function(x) {
+    var cu = ka50Detail.customers[x[0]] || { c: '—', hq: '', p: '' };
+    var key = cu.hq || cu.c;
+    if (!gm[key]) gm[key] = { name: key, a: 0, l: 0, n: 0, pv: {} };
+    gm[key].a += x[1]; gm[key].l += x[2]; gm[key].n++;
+    if (cu.p) gm[key].pv[cu.p] = 1;
+  });
+  var grouped = [];
+  for (var gk in gm) grouped.push(gm[gk]);
+  grouped.sort(function(p, q) { return Math.abs(q.a) - Math.abs(p.a); });
+  var rows = '<div class="kc-row kc-hd"><span>#</span><span>归属总部</span><span>省份</span>' +
+    '<span class="kc-num">金额(万)</span><span class="kc-num">占比</span>' +
     '<span class="kc-num">同比</span></div>';
   var tot = (v && v.a) || 0;
-  list.forEach(function(x, j) {
-    var cu = ka50Detail.customers[x[0]] || { c: '—', hq: '', p: '' };
-    var y = x[2] ? (x[1] / x[2] - 1) : null;
-    var pc = tot ? (x[1] / tot * 100) : null;
-    rows += '<div class="kc-row"' + (j >= 5 ? ' data-top="1"' : '') + ' data-name="' + kfEsc(cu.c) + '">' +
+  grouped.forEach(function(e, j) {
+    var y = e.l ? (e.a / e.l - 1) : null;
+    var pc = tot ? (e.a / tot * 100) : null;
+    var pv = Object.keys(e.pv);
+    rows += '<div class="kc-row"' + (j >= 5 ? ' data-top="1"' : '') + ' data-name="' + kfEsc(e.name) + '">' +
       '<span>' + (j + 1) + '</span>' +
-      '<span class="kc-cn" title="' + kfEsc(cu.c) + '">' + kfEsc(cu.c) + '</span>' +
-      '<span style="color:var(--text2);">' + (cu.p || '—') + '</span>' +
-      '<span class="kc-cn" title="' + kfEsc(cu.hq) + '">' + (cu.hq ? kfEsc(cu.hq) : '—') + '</span>' +
-      '<span class="kc-num">' + kfF(x[1]) + '</span>' +
+      '<span class="kc-cn" title="' + kfEsc(e.name) + '">' + kfEsc(e.name) +
+        (e.n > 1 ? '<em class="kc-n">' + e.n + ' 家</em>' : '') + '</span>' +
+      '<span class="kc-pv" title="' + kfEsc(pv.join('、')) + '">' + (pv.join('、') || '—') + '</span>' +
+      '<span class="kc-num">' + kfF(e.a) + '</span>' +
       '<span class="kc-num">' + (pc == null ? '—' : pc.toFixed(1) + '%') + '</span>' +
       '<span class="kc-num ' + kfCls(y) + '">' + kfP(y) + '</span></div>';
   });
   return headTx + '<div class="kc-list">' + rows +
-    (list.length > 5 ? '<button class="kc-more" data-n="' + list.length + '" onclick="kfMore(this)">展开全部 ' +
-      list.length + ' 家 ▾</button>' : '') + '</div>';
+    (grouped.length > 5 ? '<button class="kc-more" data-n="' + grouped.length + '" onclick="kfMore(this)">展开全部 ' +
+      grouped.length + ' 家总部 ▾</button>' : '') + '</div>' +
+    kfMonthlyBlock(r, dimKey, lo, hi);
+}
+
+/* 单月序列：单月值 = 相邻累计快照相减（2/3/4 月源表无快照 → 无源） */
+function kfMonthSeries(r, dimKey, lo, hi) {
+  var out = [];
+  for (var m = lo; m <= hi; m++) {
+    if (!kfDimOK(dimKey, m, m)) { out.push({ m: m, na: true }); continue; }
+    var v = kfVal(r, dimKey, m, m);
+    if (!v) { out.push({ m: m, na: true }); continue; }
+    out.push({ m: m, v: v.a, l: v.l, yoy: v.yoy });
+  }
+  return out;
+}
+
+/* 客户明细下方的逐月柱图（含同比；柱色沿用全页 yoyBarColor：红涨绿跌） */
+function kfMonthlyBlock(r, dimKey, lo, hi) {
+  if (hi <= lo) return '';
+  var ser = kfMonthSeries(r, dimKey, lo, hi);
+  var vals = ser.filter(function(x) { return !x.na; }).map(function(x) { return x.v; });
+  if (vals.length < 2) return '';
+  var mx = Math.max.apply(null, vals.concat([0]));
+  var mn = Math.min.apply(null, vals.concat([0]));
+  var span = (mx - mn) || 1;
+  var zero = (0 - mn) / span * 100;                 // 0 线距底部的百分比
+  var cols = ser.map(function(x) {
+    if (x.na) {
+      return '<div class="kf-mc-c na"><span class="v">—</span><span class="plot"></span>' +
+        '<span class="m">' + x.m + '月</span><span class="y">无源</span></div>';
+    }
+    var h = Math.abs(x.v) / span * 100;
+    var pos = (x.v >= 0)
+      ? 'bottom:' + zero.toFixed(2) + '%;height:' + h.toFixed(2) + '%;border-radius:2px 2px 0 0;'
+      : 'top:' + (100 - zero).toFixed(2) + '%;height:' + h.toFixed(2) + '%;border-radius:0 0 2px 2px;';
+    return '<div class="kf-mc-c" title="' + x.m + '月 ' + kfF(x.v) + ' 万 · 同比 ' + kfP(x.yoy) + '">' +
+      '<span class="v">' + kfF(x.v) + '</span>' +
+      '<span class="plot"><u style="bottom:' + zero.toFixed(2) + '%"></u>' +
+      '<i style="' + pos + 'background:' + yoyBarColor(x.yoy == null ? null : x.yoy * 100) + ';"></i></span>' +
+      '<span class="m">' + x.m + '月' + (kfMonthWarn(x.m) ? '<em class="kf-mc-w">⚠</em>' : '') + '</span>' +
+      '<span class="y ' + kfCls(x.yoy) + '">' + kfP(x.yoy) + '</span></div>';
+  }).join('');
+  return '<div class="kf-mc"><div class="kf-mc-t">逐月走势 · ' + kfEsc(kfDimOf(dimKey).name) +
+    '（万元 · 单月值 = 相邻累计快照相减；柱色红涨绿跌、深浅表幅度；2/3/4 月源表无快照，单月不可拆）</div>' +
+    '<div class="kf-mc-row">' + cols + '</div></div>';
 }
 
 function kfMore(btn) {
