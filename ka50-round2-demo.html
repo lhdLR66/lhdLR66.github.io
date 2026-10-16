@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KA50 · 完整日历 + 渠道分月呈现 方案 demo</title>
+<style>
+  :root{--primary:#4361ee;--border:#dee2e6;--text:#212529;--text2:#6c757d;--text3:#b0b4c0;--soft:#f8f9fc;}
+  *{box-sizing:border-box}
+  body{margin:0;background:#eef1f6;color:var(--text);font:14px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+  .page{max-width:1200px;margin:0 auto;padding:26px 22px 70px}
+  h1{font-size:20px;margin:0 0 4px}
+  p.sub{color:var(--text2);font-size:13px;margin:0 0 24px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px 22px;margin-bottom:26px}
+  .card-h{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #eef0f5;flex-wrap:wrap}
+  .card-h b{font-size:15px}
+  .card-h span{font-size:12px;color:var(--text2)}
+  .card-h em{margin-left:auto;font-style:normal;font-size:11px;color:var(--text3)}
+  .st{font-size:11.5px;color:var(--text3);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+  .st::after{content:"";height:1px;background:#eef0f5;flex:1}
+  .blk{background:var(--soft);border:1px solid #e9ecf4;border-radius:10px;padding:14px 16px;margin-bottom:18px}
+  .note{font-size:11.5px;color:var(--text3);margin-top:9px;line-height:1.7}
+
+  /* ===== 完整日历（左年 + 右月） ===== */
+  .datebtn{display:inline-flex;align-items:center;gap:8px;font-size:13px;background:#fff;border:1.5px solid var(--border);
+      border-radius:8px;padding:9px 32px 9px 12px;position:relative;min-height:42px}
+  .datebtn::after{content:"▾";position:absolute;right:11px;color:#a9aebc;font-size:10px}
+  .datebtn.focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(67,97,238,.12)}
+  .datebtn .cur{color:var(--text2)}
+  .datebtn .cur b{color:var(--text)}
+  .calpop{display:flex;gap:0;border:1px solid #e3e7f0;border-radius:12px;overflow:hidden;box-shadow:0 10px 26px rgba(20,30,70,.12);background:#fff;width:430px}
+  .calpop.inflow{box-shadow:none;margin-top:8px}
+  .years{flex:0 0 96px;background:#f7f8fc;border-right:1px solid #eef0f5;padding:8px 0}
+  .years .y{font-size:13px;padding:8px 14px;color:var(--text2);cursor:default}
+  .years .y.on{background:#fff;color:var(--primary);font-weight:500;box-shadow:inset 3px 0 0 var(--primary)}
+  .years .y.off{color:#c8cad4}
+  .years .y small{display:block;font-size:10px;color:#c8cad4}
+  .monwrap{flex:1;padding:12px 14px 10px;min-width:0}
+  .monhead{display:flex;align-items:center;margin-bottom:10px;font-size:12px;color:var(--text2)}
+  .monhead b{color:var(--text);font-size:13px;margin-right:6px}
+  .monhead .lg{margin-left:auto;font-size:10.5px;color:var(--text3)}
+  .mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .m{text-align:center;border:1.5px solid var(--border);border-radius:7px;padding:10px 0;font-size:12.5px;background:#fff;line-height:1.15}
+  .m s{display:block;font-size:9.5px;text-decoration:none;color:#c8cad4;margin-top:1px}
+  .m.dash{border-style:dashed;color:var(--text3);background:#fbfbfd}
+  .m.in{background:#e6f1fb;border-color:#85b7eb;color:#185fa5}
+  .m.edge{background:var(--primary);border-color:var(--primary);color:#fff}
+  .m.edge s{color:#cfd9ff}
+  .calfoot{display:flex;align-items:center;gap:10px;border-top:1px solid #f0f2f7;margin-top:11px;padding-top:10px;font-size:12px;color:var(--text2)}
+  .calfoot b{color:var(--text)}
+  .calfoot .r{margin-left:auto;display:flex;gap:8px}
+  .calfoot button{font:inherit;font-size:12px;border-radius:7px;padding:5px 13px;border:1px solid var(--border);background:#fff}
+  .calfoot button.p{background:var(--primary);border-color:var(--primary);color:#fff}
+
+  /* ===== 矩阵公共 ===== */
+  .mx{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .lg{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text2);padding:9px 12px;border-bottom:1px solid #f0f2f7}
+  .lg i{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:-1px}
+  .r{display:grid;grid-template-columns:78px minmax(180px,1fr) 74px 58px 58px 62px;gap:0;align-items:center;
+      padding:7px 10px;border-bottom:1px solid #f2f4f8;font-size:11.5px}
+  .r .p{text-align:left;font-weight:600}
+  .r .n{text-align:right;font-variant-numeric:tabular-nums}
+  .bar{display:flex;align-items:center;padding:0 8px}
+  .barin{display:flex;height:16px;border-radius:3px;overflow:hidden;background:#f4f6fa}
+  .seg{height:16px}
+  .exp{background:#fbfcff;border-bottom:1px solid #eef1f8;padding:12px 14px 14px 88px}
+  .h3{font-size:12px;font-weight:500;margin:0 0 9px;display:flex;gap:10px;align-items:center}
+  .h3 span{font-weight:400;color:var(--text2);font-size:11px}
+
+  /* 分组柱图 */
+  .gp{display:flex;align-items:flex-end;gap:14px;height:150px;padding:0 4px}
+  .gp .col{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:center;gap:3px;height:100%;position:relative}
+  .gp .col i{width:11px;border-radius:2px 2px 0 0;outline:1px solid rgba(30,40,80,.10);outline-offset:-1px}
+  .gp .col.na{background:repeating-linear-gradient(45deg,#fafbfd,#fafbfd 5px,#f2f4f9 5px,#f2f4f9 10px);border-radius:4px}
+  .gp .col em{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-style:normal;font-size:10px;color:var(--text3)}
+  .gpwrap{padding-bottom:22px}
+
+  /* 小倍数 */
+  .sm{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .smc{border:1px solid #e9ecf4;border-radius:8px;padding:9px 10px;background:#fff}
+  .smc h4{margin:0 0 6px;font-size:11.5px;font-weight:500;display:flex;align-items:center;gap:6px}
+  .smc h4 i{width:9px;height:9px;border-radius:2px;display:inline-block}
+  .smc h4 em{margin-left:auto;font-style:normal;font-size:10.5px;color:var(--text2)}
+  .smc .mini{display:flex;align-items:flex-end;gap:4px;height:56px}
+  .smc .mini div{flex:1;position:relative}
+  .smc .mini b{display:block;border-radius:2px 2px 0 0;outline:1px solid rgba(30,40,80,.10);outline-offset:-1px}
+
+  /* 月度堆叠 */
+  .stk{display:flex;align-items:flex-end;gap:12px;height:160px}
+  .stk .c{flex:1;display:flex;flex-direction:column-reverse;border-radius:3px;overflow:hidden;background:#f4f6fa}
+  .stk .c i{width:100%;outline:1px solid rgba(255,255,255,.55);outline-offset:-1px}
+  .stkwrap{padding-bottom:22px}
+
+  /* 迷你趋势线（色条上方，按段宽对齐） */
+  .combo{padding:4px 0 6px}
+  .spr{display:flex;align-items:flex-end;padding:0 10px}
+  .spc{display:flex;flex-direction:column;justify-content:flex-end;padding:0 3px;min-width:0}
+  .spk{display:flex;align-items:flex-end;gap:1px;height:18px;border-bottom:1px solid #e3e7f0}
+  .spk i{flex:1;background:var(--c);opacity:.62;border-radius:1px 1px 0 0;min-height:1px}
+  .spc em{font-style:normal;font-size:8.5px;color:var(--text3);text-align:center;margin-top:2px;white-space:nowrap;overflow:hidden}
+
+  table.cust{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+  table.cust th{color:var(--text3);font-weight:400;text-align:left;padding:3px 4px;border-bottom:1px solid #eef1f8}
+  table.cust td{padding:4px;border-bottom:1px solid #f5f7fb}
+  table.cust td.n,table.cust th.n{text-align:right;font-variant-numeric:tabular-nums}
+  .red{color:#e74c3c}.green{color:#27ae60}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>KA50 · 完整日历 + 渠道分月呈现</h1>
+  <p class="sub">① 时间改成「左年右月」完整日历 ② 各渠道分月走势的 4 种呈现方式。数据均取山东真实值（万元）。</p>
+  <div id="wrap"></div>
+</div>
+
+<script>
+var CH = [
+  {k:'kaBuy',  n:'KA购进',      c:'#4361ee', m:[97.8,null,null,null,88.1,3462.2,78.9,91.5],
+   yoy:[-93.0,null,null,null,-87.0,28.4,-59.7,-67.1],   tot:5629.8, ty:-25.9},
+  {k:'kaSell', n:'KA纯销',      c:'#4cc9f0', m:[667.8,null,null,null,1315.4,714.0,392.8,726.1],
+   yoy:[-40.2,null,null,null,-15.9,1.7,-22.6,-0.7],      tot:6215.5, ty:-5.6},
+  {k:'chain',  n:'重点连锁',    c:'#7209b7', m:[null,null,null,null,86.3,449.0,17.8,154.3],
+   yoy:[null,null,null,null,-76.1,45.5,-71.0,-38.9],     tot:1601.4, ty:-11.2},
+  {k:'yiguan', n:'医馆·礼品店', c:'#f72585', m:[null,null,null,null,178.0,2933.9,22.7,34.5],
+   yoy:[null,null,null,null,-22.5,176.7,-66.7,-95.0],    tot:4073.1, ty:5.1},
+  {k:'broad',  n:'广阔市场',    c:'#06d6a0', m:[null,null,null,null,122.1,722.7,-27.0,119.1],
+   yoy:[null,null,null,null,-60.3,110.5,-123.0,-1.2],    tot:1751.2, ty:-19.8}
+];
+var MTOT = [767.6,null,null,null,1790.0,8282.0,485.1,1125.5];   // 各月五指标合计（仅快照月）
+var MAXM = 3462.2;
+
+function v(x, d) { return x == null ? '—' : x.toFixed(d == null ? 1 : d); }
+function pct(x) { return (x > 0 ? '+' : '') + x.toFixed(1) + '%'; }
+function cls(x) { return x >= 0 ? 'red' : 'green'; }
+function yc(x) { // 与全页 yoyBarColor 同算法（参数为百分数）
+  if (x == null || x === 0) return 'rgb(214,217,226)';
+  var t = Math.min(Math.pow(Math.abs(x) / 100, 0.75), 1);
+  return x > 0 ? 'rgb(' + Math.round(255 - t * 40) + ',' + Math.round(255 - t * 223) + ',' + Math.round(255 - t * 215) + ')'
+               : 'rgb(' + Math.round(255 - t * 227) + ',' + Math.round(255 - t * 90) + ',' + Math.round(255 - t * 190) + ')';
+}
+function legend() {
+  return '<div class="lg">' + CH.map(function (c) {
+    return '<span><i style="background:' + c.c + '"></i>' + c.n + '</span>';
+  }).join('') + '</div>';
+}
+function calpop(inflow) {
+  var Y = [['2025','无月度快照',0],['2026','',1]];
+  var st = {1:'edge',2:'dash',3:'dash',4:'in',5:'in',6:'in',7:'in',8:'edge',9:'dash',10:'dash',11:'dash',12:'dash'};
+  var tag = {1:'起',8:'止'};
+  var ms = '';
+  for (var i = 1; i <= 12; i++) {
+    var s = st[i], note = '';
+    if (i === 2) note = '仅起';
+    else if (i === 3) note = '缺';
+    else if (i === 4) note = '仅止';
+    else if (i === 6 || i === 7) note = '待核';
+    else if (i >= 9) note = '未出';
+    ms += '<div class="m' + (s === 'dash' ? ' dash' : (s === 'edge' ? ' edge' : (s === 'in' ? ' in' : ''))) + '">' + i + '月' +
+      '<s>' + (tag[i] || note || '') + '</s></div>';
+  }
+  return '<div class="calpop' + (inflow ? ' inflow' : '') + '">' +
+    '<div class="years">' + Y.map(function (y) {
+      return '<div class="y' + (y[2] ? ' on' : ' off') + '">' + y[0] + ' 年' + (y[1] ? '<small>' + y[1] + '</small>' : '') + '</div>';
+    }).join('') + '</div>' +
+    '<div class="monwrap"><div class="monhead" style="display:block">' +
+      '<div style="font-size:13px;font-weight:500;margin-bottom:2px">2026 年</div>' +
+      '<div style="font-size:10.5px;color:var(--text3);margin-bottom:8px">点两次定起止（同一个月 = 单月）· 虚线 = 源表无快照</div></div>' +
+      '<div class="mgrid">' + ms + '</div>' +
+      '<div class="calfoot"><span>已选 <b>2026年 1月 – 8月</b></span>' +
+      '<span class="r"><button>清除</button><button class="p">确定</button></span></div></div></div>';
+}
+
+/* ===== ① 分组柱状图 ===== */
+function demo1() {
+  var cols = '';
+  for (var m = 0; m < 8; m++) {
+    var has = MTOT[m] != null;
+    var bars = CH.map(function (c) {
+      var x = c.m[m];
+      if (x == null) return '';
+      var h = Math.max(Math.abs(x) / MAXM * 100, 1.5);
+      return '<i style="height:' + h.toFixed(1) + '%;background:' + c.c + '"></i>';
+    }).join('');
+    cols += '<div class="col' + (has ? '' : ' na') + '">' + bars + '<em>' + (m + 1) + '月</em></div>';
+  }
+  return '<div class="gpwrap"><div class="gp">' + cols + '</div></div>' +
+    '<div class="note">每组最多 5 根柱（渠道配色）；2/3/4 月无快照 → 斜纹空列。<b>逐月之和 &lt; 1-8月累计</b>（缺 2/3/4 月），仅用于看走势。</div>';
+}
+
+/* ===== ② 小倍数图 ===== */
+function demo2() {
+  return '<div class="sm">' + CH.map(function (c) {
+    var mx = 0;
+    c.m.forEach(function (x) { if (x != null) mx = Math.max(mx, Math.abs(x)); });
+    var bars = c.m.map(function (x, i) {
+      if (x == null) return '<div style="height:100%"></div>';
+      var h = Math.max(Math.abs(x) / (mx || 1) * 100, 3);
+      return '<div style="height:100%;display:flex;align-items:flex-end"><b style="height:' + h.toFixed(1) + '%;background:' +
+        yc(c.yoy[i]) + ';width:100%"></b></div>';
+    }).join('');
+    return '<div class="smc"><h4><i style="background:' + c.c + '"></i>' + c.n +
+      '<em>' + v(c.tot) + ' 万 <span class="' + cls(c.ty) + '">' + pct(c.ty) + '</span></em></h4>' +
+      '<div class="mini">' + bars + '</div></div>';
+  }).join('') + '</div>' +
+  '<div class="note">每个渠道一个小图（柱高 = 金额，<b>柱色 = 该月同比</b>红涨绿跌深浅表幅度）；标题直接给 1-8月累计与同比。点小图 → 展开该渠道总部明细。</div>';
+}
+
+/* ===== ③ 月度堆叠 ===== */
+function demo3() {
+  var cols = '';
+  for (var m = 0; m < 8; m++) {
+    if (MTOT[m] == null) { cols += '<div class="c" style="background:repeating-linear-gradient(45deg,#fafbfd,#fafbfd 5px,#f2f4f9 5px,#f2f4f9 10px)"></div>'; continue; }
+    var seg = CH.map(function (c) {
+      var x = c.m[m];
+      if (x == null || x <= 0) return '';
+      return '<i style="height:' + (x / MTOT[m] * 100).toFixed(2) + '%;background:' + c.c + '"></i>';
+    }).join('');
+    var h = MTOT[m] / 8282 * 100;
+    cols += '<div class="c" style="height:' + h.toFixed(1) + '%">' + seg + '</div>';
+  }
+  return '<div class="stkwrap"><div class="stk">' + cols + '</div>' +
+    '<div style="display:flex;gap:12px;font-size:10px;color:var(--text3);padding-top:3px">' +
+    [1,2,3,4,5,6,7,8].map(function (m) { return '<span style="flex:1;text-align:center">' + m + '月</span>'; }).join('') + '</div></div>' +
+    '<div class="note">每根柱 = 该月五渠道<b>堆叠</b>（总高 = 该月合计，段色 = 渠道）→ 同时看月度总量与结构；2/3/4 月斜纹空列。</div>';
+}
+
+/* ===== ④ 色条内嵌迷你趋势线 ===== */
+function demo4() {
+  var sp = '', bar = '';
+  CH.forEach(function (c) {
+    var w = c.tot / 19271.0 * 100;
+    var mx = 0; c.m.forEach(function (x) { if (x != null) mx = Math.max(mx, Math.abs(x)); });
+    var bars = c.m.map(function (x) {
+      if (x == null) return '<i style="height:1px;opacity:.25"></i>';
+      return '<i style="height:' + Math.max(Math.abs(x) / (mx || 1) * 100, 10).toFixed(0) + '%"></i>';
+    }).join('');
+    sp += '<div class="spc" style="width:' + w.toFixed(2) + '%;--c:' + c.c + '">' +
+      '<div class="spk">' + bars + '</div><em>' + c.n + '</em></div>';
+    bar += '<i class="seg" style="width:' + w.toFixed(2) + '%;background:' + c.c + '"></i>';
+  });
+  return '<div class="combo">' +
+    '<div class="spr">' + sp + '</div>' +
+    '<div style="padding:0 10px"><div class="barin" style="width:100%">' + bar + '</div></div>' +
+    '<div style="display:flex;font-size:10px;color:var(--text3);padding:3px 0 0 96px">' +
+      '<span style="flex:1">← 上方每段 = 该渠道 1/5/6/7/8 月迷你柱（按段宽与下方色条对齐）</span></div></div>' +
+    '<div class="note">矩阵行不展开也能看走势：色条<b>上方</b>按段宽对齐叠 5 根迷你柱（渠道配色）；' +
+    '优点：纵向只多占 20px；缺点：只能看趋势与相对高低，读数需悬停。点段 → 累计明细。</div>';
+}
+
+var H =
+'<div class="card">' +
+  '<div class="card-h"><b>① 时间 · 「左年右月」完整日历</b><span>左侧选年，右侧 12 个月矩形排列，点两次定起止</span><em>符合您描述的形态</em></div>' +
+  '<div class="st">变体 1 · 弹层式（常态只占一个按钮）</div>' +
+  '<div class="blk"><span class="datebtn focus">2026 年 <span class="cur"><b>1月 – 8月</b></span></span>' +
+    '<div style="margin-top:9px">' + calpop(true) + '</div>' +
+    '<div class="note">筛选区常态显示「2026 年 1月 – 8月 ▾」，点开才是日历：左栏年份（2025 无快照置灰）、右栏 12 个月 4×3 矩形；虚线 = 无源，实心 = 已选起止，浅蓝 = 区间内，9-12月标「未出」。</div></div>' +
+  '<div class="st">变体 2 · 常驻式（日历一直铺在筛选区）</div>' +
+  '<div class="blk" style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start">' +
+    '<div>' + calpop(false) + '</div>' +
+    '<div class="note" style="max-width:260px">不再需要点开，一眼可见年份与月份；代价是筛选区高度增加约 250px，矩阵要往下滚。</div></div>' +
+'</div>' +
+
+'<div class="card">' +
+  '<div class="card-h"><b>② 渠道分月的 4 种呈现</b><span>山东真实值 · 点色条仍展开该渠道累计明细</span><em>请选一个（可组合）</em></div>' +
+  '<div class="st">方案 ① 分组柱状图（x = 月份，5 根柱/组）</div>' +
+  '<div class="blk">' + legend() + demo1() + '</div>' +
+  '<div class="st">方案 ② 小倍数图（Small Multiples · 5 个小图）</div>' +
+  '<div class="blk">' + demo2() + '</div>' +
+  '<div class="st">方案 ③ 月度堆叠柱（柱 = 月份，段 = 渠道）</div>' +
+  '<div class="blk">' + legend() + demo3() + '</div>' +
+  '<div class="st">方案 ④ 色条内嵌迷你趋势线（免展开）</div>' +
+  '<div class="blk">' + demo4() + '</div>' +
+'</div>' +
+
+'<div class="card">' +
+  '<div class="card-h"><b>③ 组合示意 · 方案 ① 嵌进矩阵的样子</b><span>点省区行 → 行内展开分组柱图；再点色条 → 该渠道累计明细</span><em>推荐组合</em></div>' +
+  '<div class="mx">' + legend() +
+    '<div class="r"><span class="p">山东</span>' +
+      '<span class="bar"><span class="barin" style="width:100%">' +
+        CH.map(function (c) { return '<i class="seg" style="width:' + (c.tot / 19271 * 100).toFixed(2) + '%;background:' + c.c + '"></i>'; }).join('') +
+      '</span></span><span class="n">19271.0</span><span class="n green">-16.8%</span><span class="n">68.1%</span><span class="n">40.6%</span></div>' +
+    '<div class="exp">' +
+      '<div class="h3">各渠道逐月走势<span>山东 ｜ 2026年 1月 – 8月 ｜ 逐月之和 &lt; 累计（缺 2/3/4 月）</span></div>' +
+      demo1() +
+      '<div class="h3" style="margin-top:14px">客户明细（按归属总部归集，默认 TOP5）<span>山东 × KA纯销 ｜ 6215.5 万 · 同比 -5.8%</span></div>' +
+      '<table class="cust"><tr><th>#</th><th>归属总部</th><th>省份</th><th class="n">金额(万)</th><th class="n">占比</th><th class="n">同比</th></tr>' +
+        '<tr><td>1</td><td>漱玉医药物流（山东）有限公司 <span style="color:#b0b4c0;font-size:9px">3 家</span></td><td>山东省</td><td class="n">4161.5</td><td class="n">67.0%</td><td class="n red">+1.1%</td></tr>' +
+        '<tr><td>2</td><td>威海市天福医药有限公司</td><td>山东省</td><td class="n">596.8</td><td class="n">9.6%</td><td class="n green">-19.0%</td></tr>' +
+        '<tr><td>3</td><td>山东立健药店连锁有限公司 <span style="color:#b0b4c0;font-size:9px">2 家</span></td><td>山东省</td><td class="n">524.4</td><td class="n">8.4%</td><td class="n red">+0.9%</td></tr>' +
+      '</table>' +
+    '</div>' +
+    '<div class="r"><span class="p">江苏</span>' +
+      '<span class="bar"><span class="barin" style="width:58%">' +
+        CH.map(function (c) { return '<i class="seg" style="width:' + (100 / 5) + '%;background:' + c.c + '"></i>'; }).join('') +
+      '</span></span><span class="n">11189.7</span><span class="n red">+78.4%</span><span class="n">65.7%</span><span class="n">39.3%</span></div>' +
+  '</div>' +
+  '<div class="note">展开内容为「各渠道逐月」+「该渠道总部明细」两块；点不同色条时，明细跟随切换并保留逐月图。</div>' +
+'</div>';
+
+document.getElementById('wrap').innerHTML = H;
+</script>
+</body>
+</html>
