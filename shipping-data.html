@@ -2143,12 +2143,7 @@ function kfRenderMatrix(dims, lo, hi) {
     var neg = rows.filter(function(w) {
       return w.segs.some(function(e) { return e.v && e.v.a < 0; });
     }).map(function(w) { return w.name; });
-    var parts = ['「' + kfRangeName(lo, hi) + '」· 单位万元 · 区间值 = 累计快照 S(止) − S(起−1)（不做单月相加，避免漏 2/3/4 月）',
-      '金额与同比取客户级明细 sheet；<b>完成率 / 年度进度</b>取省区级汇总表（复方阿胶浆类块）'];
-    if (Math.abs(gapSum) > 300) {
-      parts.push('<b style="color:#b8860b;">⚠ KA购进 两源口径不一致：省区级汇总合计 − 客户级合计 = ' +
-        (gapSum > 0 ? '+' : '') + gapSum.toFixed(1) + ' 万（源表归集差异，未做缩放 / 摊派）</b>');
-    }
+    var parts = ['「' + kfRangeName(lo, hi) + '」· 单位万元 · 区间值 = 累计快照 S(止) − S(起−1)（不做单月相加，避免漏 2/3/4 月）'];
     if (neg.length) parts.push('含负值（退货 / 冲销）的省区：' + neg.join('、') + ' —— 色条仅绘制正值段，合计列为真实净额');
     if (smallDrops) parts.push('另有 ' + smallDrops + ' 段占比 <0.5% 未绘制（数值仍计入合计）');
     foot.innerHTML = parts.join(' ｜ ');
