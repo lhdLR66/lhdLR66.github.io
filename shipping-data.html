@@ -1273,7 +1273,7 @@ function rateClass(rate) {
   <div class="ka50-note" data-page-node-id="snsZ3y0GQX4lFxpNbQ0iKG">
     数据口径：<b>复方阿胶浆类</b> · <b>省区粒度</b>（21 个）｜五个指标：KA购进 · KA纯销 · 重点连锁购进 · 医馆·礼品店购进 · <b>广阔市场配送</b>（同为复方阿胶浆类，非全产品）<br>
     金额 / 同比来源：1.2KA50分部明细（KA）· 1.3重点连锁 · 1.4医馆、礼品店 ｜ <b>完成率 / 年度进度</b>来源：省区级汇总表复方阿胶浆类块<br>
-    时间：日历选起止月份，区间值 = <b>累计快照相减</b> ｜ <b>2/3 月无源</b>（缺《1-2月》《1-3月》报表）· <b>6/7 月待核</b>（1-6月期报表数据跳增）
+    时间：日历选起止月份，区间值 = <b>累计快照相减</b> ｜ <b>2/3 月无源</b>（缺《1-2月》《1-3月》报表）· <b>6 月为半年度集中发货月</b>（单月偏高属正常，已核实）
   </div>
 
   <!-- ① 筛选区（紧凑工具栏：省区下拉 + 渠道 chips + 时间日历弹层） -->
@@ -1951,7 +1951,8 @@ function kfDims() {
   return out;
 }
 function kfSub(k) { return k === 'broad' ? '复方阿胶浆类 · 省区级' : '复方阿胶浆类'; }
-function kfMonthWarn(m) { return (kfMeta().warn || {})[String(m)] || ''; }
+// 用户 2026-10-19 确认：6 月为「半年度集中发货/进货」，单月偏高属正常；7 月随之解除待核
+function kfMonthWarn(m) { return m === 6 ? '半年冲量' : ''; }
 
 /* ---------- ① 筛选器 ---------- */
 function kfInit() {
@@ -2017,7 +2018,7 @@ function kfRenderCal() {
     if (m === 2) tag = '仅起';
     else if (m === 3) tag = '缺';
     else if (m === 4) tag = '仅止';
-    else if (m === 6 || m === 7) tag = '待核';
+    else if (m === 6) tag = '冲量';
     if (a != null && m >= lo && m <= hi) {
       cls += (m === lo || m === hi) ? ' edge' : ' in';
       if (lo === hi && m === lo) tag = '单月';
@@ -2178,7 +2179,7 @@ function kfCustBlock(r, dimKey, lo, hi) {
     '<span class="s">' + kfEsc(r.name) + ' ｜ ' + kfRangeName(lo, hi) +
     ' ｜ 逐月之和 &lt; 累计（源表缺 2/3/4 月快照）</span>' + tg + '</div>' +
     (kfState.chart === 'small' ? kfChartSmall(r, dims, lo, hi) : kfChartGroup(r, dims, lo, hi)) +
-    '<div class="kf-note-line">斜纹「缺」= 源表缺该月累计快照（缺《1-2月》《1-3月》，无法拆单月）｜「缺表」= 1月报表无该渠道 sheet｜' +
+    '<div class="kf-note-line">斜纹「缺」= 源表该月/该表无数据（缺《1-2月》《1-3月》累计快照，或该期报表无此渠道 sheet）｜' +
     '「无业务」= 该省区该渠道全区间为 0｜灰线「0」= 有快照但当月金额为 0（无发生）｜ 悬停任一月/任一渠道卡可看逐项明细与原因</div>' +
     '<div class="kc-title">客户明细（按归属总部归集） · ' + kfEsc(r.name) + ' × ' + kfEsc(dm.name) +
     '（' + kfRangeName(lo, hi) + '，默认 TOP5）' +
@@ -2258,7 +2259,7 @@ function kfChartSmall(r, dims, lo, hi) {
     s.forEach(function(p) { if (!p.na) mx = Math.max(mx, Math.abs(p.v)); });
     var v = kfVal(r, d.key, lo, hi);
     var bars = s.map(function(p) {
-      if (p.na) return '<div class="na"><s>' + (p.why === 'nosheet' ? '缺表' : (p.why === 'future' ? '未出' : '缺')) + '</s></div>';
+      if (p.na) return '<div class="na"><s>' + (p.why === 'future' ? '未出' : '缺') + '</s></div>';
       if (Math.abs(p.v) < 1e-9) return '<div class="z0"><b></b><s>0</s></div>';
       return '<div><b style="height:' + Math.max(Math.abs(p.v) / (mx || 1) * 100, 4).toFixed(1) +
         '%;background:' + yoyBarColor(p.yoy == null ? null : p.yoy * 100) + '"></b></div>';
@@ -2307,19 +2308,17 @@ function kfMonthReason(r, dimKey, m) {
 }
 function kfReasonTx(why) {
   return why === 'nobiz' ? '该省区无此渠道业务'
-    : why === 'nosheet' ? '该期报表无此表'
     : why === 'zero' ? '有快照 · 当月无发生'
     : why === 'future' ? '报表未出'
-    : '源表无该月快照';
+    : '源表缺该月数据';
 }
 function kfReasonShort(why) {
   return why === 'nobiz' ? '无业务'
-    : why === 'nosheet' ? '缺表'
     : why === 'zero' ? '无发生'
     : why === 'future' ? '未出' : '缺报表';
 }
-var KF_REASON_NOTE = '「无业务」= 该省区该渠道全区间为 0；「缺报表」= 源表缺《1-2月》《1-3月》累计快照，无法拆出该单月；' +
-  '「缺表」= 1月报表无该渠道 sheet；「无发生」= 有快照但当月金额为 0';
+var KF_REASON_NOTE = '「无业务」= 该省区该渠道全区间为 0；「缺报表」= 源表该月/该表无数据（缺《1-2月》《1-3月》累计快照，或该期报表无此渠道 sheet）；' +
+  '「无发生」= 有快照但当月金额为 0';
 
 function kfMore(btn) {
   var list = btn.parentNode;
@@ -2465,7 +2464,7 @@ function kfTipMonth(col, ev) {
       '<span class="yy ' + kfYCls(sl ? sa / sl - 1 : null) + '">' + kfP(sl ? sa / sl - 1 : null) + '</span></div>' : '') +
     '</div>';
   kfPutTip(head + body + '<div class="kf-tip-note">' + KF_REASON_NOTE +
-    (kfMonthWarn(m) ? '<br>⚠ 该月为源表跳增月，单月值待核' : '') + '</div>', true, ev);
+    (m === 6 ? '<br>6 月为半年度集中发货/进货月，单月偏高属正常；7 月起为相对回落' : '') + '</div>', true, ev);
 }
 
 /* 小倍数：悬停某个渠道卡 → 该渠道逐月金额 + 同比（无数据月份注明原因） */
