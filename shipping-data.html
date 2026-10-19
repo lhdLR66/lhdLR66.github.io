@@ -575,6 +575,94 @@
         .kf-mc-c.na .plot { border:1px dashed #e6e9f1; background:#fcfcfe; }
         .kf-mc-c.na .y { color:#c8cad4; }
         .kf-mc-w { font-style:normal; font-size:9px; color:#e67e22; margin-left:1px; }
+
+        /* ===== 筛选工具栏（省区下拉 + 渠道 chips + 时间日历弹层） ===== */
+        .kf-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        .kf-chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+        .kf-dd { position:relative; }
+        .kf-dd-box { display:flex; align-items:center; gap:5px; min-height:38px; min-width:196px; max-width:400px;
+          border:1.5px solid #dee2e6; border-radius:8px; background:#fff; padding:3px 30px 3px 9px;
+          font-size:12.5px; cursor:pointer; flex-wrap:wrap; position:relative; transition:.15s; }
+        .kf-dd-box:hover { border-color:var(--primary); }
+        .kf-dd.open .kf-dd-box { border-color:var(--primary); box-shadow:0 0 0 3px rgba(67,97,238,.12); }
+        .kf-dd-ph { color:#b0b4c0; }
+        .kf-dd-caret { position:absolute; right:10px; top:50%; transform:translateY(-50%); color:#a9aebc; font-size:10px; }
+        .kf-dd-pop { display:none; position:absolute; z-index:60; left:0; top:calc(100% + 6px); background:#fff;
+          border:1px solid #e3e7f0; border-radius:10px; box-shadow:0 10px 26px rgba(20,30,70,.14); padding:8px; min-width:264px; }
+        .kf-dd.open .kf-dd-pop { display:block; }
+        .kf-dd-tag { display:inline-flex; align-items:center; gap:4px; background:#eef2ff; color:#2f4bc9;
+          border:1px solid #d3dcff; border-radius:12px; padding:1px 7px; font-size:11.5px; }
+        .kf-dd-tag i { font-style:normal; color:#8b9ae8; font-size:12px; line-height:1; }
+        .kf-dd-tag i:hover { color:#c1121f; }
+        .kf-dd-search { width:100%; border:1px solid #e6e9f1; border-radius:7px; padding:5px 8px; font-size:12px;
+          margin-bottom:6px; outline:none; box-sizing:border-box; }
+        .kf-dd-search:focus { border-color:var(--primary); }
+        .kf-dd-ops { display:flex; gap:10px; font-size:11px; color:var(--primary); padding:0 3px 6px;
+          border-bottom:1px solid #f0f2f7; margin-bottom:5px; }
+        .kf-dd-ops span { cursor:pointer; }
+        .kf-dd-ops span:hover { text-decoration:underline; }
+        .kf-dd-ops u { margin-left:auto; text-decoration:none; color:#b0b4c0; }
+        .kf-dd-list { max-height:206px; overflow:auto; display:grid; grid-template-columns:repeat(3,1fr); gap:1px 4px; }
+        .kf-it { display:flex; align-items:center; gap:6px; padding:4px 6px; border-radius:5px; font-size:12px; cursor:pointer; }
+        .kf-it:hover { background:#f4f6ff; }
+        .kf-it.on { background:#eef2ff; color:#2f4bc9; font-weight:500; }
+        .kf-it.dis { opacity:.34; cursor:not-allowed; }
+        .kf-it.hide { display:none; }
+        .kf-it .bx { width:13px; height:13px; border:1.5px solid #c6ccd9; border-radius:3px; flex:0 0 13px; position:relative; }
+        .kf-it.on .bx { background:var(--primary); border-color:var(--primary); }
+        .kf-it.on .bx::after { content:""; position:absolute; left:3px; top:-1px; width:4px; height:8px;
+          border:2px solid #fff; border-top:0; border-left:0; transform:rotate(42deg); }
+
+        /* 时间日历弹层（左年右月，月份格紧凑） */
+        .kf-date-box { min-width:176px; justify-content:flex-start; }
+        .kf-dd-pop.kf-calpop { display:none; width:344px; padding:0; overflow:hidden; }
+        .kf-dd.open .kf-dd-pop.kf-calpop { display:flex; }
+        .kf-cal-years { flex:0 0 74px; background:#f7f8fc; border-right:1px solid #eef0f5; padding:5px 0; }
+        .kf-cal-years .y { font-size:12px; padding:6px 9px; color:var(--text2); }
+        .kf-cal-years .y.on { background:#fff; color:var(--primary); font-weight:500; box-shadow:inset 3px 0 0 var(--primary); }
+        .kf-cal-years .y.off { color:#c8cad4; }
+        .kf-cal-years .y small { display:block; font-size:9px; color:#c8cad4; }
+        .kf-cal-main { flex:1; padding:8px 9px 7px; min-width:0; }
+        .kf-cal-hd { display:flex; align-items:baseline; gap:5px; margin-bottom:6px; }
+        .kf-cal-hd b { font-size:12px; }
+        .kf-cal-hd span { font-size:9.5px; color:#b0b4c0; }
+        .kf-cal-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+        .kf-cal-m { text-align:center; border:1.5px solid #dee2e6; border-radius:6px; padding:5px 0;
+          font-size:11.5px; line-height:1.15; background:#fff; cursor:pointer; user-select:none; }
+        .kf-cal-m:hover { border-color:var(--primary); }
+        .kf-cal-m s { display:block; font-size:8.5px; text-decoration:none; color:#c8cad4; margin-top:1px; }
+        .kf-cal-m.dash { border-style:dashed; color:#b0b4c0; background:#fbfbfd; }
+        .kf-cal-m.in { background:#e6f1fb; border-color:#85b7eb; color:#185fa5; }
+        .kf-cal-m.edge { background:var(--primary); border-color:var(--primary); color:#fff; }
+        .kf-cal-m.edge s { color:#cfd9ff; }
+        .kf-cal-foot { display:flex; align-items:center; font-size:10.5px; color:var(--text2);
+          border-top:1px solid #f0f2f7; margin-top:7px; padding-top:6px; }
+        .kf-cal-foot .r { margin-left:auto; display:flex; gap:6px; }
+        .kf-cal-foot b { font-weight:400; font-size:11px; border:1px solid #dee2e6; border-radius:6px;
+          padding:3px 9px; cursor:pointer; }
+        .kf-cal-foot b:hover { border-color:var(--primary); color:var(--primary); }
+        .kf-cal-foot b.p { background:var(--primary); border-color:var(--primary); color:#fff; }
+
+        /* 渠道分月图（分组柱 / 小倍数 切换） */
+        .kf-mxh { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+        .kf-mxh .t { font-size:11.5px; font-weight:500; }
+        .kf-mxh .s { font-size:10.5px; color:var(--text2); }
+        .kf-tg { margin-left:auto; display:inline-flex; border:1px solid #dee2e6; border-radius:14px; overflow:hidden; background:#fff; }
+        .kf-tg b { font-weight:400; font-size:11px; padding:3px 11px; cursor:pointer; color:var(--text2); }
+        .kf-tg b.on { background:var(--primary); color:#fff; }
+        .kf-cg { display:flex; align-items:flex-end; gap:10px; height:116px; padding:0 2px 17px; }
+        .kf-cg .c { flex:1; display:flex; align-items:flex-end; justify-content:center; gap:2px; height:100%; position:relative; }
+        .kf-cg .c i { width:9px; border-radius:2px 2px 0 0; outline:1px solid rgba(30,40,80,.10); outline-offset:-1px; }
+        .kf-cg .c.na { background:repeating-linear-gradient(45deg,#fafbfd,#fafbfd 5px,#f2f4f9 5px,#f2f4f9 10px); border-radius:4px; }
+        .kf-cg .c em { position:absolute; bottom:-16px; left:0; right:0; text-align:center; font-style:normal; font-size:10px; color:var(--text3); }
+        .kf-sm { display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:7px; }
+        .kf-sm .kfc { border:1px solid #e9ecf4; border-radius:8px; padding:6px 8px; background:#fff; }
+        .kf-sm .kfc h4 { margin:0 0 3px; font-size:10.5px; font-weight:500; display:flex; align-items:center; gap:5px; white-space:nowrap; }
+        .kf-sm .kfc h4 i { width:8px; height:8px; border-radius:2px; flex:0 0 8px; }
+        .kf-sm .kfc h4 em { margin-left:auto; font-style:normal; font-size:9.5px; color:var(--text2); }
+        .kf-sm .mini { display:flex; align-items:flex-end; gap:3px; height:44px; }
+        .kf-sm .mini div { flex:1; height:100%; display:flex; align-items:flex-end; }
+        .kf-sm .mini b { display:block; width:100%; border-radius:2px 2px 0 0; outline:1px solid rgba(30,40,80,.10); outline-offset:-1px; }
         .prov-header-row { display:flex; align-items:center; gap:4px; padding:2px 0 4px; border-bottom:1px solid var(--border); margin-bottom:4px; }
         .prov-header-row .prov-hdr { width:48px; text-align:right; font-size:9px; color:var(--text2); flex-shrink:0; font-weight:500; }
   </style>
@@ -1185,25 +1273,37 @@ function rateClass(rate) {
     时间：日历选起止月份，区间值 = <b>累计快照相减</b> ｜ <b>2/3 月无源</b>（缺《1-2月》《1-3月》报表）· <b>6/7 月待核</b>（1-6月期报表数据跳增）
   </div>
 
-  <!-- ① 筛选区 -->
+  <!-- ① 筛选区（紧凑工具栏：省区下拉 + 渠道 chips + 时间日历弹层） -->
   <div class="section" data-page-node-id="17WaejIixcwfgoLqKP1yBy">
     <div class="section-title" data-page-node-id="A79NCIOK8lW8uEB7NxVd0U"><i class="fas fa-filter" data-page-node-id="A8OawM7jPqIkhIXvkVzyRI"></i> 筛选条件
-      <span class="hint" data-page-node-id="XMfwz2sNxcCOizEeA21ZmC">省区多选（最多 5 个）· 渠道多选 · 日历选起止月份</span>
+      <span class="hint" id="kfCalHint" data-page-node-id="D76Nx8Ft5wj3xdsWGBHvXg">省区多选（≤5）· 渠道多选 · 日历选起止月份</span>
     </div>
-    <div class="kf-section" data-page-node-id="z7b6ICHFRxjze3Qa6x2Aub">
-      <div class="kf-row" data-page-node-id="o6FAjXAWtFyfFVjfeG9xm0">
-        <div class="kf-label" data-page-node-id="mfLLosy4VfwFQjko0kUnD2"><i class="fas fa-map-marker-alt" style="color:var(--primary)" data-page-node-id="lQ6X2WeqGLGgDY3G6bnV5S"></i> 省区 <span class="kf-hint" id="kfProvHint" data-page-node-id="06AGDHwpvkjFfWARBykIHd">多选，最多 5 个 · 已选 0/5</span></div>
-        <div class="kf-btns" id="kfProvBtns" data-page-node-id="0ZRmh0Mkyxl7SRRuUllLLl"></div>
+    <div class="kf-bar" id="kfBar">
+      <div class="kf-dd" id="kfProvDD">
+        <div class="kf-dd-box" id="kfProvBox" data-page-node-id="0ZRmh0Mkyxl7SRRuUllLLl">
+          <span class="kf-dd-ph">省区（多选 ≤5）</span><span class="kf-dd-caret">▾</span>
+        </div>
+        <div class="kf-dd-pop" id="kfProvPop">
+          <input class="kf-dd-search" id="kfProvSearch" placeholder="搜索省区" autocomplete="off">
+          <div class="kf-dd-ops"><span id="kfProvAll">全选</span><span id="kfProvNone">清空</span>
+            <u id="kfProvHint">已选 0 / 5</u></div>
+          <div class="kf-dd-list" id="kfProvBtns" data-page-node-id="0ZRmh0Mkyxl7SRRuUllLLl2"></div>
+        </div>
       </div>
-      <div class="kf-row" data-page-node-id="hCt3doICb8AtRg33pSsXb6">
-        <div class="kf-label" data-page-node-id="AyLQJT0AOJJ738JOr3YCtG"><i class="fas fa-layer-group" style="color:var(--primary)" data-page-node-id="qYFzOAefq8hI2qAOJ6yg7l"></i> 渠道 <span class="kf-hint" data-page-node-id="3gQwZBTk51A6K49fO2vJGM">多选 · KA 展开为购进 + 纯销两段</span></div>
-        <div class="kf-btns" id="kfDimBtns" data-page-node-id="49xofahdBKNxKx7dVklGC2"></div>
-      </div>
-      <div class="kf-row" data-page-node-id="1ceAwQAFHe5Gs1DukNJhpF">
-        <div class="kf-label" data-page-node-id="s7XMgA4GzJMS9Fv658C80G"><i class="fas fa-calendar-day" style="color:var(--primary)" data-page-node-id="9rrCZ3zC4LjieljRsWYqSJ"></i> 时间 <span class="kf-hint" id="kfCalHint" data-page-node-id="D76Nx8Ft5wj3xdsWGBHvXg">点 1 次 = 单月 · 再点 1 次 = 起止区间</span></div>
-        <div class="kf-cal-row">
-          <div class="kf-cal" id="kfCal"></div>
-          <span class="kf-cal-clear" id="kfCalClear">清空</span>
+      <div class="kf-chips" id="kfDimBtns" data-page-node-id="49xofahdBKNxKx7dVklGC2"></div>
+      <div class="kf-dd kf-dd-date" id="kfDateDD">
+        <div class="kf-dd-box kf-date-box" id="kfDateBox">
+          <i class="fas fa-calendar-day" style="color:var(--primary);margin-right:5px"></i>
+          <span id="kfDateTx">选择月份</span><span class="kf-dd-caret">▾</span>
+        </div>
+        <div class="kf-dd-pop kf-calpop" id="kfCalPop">
+          <div class="kf-cal-years" id="kfCalYears"></div>
+          <div class="kf-cal-main">
+            <div class="kf-cal-hd"><b id="kfCalYearTx">2026 年</b><span>点两次定起止（同月 = 单月）</span></div>
+            <div class="kf-cal-grid" id="kfCal"></div>
+            <div class="kf-cal-foot"><span id="kfCalSum">未选择</span>
+              <span class="r"><b id="kfCalClear">清除</b><b class="p" id="kfCalOk">确定</b></span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1758,7 +1858,7 @@ var KF_CH = [
 var KF_MAX = 5;
 var KF_DIM_COLOR = { kaBuy: '#4361ee', kaSell: '#4cc9f0', chain: '#7209b7', yiguan: '#f72585', broad: '#06d6a0' };
 // 默认全部未选中（用户 2026-10-16 要求）
-var kfState = { provs: [], chs: [], tFrom: null, tTo: null, open: null };
+var kfState = { provs: [], chs: [], tFrom: null, tTo: null, open: null, chart: 'group' };
 
 function initKa50Charts() {
   // 防御：声明尚未就绪时静默跳过（由 bootTab 在脚本末尾补做），绝不抛错中断整页脚本
@@ -1861,12 +1961,28 @@ function kfInit() {
 
 function kfRenderProvs() {
   var box = document.getElementById('kfProvBtns');
-  if (!box) return;
   var full = kfState.provs.length >= KF_MAX;
-  box.innerHTML = ka50Detail.regions.map(function(r) {
-    var on = kfState.provs.indexOf(r.name) >= 0;
-    return '<span class="kf-btn' + (on ? ' on' : (full ? ' disabled' : '')) + '" data-prov="' + kfEsc(r.name) + '">' + r.name + '</span>';
-  }).join('');
+  var q = ((document.getElementById('kfProvSearch') || {}).value || '').trim();
+  if (box) {
+    box.innerHTML = ka50Detail.regions.map(function(r) {
+      var on = kfState.provs.indexOf(r.name) >= 0;
+      var hide = q && r.name.indexOf(q) < 0;
+      return '<div class="kf-it' + (on ? ' on' : '') + (full && !on ? ' dis' : '') + (hide ? ' hide' : '') +
+        '" data-prov="' + kfEsc(r.name) + '"><span class="bx"></span>' + kfEsc(r.name) + '</div>';
+    }).join('');
+  }
+  var b = document.getElementById('kfProvBox');
+  if (b) {
+    var tags = kfState.provs.map(function(n) {
+      return '<span class="kf-dd-tag">' + kfEsc(n) + '<i data-del="' + kfEsc(n) + '">×</i></span>';
+    }).join('');
+    if (!tags) tags = '<span class="kf-dd-ph">省区（多选 ≤5）</span>';
+    else if (kfState.provs.length < KF_MAX) tags += '<span class="kf-dd-ph" style="font-size:11px">再选 ' +
+      (KF_MAX - kfState.provs.length) + ' 个</span>';
+    b.innerHTML = tags + '<span class="kf-dd-caret">▾</span>';
+  }
+  var h = document.getElementById('kfProvHint');
+  if (h) h.textContent = '已选 ' + kfState.provs.length + ' / ' + KF_MAX;
 }
 
 function kfRenderDims() {
@@ -1879,40 +1995,42 @@ function kfRenderDims() {
   }).join('');
 }
 
-/* 月份区间日历：点 1 次 = 单月；再点 1 次 = 起止区间；点区间内某月 = 收敛成该单月 */
+/* 时间：左年右月日历弹层。点 1 次 = 单月；再点 1 次 = 起止区间；点区间内某月 = 收敛成该单月 */
 function kfRenderCal() {
-  var box = document.getElementById('kfCal');
-  if (!box) return;
-  var last = kfMeta().last || 8;
+  var years = document.getElementById('kfCalYears');
+  if (years) {
+    years.innerHTML = '<div class="y off">2025 年<small>无月度快照</small></div>' +
+      '<div class="y on">2026 年</div>';
+  }
+  var grid = document.getElementById('kfCal');
+  if (!grid) return;
   var a = kfState.tFrom, b = kfState.tTo;
   var lo = (a == null ? null : Math.min(a, b)), hi = (a == null ? null : Math.max(a, b));
   var h = '';
-  for (var m = 1; m <= last; m++) {
-    var cls = 'kf-cal-cell';
-    if (!kfHasSnap(m)) cls += ' nodata';
-    if (a != null && m >= lo && m <= hi) cls += (m === lo || m === hi) ? ' edge' : ' in-range';
-    var tag = '';
-    if (a != null) {
+  for (var m = 1; m <= 12; m++) {
+    var cls = 'kf-cal-m', tag = '';
+    if (m >= 9) { cls += ' dash'; tag = '未出'; }
+    else if (!kfHasSnap(m)) cls += ' dash';
+    if (m === 2) tag = '仅起';
+    else if (m === 3) tag = '缺';
+    else if (m === 4) tag = '仅止';
+    else if (m === 6 || m === 7) tag = '待核';
+    if (a != null && m >= lo && m <= hi) {
+      cls += (m === lo || m === hi) ? ' edge' : ' in';
       if (lo === hi && m === lo) tag = '单月';
       else if (m === lo) tag = '起';
       else if (m === hi) tag = '止';
     }
-    var w = kfMonthWarn(m);
-    h += '<span class="' + cls + '" data-m="' + m + '" title="' + m + '月' +
-      (kfHasSnap(m) ? '' : ' · 源表无该月快照（缺《1-2月》《1-3月》报表）') +
-      (w ? ' · 单月值待核（1-6月期报表数据跳增）' : '') + '">' +
-      '<span class="kf-cal-m">' + m + '月' + (w ? '<i class="kf-cal-warn">⚠</i>' : '') + '</span>' +
-      (tag ? '<span class="kf-cal-tag">' + tag + '</span>' : '') + '</span>';
+    h += '<div class="' + cls + '" data-m="' + m + '">' + m + '月<s>' + tag + '</s></div>';
   }
-  box.innerHTML = h;
+  grid.innerHTML = h;
+  var tx = document.getElementById('kfDateTx');
+  if (tx) tx.textContent = a == null ? '选择月份' : ('2026 年 ' + kfRangeName(lo, hi));
+  var sum = document.getElementById('kfCalSum');
+  if (sum) sum.textContent = a == null ? '未选择' : ('已选 2026 年 ' + kfRangeName(lo, hi));
   var hint = document.getElementById('kfCalHint');
-  if (hint) {
-    hint.textContent = (a == null)
-      ? '点 1 次 = 单月 · 再点 1 次 = 起止区间'
-      : ('当前：' + kfRangeName(lo, hi) + ' · 值 = 累计快照相减（非单月相加）');
-  }
-  var clr = document.getElementById('kfCalClear');
-  if (clr) clr.style.visibility = (a == null) ? 'hidden' : 'visible';
+  if (hint) hint.textContent = a == null ? '省区多选（≤5）· 渠道多选 · 日历选起止月份'
+    : ('「' + kfRangeName(lo, hi) + '」值 = 累计快照相减（非单月相加）');
 }
 
 /* ---------- ② 结果矩阵 ---------- */
@@ -1948,8 +2066,6 @@ function kfRender() {
     if (_l) _l.innerHTML = ''; if (_f) _f.innerHTML = '';
     kfHideTip();
   }
-  var h = document.getElementById('kfProvHint');
-  if (h) h.textContent = '多选，最多 ' + KF_MAX + ' 个 · 已选 ' + kfState.provs.length + '/' + KF_MAX;
 }
 
 function kfRenderMatrix(dims, lo, hi) {
@@ -2051,7 +2167,15 @@ function kfRenderLegend(dims, lo, hi) {
 function kfCustBlock(r, dimKey, lo, hi) {
   var dm = kfDimOf(dimKey);
   var v = kfVal(r, dimKey, lo, hi);
-  var headTx = '<div class="kc-title">客户明细（按归属总部归集） · ' + kfEsc(r.name) + ' × ' + kfEsc(dm.name) +
+  var dims = kfDims();
+  var tg = '<span class="kf-tg" id="kfTg">' +
+    '<b data-mode="group"' + (kfState.chart === 'group' ? ' class="on"' : '') + '>分组柱</b>' +
+    '<b data-mode="small"' + (kfState.chart === 'small' ? ' class="on"' : '') + '>小倍数图</b></span>';
+  var headTx = '<div class="kf-mxh"><span class="t">各渠道逐月走势</span>' +
+    '<span class="s">' + kfEsc(r.name) + ' ｜ ' + kfRangeName(lo, hi) +
+    ' ｜ 逐月之和 &lt; 累计（源表缺 2/3/4 月快照）</span>' + tg + '</div>' +
+    (kfState.chart === 'small' ? kfChartSmall(r, dims, lo, hi) : kfChartGroup(r, dims, lo, hi)) +
+    '<div class="kc-title">客户明细（按归属总部归集） · ' + kfEsc(r.name) + ' × ' + kfEsc(dm.name) +
     '（' + kfRangeName(lo, hi) + '，默认 TOP5）' +
     '<span class="kc-sub">' + kfF(v ? v.a : null) + ' 万 · 同比 ' + kfP(v ? v.yoy : null) + '</span></div>';
   if (dimKey === 'broad') {
@@ -2091,8 +2215,48 @@ function kfCustBlock(r, dimKey, lo, hi) {
   });
   return headTx + '<div class="kc-list">' + rows +
     (grouped.length > 5 ? '<button class="kc-more" data-n="' + grouped.length + '" onclick="kfMore(this)">展开全部 ' +
-      grouped.length + ' 家总部 ▾</button>' : '') + '</div>' +
-    kfMonthlyBlock(r, dimKey, lo, hi);
+      grouped.length + ' 家总部 ▾</button>' : '') + '</div>';
+}
+
+/* 分组柱：x = 月份，每组 = 各选中渠道一根柱（渠道配色） */
+function kfChartGroup(r, dims, lo, hi) {
+  if (!dims.length) return '';
+  var ser = dims.map(function(d) { return { d: d, s: kfMonthSeries(r, d.key, lo, hi) }; });
+  var mx = 0;
+  ser.forEach(function(x) { x.s.forEach(function(p) { if (!p.na) mx = Math.max(mx, Math.abs(p.v)); }); });
+  var cols = '';
+  for (var m = lo; m <= hi; m++) {
+    var bars = '', has = false;
+    ser.forEach(function(x) {
+      var p = x.s[m - lo];
+      if (!p || p.na) return;
+      has = true;
+      bars += '<i style="height:' + Math.max(Math.abs(p.v) / (mx || 1) * 100, 1.5).toFixed(1) +
+        '%;background:' + KF_DIM_COLOR[x.d.key] + '" title="' + kfEsc(kfDimOf(x.d.key).name + ' ' + m + '月 ' +
+        kfF(p.v) + ' 万 · 同比 ' + kfP(p.yoy)) + '"></i>';
+    });
+    cols += '<span class="c' + (has ? '' : ' na') + '">' + bars + '<em>' + m + '月</em></span>';
+  }
+  return '<div class="kf-cg">' + cols + '</div>';
+}
+
+/* 小倍数：每个渠道一个小图（柱高 = 金额，柱色 = 该月同比） */
+function kfChartSmall(r, dims, lo, hi) {
+  if (!dims.length) return '';
+  return '<div class="kf-sm">' + dims.map(function(d) {
+    var s = kfMonthSeries(r, d.key, lo, hi);
+    var mx = 0;
+    s.forEach(function(p) { if (!p.na) mx = Math.max(mx, Math.abs(p.v)); });
+    var v = kfVal(r, d.key, lo, hi);
+    var bars = s.map(function(p) {
+      if (p.na) return '<div></div>';
+      return '<div><b style="height:' + Math.max(Math.abs(p.v) / (mx || 1) * 100, 4).toFixed(1) +
+        '%;background:' + yoyBarColor(p.yoy == null ? null : p.yoy * 100) + '" title="' + p.m + '月 ' + kfF(p.v) +
+        ' 万 · 同比 ' + kfP(p.yoy) + '"></b></div>';
+    }).join('');
+    return '<div class="kfc"><h4><i style="background:' + KF_DIM_COLOR[d.key] + '"></i>' + kfEsc(kfDimOf(d.key).name) +
+      '<em>' + kfF(v ? v.a : null) + ' 万</em></h4><div class="mini">' + bars + '</div></div>';
+  }).join('') + '</div>';
 }
 
 /* 单月序列：单月值 = 相邻累计快照相减（2/3/4 月源表无快照 → 无源） */
@@ -2105,37 +2269,6 @@ function kfMonthSeries(r, dimKey, lo, hi) {
     out.push({ m: m, v: v.a, l: v.l, yoy: v.yoy });
   }
   return out;
-}
-
-/* 客户明细下方的逐月柱图（含同比；柱色沿用全页 yoyBarColor：红涨绿跌） */
-function kfMonthlyBlock(r, dimKey, lo, hi) {
-  if (hi <= lo) return '';
-  var ser = kfMonthSeries(r, dimKey, lo, hi);
-  var vals = ser.filter(function(x) { return !x.na; }).map(function(x) { return x.v; });
-  if (vals.length < 2) return '';
-  var mx = Math.max.apply(null, vals.concat([0]));
-  var mn = Math.min.apply(null, vals.concat([0]));
-  var span = (mx - mn) || 1;
-  var zero = (0 - mn) / span * 100;                 // 0 线距底部的百分比
-  var cols = ser.map(function(x) {
-    if (x.na) {
-      return '<div class="kf-mc-c na"><span class="v">—</span><span class="plot"></span>' +
-        '<span class="m">' + x.m + '月</span><span class="y">无源</span></div>';
-    }
-    var h = Math.abs(x.v) / span * 100;
-    var pos = (x.v >= 0)
-      ? 'bottom:' + zero.toFixed(2) + '%;height:' + h.toFixed(2) + '%;border-radius:2px 2px 0 0;'
-      : 'top:' + (100 - zero).toFixed(2) + '%;height:' + h.toFixed(2) + '%;border-radius:0 0 2px 2px;';
-    return '<div class="kf-mc-c" title="' + x.m + '月 ' + kfF(x.v) + ' 万 · 同比 ' + kfP(x.yoy) + '">' +
-      '<span class="v">' + kfF(x.v) + '</span>' +
-      '<span class="plot"><u style="bottom:' + zero.toFixed(2) + '%"></u>' +
-      '<i style="' + pos + 'background:' + yoyBarColor(x.yoy == null ? null : x.yoy * 100) + ';"></i></span>' +
-      '<span class="m">' + x.m + '月' + (kfMonthWarn(x.m) ? '<em class="kf-mc-w">⚠</em>' : '') + '</span>' +
-      '<span class="y ' + kfCls(x.yoy) + '">' + kfP(x.yoy) + '</span></div>';
-  }).join('');
-  return '<div class="kf-mc"><div class="kf-mc-t">逐月走势 · ' + kfEsc(kfDimOf(dimKey).name) +
-    '（万元 · 单月值 = 相邻累计快照相减；柱色红涨绿跌、深浅表幅度；2/3/4 月源表无快照，单月不可拆）</div>' +
-    '<div class="kf-mc-row">' + cols + '</div></div>';
 }
 
 function kfMore(btn) {
@@ -2230,20 +2363,67 @@ function kfHideTip() {
   if (tip) tip.style.display = 'none';
 }
 
+/* 下拉开合 */
+function kfCloseDD() {
+  ['kfProvDD', 'kfDateDD'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+  });
+}
+function kfDD(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var open = el.classList.contains('open');
+  kfCloseDD();
+  if (!open) el.classList.add('open');
+}
+function kfProvAll() {
+  kfState.provs = ka50Detail.regions.slice(0, KF_MAX).map(function(r) { return r.name; });
+  kfState.open = null;
+  kfRenderProvs();
+  kfRender();
+}
+
 (function bindKf() {
   document.addEventListener('click', function(e) {
     var t = e.target;
     if (!t || !t.closest) return;
-    var b1 = t.closest('#kfProvBtns .kf-btn');
-    if (b1) { if (!b1.classList.contains('disabled')) kfToggleProv(b1.getAttribute('data-prov')); return; }
+    var inProv = t.closest('#kfProvDD'), inDate = t.closest('#kfDateDD');
+
+    // 渠道 chips
     var b2 = t.closest('#kfDimBtns .kf-btn');
     if (b2) { kfToggleCh(b2.getAttribute('data-ch')); return; }
-    var c1 = t.closest('#kfCal .kf-cal-cell');
-    if (c1) { kfPickMonth(parseInt(c1.getAttribute('data-m'), 10)); return; }
+
+    // 省区下拉
+    var del = t.closest('#kfProvBox .kf-dd-tag i');
+    if (del) { kfToggleProv(del.getAttribute('data-del')); return; }
+    if (t.closest('#kfProvBox')) { kfDD('kfProvDD'); return; }
+    var it = t.closest('#kfProvBtns .kf-it');
+    if (it) { if (!it.classList.contains('dis')) kfToggleProv(it.getAttribute('data-prov')); return; }
+    if (t.closest('#kfProvAll')) { kfProvAll(); return; }
+    if (t.closest('#kfProvNone')) {
+      kfState.provs = []; kfState.open = null; kfRenderProvs(); kfRender(); return;
+    }
+
+    // 时间日历弹层
+    if (t.closest('#kfDateBox')) { kfDD('kfDateDD'); return; }
+    var cm = t.closest('#kfCal .kf-cal-m');
+    if (cm) { kfPickMonth(parseInt(cm.getAttribute('data-m'), 10)); return; }
     if (t.closest('#kfCalClear')) { kfClearTime(); return; }
+    if (t.closest('#kfCalOk')) { kfCloseDD(); return; }
+
+    // 逐月图呈现方式切换
+    var mdb = t.closest('#kfTg b');
+    if (mdb) { kfState.chart = mdb.getAttribute('data-mode'); kfRender(); return; }
+
+    // 色条展开 / 收起
     var sg = t.closest('.mx-seg');
     if (sg) { kfToggleSeg(sg.getAttribute('data-prov'), sg.getAttribute('data-dim')); return; }
+
+    if (!inProv && !inDate) kfCloseDD();
   });
+  var si = document.getElementById('kfProvSearch');
+  if (si) si.addEventListener('input', kfRenderProvs);
   document.addEventListener('mouseover', function(e) {
     var sg = e.target && e.target.closest ? e.target.closest('.mx-seg') : null;
     if (sg && !sg.classList.contains('na')) kfShowTip(sg, e);
