@@ -537,6 +537,16 @@
         .kf-tip-s { font-size:10.5px; color:var(--text2); margin-bottom:5px; }
         .kf-tip-r b { font-variant-numeric:tabular-nums; }
         .kf-tip-f { margin-top:5px; padding-top:4px; border-top:1px dashed var(--border); font-size:10.5px; color:var(--primary); }
+        .kf-tip.w2 { width:264px; }
+        .kf-tip-tb { margin-top:6px; border-top:1px dashed var(--border); padding-top:5px; }
+        .kf-tip-tb .rw { display:flex; align-items:center; gap:7px; padding:2px 0; font-variant-numeric:tabular-nums; }
+        .kf-tip-tb .rw i { width:7px; height:7px; border-radius:2px; flex:0 0 7px; display:inline-block; }
+        .kf-tip-tb .rw .nm { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text2); }
+        .kf-tip-tb .rw .vl { min-width:56px; text-align:right; }
+        .kf-tip-tb .rw .yy { min-width:50px; text-align:right; }
+        .kf-tip-tb .rw.hd { color:var(--text3); font-size:10px; border-bottom:1px solid #f0f2f7; padding-bottom:3px; margin-bottom:2px; }
+        .kf-tip-tb .rw.tot { border-top:1px solid #f0f2f7; margin-top:3px; padding-top:4px; font-weight:500; }
+        .kf-tip-note { margin-top:5px; font-size:10px; color:var(--text3); line-height:1.45; }
 
         /* ===== 涨跌配色（全局）：红=涨 / 绿=跌（中国惯例） ===== */
         .red { color:#e74c3c; }
@@ -2215,18 +2225,17 @@ function kfChartGroup(r, dims, lo, hi) {
       if (!p || p.na) return;
       has = true;
       bars += '<i style="height:' + Math.max(Math.abs(p.v) / (mx || 1) * 100, 1.5).toFixed(1) +
-        '%;background:' + KF_DIM_COLOR[x.d.key] + '" title="' + kfEsc(kfDimOf(x.d.key).name + ' ' + m + '月 ' +
-        kfF(p.v) + ' 万 · 同比 ' + kfP(p.yoy)) + '"></i>';
+        '%;background:' + KF_DIM_COLOR[x.d.key] + '"></i>';
     });
-    cols += '<span class="c' + (has ? '' : ' na') + '">' + bars + '<em>' + m + '月</em></span>';
+    cols += '<span class="c' + (has ? '' : ' na') + '" data-m="' + m + '">' + bars + '<em>' + m + '月</em></span>';
   }
-  return '<div class="kf-cg">' + cols + '</div>';
+  return '<div class="kf-cg" data-prov="' + kfEsc(r.name) + '">' + cols + '</div>';
 }
 
 /* 小倍数：每个渠道一个小图（柱高 = 金额，柱色 = 该月同比） */
 function kfChartSmall(r, dims, lo, hi) {
   if (!dims.length) return '';
-  return '<div class="kf-sm">' + dims.map(function(d) {
+  return '<div class="kf-sm" data-prov="' + kfEsc(r.name) + '">' + dims.map(function(d) {
     var s = kfMonthSeries(r, d.key, lo, hi);
     var mx = 0;
     s.forEach(function(p) { if (!p.na) mx = Math.max(mx, Math.abs(p.v)); });
@@ -2234,10 +2243,10 @@ function kfChartSmall(r, dims, lo, hi) {
     var bars = s.map(function(p) {
       if (p.na) return '<div></div>';
       return '<div><b style="height:' + Math.max(Math.abs(p.v) / (mx || 1) * 100, 4).toFixed(1) +
-        '%;background:' + yoyBarColor(p.yoy == null ? null : p.yoy * 100) + '" title="' + p.m + '月 ' + kfF(p.v) +
-        ' 万 · 同比 ' + kfP(p.yoy) + '"></b></div>';
+        '%;background:' + yoyBarColor(p.yoy == null ? null : p.yoy * 100) + '"></b></div>';
     }).join('');
-    return '<div class="kfc"><h4><i style="background:' + KF_DIM_COLOR[d.key] + '"></i>' + kfEsc(kfDimOf(d.key).name) +
+    return '<div class="kfc" data-dim="' + d.key + '"><h4><i style="background:' + KF_DIM_COLOR[d.key] + '"></i>' +
+      kfEsc(kfDimOf(d.key).name) +
       '<em>' + kfF(v ? v.a : null) + ' 万</em></h4><div class="mini">' + bars + '</div></div>';
   }).join('') + '</div>';
 }
@@ -2327,6 +2336,7 @@ function kfShowTip(el, ev) {
     '<div class="kf-tip-r">完成率 <b>' + kfRate(v.rate) + '</b> ｜ 年度进度 <b>' + kfRate(v.prog) + '</b></div>' +
     (dmKey_hasCust(dimKey) ? '<div class="kf-tip-f">点击展开客户明细（' + n + ' 家）</div>'
                            : '<div class="kf-tip-f">源表无客户级明细</div>');
+  tip.className = 'kf-tip';
   tip.style.display = 'block';
   kfMoveTip(ev);
 }
@@ -2344,6 +2354,102 @@ function kfMoveTip(ev) {
 function kfHideTip() {
   var tip = document.getElementById('kfTip');
   if (tip) tip.style.display = 'none';
+}
+
+/* 通用：写入并定位悬停卡（视觉与前面子看板一致：白底 + 细边 + 轻阴影） */
+function kfPutTip(html, wide, ev) {
+  var tip = document.getElementById('kfTip');
+  if (!tip) return;
+  tip.className = 'kf-tip' + (wide ? ' w2' : '');
+  tip.innerHTML = html;
+  tip.style.display = 'block';
+  kfMoveTip(ev);
+}
+
+/* 分组柱：悬停某个月 → 该月各渠道金额 + 同比 */
+function kfTipMonth(col, ev) {
+  var wrap = col.closest('.kf-cg');
+  if (!wrap) return;
+  var prov = wrap.getAttribute('data-prov');
+  var r = kfRegion(prov);
+  var m = parseInt(col.getAttribute('data-m'), 10);
+  if (!r) return;
+  var dims = kfDims();
+  var rows = '', sa = 0, sl = 0, n = 0;
+  dims.forEach(function(d) {
+    if (!kfDimOK(d.key, m, m)) return;
+    var v = kfVal(r, d.key, m, m);
+    if (!v) return;
+    n++;
+    sa += v.a || 0; sl += v.l || 0;
+    rows += '<div class="rw"><i style="background:' + KF_DIM_COLOR[d.key] + '"></i>' +
+      '<span class="nm">' + kfEsc(kfDimOf(d.key).name) + '</span>' +
+      '<span class="vl">' + kfF(v.a) + '</span>' +
+      '<span class="yy ' + kfYCls(v.yoy) + '">' + kfP(v.yoy) + '</span></div>';
+  });
+  var head = '<div class="kf-tip-h">2026 年 ' + m + ' 月</div>' +
+    '<div class="kf-tip-s">' + kfEsc(prov) + ' ｜ 单月值 = 相邻累计快照相减</div>';
+  if (!n) {
+    kfPutTip(head + '<div class="kf-tip-note">该月源表无累计快照（2/3/4 月不可拆单月），无法给出渠道明细</div>', true, ev);
+    return;
+  }
+  var body = '<div class="kf-tip-tb"><div class="rw hd"><span class="nm">渠道</span>' +
+    '<span class="vl">金额(万)</span><span class="yy">同比</span></div>' + rows +
+    (n > 1 ? '<div class="rw tot"><i style="background:transparent"></i><span class="nm">合计</span>' +
+      '<span class="vl">' + kfF(sa) + '</span>' +
+      '<span class="yy ' + kfYCls(sl ? sa / sl - 1 : null) + '">' + kfP(sl ? sa / sl - 1 : null) + '</span></div>' : '') +
+    '</div>';
+  kfPutTip(head + body + (kfMonthWarn(m) ? '<div class="kf-tip-note">⚠ 该月为源表跳增月，单月值待核</div>' : ''), true, ev);
+}
+
+/* 小倍数：悬停某个渠道卡 → 该渠道逐月金额 + 同比 */
+function kfTipChan(card, ev) {
+  var wrap = card.closest('.kf-sm');
+  if (!wrap) return;
+  var prov = wrap.getAttribute('data-prov');
+  var r = kfRegion(prov);
+  var dimKey = card.getAttribute('data-dim');
+  if (!r) return;
+  var ri = kfRangeInfo();
+  var lo = ri.lo || (kfMeta().snapMonths[0]), hi = ri.hi || (kfMeta().last);
+  var v = kfVal(r, dimKey, lo, hi);
+  var ser = kfMonthSeries(r, dimKey, lo, hi);
+  var rows = '', sum = 0, avail = [];
+  ser.forEach(function(p) {
+    if (p.na) return;
+    avail.push(p.m);
+    sum += p.v || 0;
+    rows += '<div class="rw"><span class="nm" style="color:var(--text)">' + p.m + '月</span>' +
+      '<span class="vl">' + kfF(p.v) + '</span>' +
+      '<span class="yy ' + kfYCls(p.yoy) + '">' + kfP(p.yoy) + '</span></div>';
+  });
+  var head = '<div class="kf-tip-h">' + kfEsc(kfDimOf(dimKey).name) + '</div>' +
+    '<div class="kf-tip-s">' + kfEsc(prov) + ' ｜ ' + kfRangeName(lo, hi) +
+    ' ｜ 累计 ' + kfF(v ? v.a : null) + ' 万 <span class="' + kfYCls(v ? v.yoy : null) + '">' +
+    kfP(v ? v.yoy : null) + '</span></div>';
+  if (!avail.length) {
+    kfPutTip(head + '<div class="kf-tip-note">所选区间内无可用单月数据</div>', true, ev);
+    return;
+  }
+  var body = '<div class="kf-tip-tb"><div class="rw hd"><span class="nm">月份</span>' +
+    '<span class="vl">金额(万)</span><span class="yy">同比</span></div>' + rows + '</div>';
+  var miss = [];
+  for (var m = lo; m <= hi; m++) if (avail.indexOf(m) < 0) miss.push(m + '月');
+  var note = '逐月之和 ' + kfF(sum) + ' 万' +
+    (miss.length ? '（缺 ' + miss.join('、') + '，故 &lt; 累计）' : '');
+  kfPutTip(head + body + '<div class="kf-tip-note">' + note + '</div>', true, ev);
+}
+
+/* 悬停目标识别 */
+function kfTipTarget(t) {
+  if (!t || !t.closest) return null;
+  var sg = t.closest('.mx-seg');
+  if (sg && !sg.classList.contains('na')) return { kind: 'seg', el: sg };
+  var col = t.closest('.kf-cg .c[data-m]');
+  if (col) return { kind: 'month', el: col };
+  var card = t.closest('.kf-sm .kfc[data-dim]');
+  if (card) return { kind: 'chan', el: card };
+  return null;
 }
 
 /* 下拉开合 */
@@ -2408,12 +2514,14 @@ function kfProvAll() {
   var si = document.getElementById('kfProvSearch');
   if (si) si.addEventListener('input', kfRenderProvs);
   document.addEventListener('mouseover', function(e) {
-    var sg = e.target && e.target.closest ? e.target.closest('.mx-seg') : null;
-    if (sg && !sg.classList.contains('na')) kfShowTip(sg, e);
+    var tgt = kfTipTarget(e.target);
+    if (!tgt) return;
+    if (tgt.kind === 'seg') kfShowTip(tgt.el, e);
+    else if (tgt.kind === 'month') kfTipMonth(tgt.el, e);
+    else kfTipChan(tgt.el, e);
   });
   document.addEventListener('mousemove', function(e) {
-    var sg = e.target && e.target.closest ? e.target.closest('.mx-seg') : null;
-    if (sg && !sg.classList.contains('na')) kfMoveTip(e);
+    if (kfTipTarget(e.target)) kfMoveTip(e);
     else kfHideTip();
   });
   document.addEventListener('scroll', kfHideTip, true);
