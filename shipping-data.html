@@ -656,6 +656,16 @@
         .kf-sm .mini { display:flex; align-items:flex-end; gap:3px; height:44px; }
         .kf-sm .mini div { flex:1; height:100%; display:flex; align-items:flex-end; }
         .kf-sm .mini b { display:block; width:100%; border-radius:2px 2px 0 0; outline:1px solid rgba(30,40,80,.10); outline-offset:-1px; }
+        .kf-cg .c .na-tag { position:absolute; top:6px; left:0; right:0; text-align:center; font-style:normal;
+          font-size:9.5px; color:#b0b4c0; }
+        .kf-sm .mini div.na { position:relative; background:repeating-linear-gradient(45deg,#fafbfd,#fafbfd 4px,#f2f4f9 4px,#f2f4f9 8px);
+          border-radius:2px; }
+        .kf-sm .mini div.na s { position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
+          text-align:center; font-size:8.5px; color:#b0b4c0; text-decoration:none; }
+        .kf-sm .mini div.z0 { flex-direction:column; justify-content:flex-end; align-items:center; }
+        .kf-sm .mini div.z0 b { width:100%; height:2px; background:#c8cad4; border-radius:1px; }
+        .kf-sm .mini div.z0 s { font-size:8.5px; color:#b0b4c0; text-decoration:none; line-height:1.1; }
+        .kf-note-line { font-size:10px; color:var(--text3); margin:6px 0 12px; line-height:1.6; }
         .prov-header-row { display:flex; align-items:center; gap:4px; padding:2px 0 4px; border-bottom:1px solid var(--border); margin-bottom:4px; }
         .prov-header-row .prov-hdr { width:48px; text-align:right; font-size:9px; color:var(--text2); flex-shrink:0; font-weight:500; }
   </style>
@@ -2168,6 +2178,8 @@ function kfCustBlock(r, dimKey, lo, hi) {
     '<span class="s">' + kfEsc(r.name) + ' ｜ ' + kfRangeName(lo, hi) +
     ' ｜ 逐月之和 &lt; 累计（源表缺 2/3/4 月快照）</span>' + tg + '</div>' +
     (kfState.chart === 'small' ? kfChartSmall(r, dims, lo, hi) : kfChartGroup(r, dims, lo, hi)) +
+    '<div class="kf-note-line">斜纹「缺」= 源表缺该月累计快照（缺《1-2月》《1-3月》，无法拆单月）｜「缺表」= 1月报表无该渠道 sheet｜' +
+    '「无业务」= 该省区该渠道全区间为 0｜灰线「0」= 有快照但当月金额为 0（无发生）｜ 悬停任一月/任一渠道卡可看逐项明细与原因</div>' +
     '<div class="kc-title">客户明细（按归属总部归集） · ' + kfEsc(r.name) + ' × ' + kfEsc(dm.name) +
     '（' + kfRangeName(lo, hi) + '，默认 TOP5）' +
     '<span class="kc-sub">' + kfF(v ? v.a : null) + ' 万 · 同比 ' + kfP(v ? v.yoy : null) + '</span></div>';
@@ -2223,11 +2235,16 @@ function kfChartGroup(r, dims, lo, hi) {
     ser.forEach(function(x) {
       var p = x.s[m - lo];
       if (!p || p.na) return;
+      if (Math.abs(p.v) < 1e-9) { has = true; return; }   // 当月无发生：不出柱，由提示卡说明
       has = true;
       bars += '<i style="height:' + Math.max(Math.abs(p.v) / (mx || 1) * 100, 1.5).toFixed(1) +
         '%;background:' + KF_DIM_COLOR[x.d.key] + '"></i>';
     });
-    cols += '<span class="c' + (has ? '' : ' na') + '" data-m="' + m + '">' + bars + '<em>' + m + '月</em></span>';
+    var why = ser.length ? (ser[0].s[m - lo] || {}).why : null;
+    var naTx = '';
+    if (!has) naTx = why === 'nosheet' ? '缺表' : (why === 'zero' ? '0' : '缺');
+    cols += '<span class="c' + (has ? '' : ' na') + '" data-m="' + m + '">' + bars +
+      (naTx ? '<em class="na-tag">' + naTx + '</em>' : '') + '<em>' + m + '月</em></span>';
   }
   return '<div class="kf-cg" data-prov="' + kfEsc(r.name) + '">' + cols + '</div>';
 }
@@ -2241,7 +2258,8 @@ function kfChartSmall(r, dims, lo, hi) {
     s.forEach(function(p) { if (!p.na) mx = Math.max(mx, Math.abs(p.v)); });
     var v = kfVal(r, d.key, lo, hi);
     var bars = s.map(function(p) {
-      if (p.na) return '<div></div>';
+      if (p.na) return '<div class="na"><s>' + (p.why === 'nosheet' ? '缺表' : (p.why === 'future' ? '未出' : '缺')) + '</s></div>';
+      if (Math.abs(p.v) < 1e-9) return '<div class="z0"><b></b><s>0</s></div>';
       return '<div><b style="height:' + Math.max(Math.abs(p.v) / (mx || 1) * 100, 4).toFixed(1) +
         '%;background:' + yoyBarColor(p.yoy == null ? null : p.yoy * 100) + '"></b></div>';
     }).join('');
@@ -2255,13 +2273,53 @@ function kfChartSmall(r, dims, lo, hi) {
 function kfMonthSeries(r, dimKey, lo, hi) {
   var out = [];
   for (var m = lo; m <= hi; m++) {
-    if (!kfDimOK(dimKey, m, m)) { out.push({ m: m, na: true }); continue; }
+    if (!kfDimOK(dimKey, m, m)) { out.push({ m: m, na: true, why: kfMonthReason(r, dimKey, m) }); continue; }
     var v = kfVal(r, dimKey, m, m);
-    if (!v) { out.push({ m: m, na: true }); continue; }
-    out.push({ m: m, v: v.a, l: v.l, yoy: v.yoy });
+    if (!v) { out.push({ m: m, na: true, why: kfMonthReason(r, dimKey, m) }); continue; }
+    out.push({ m: m, v: v.a, l: v.l, yoy: v.yoy, why: (Math.abs(v.a) < 1e-9 ? 'zero' : null) });
   }
   return out;
 }
+
+/* 空值原因判定：nobiz 该省无此业务 / nosnap 缺报表快照 / nosheet 该期报表无此表 / zero 有快照但本月无发生 */
+function kfDimNoBiz(r, dimKey) {
+  var ms = kfDimMonths(dimKey);
+  for (var i = 0; i < ms.length; i++) {
+    var d = r.snap[String(ms[i])] && r.snap[String(ms[i])].d[dimKey];
+    if (d && d[0] != null && Math.abs(d[0]) > 1e-9) return false;
+  }
+  return true;
+}
+function kfMonthReason(r, dimKey, m) {
+  if (kfDimNoBiz(r, dimKey)) return 'nobiz';
+  var ms = kfDimMonths(dimKey);
+  if (!kfDimOK(dimKey, m, m)) {
+    if (ms.indexOf(m) < 0) {
+      if (m > (kfMeta().last || 8)) return 'future';
+      if (m < 4 && dimKey !== 'kaBuy' && dimKey !== 'kaSell') return 'nosheet';
+      return 'nosnap';
+    }
+    return 'nosnap';
+  }
+  var v = kfVal(r, dimKey, m, m);
+  if (!v) return 'nosnap';
+  return Math.abs(v.a) < 1e-9 ? 'zero' : null;
+}
+function kfReasonTx(why) {
+  return why === 'nobiz' ? '该省区无此渠道业务'
+    : why === 'nosheet' ? '该期报表无此表'
+    : why === 'zero' ? '有快照 · 当月无发生'
+    : why === 'future' ? '报表未出'
+    : '源表无该月快照';
+}
+function kfReasonShort(why) {
+  return why === 'nobiz' ? '无业务'
+    : why === 'nosheet' ? '缺表'
+    : why === 'zero' ? '无发生'
+    : why === 'future' ? '未出' : '缺报表';
+}
+var KF_REASON_NOTE = '「无业务」= 该省区该渠道全区间为 0；「缺报表」= 源表缺《1-2月》《1-3月》累计快照，无法拆出该单月；' +
+  '「缺表」= 1月报表无该渠道 sheet；「无发生」= 有快照但当月金额为 0';
 
 function kfMore(btn) {
   var list = btn.parentNode;
@@ -2377,7 +2435,14 @@ function kfTipMonth(col, ev) {
   var dims = kfDims();
   var rows = '', sa = 0, sl = 0, n = 0;
   dims.forEach(function(d) {
-    if (!kfDimOK(d.key, m, m)) return;
+    var why = kfMonthReason(r, d.key, m);
+    if (why) {
+      rows += '<div class="rw"><i style="background:' + KF_DIM_COLOR[d.key] + ';opacity:.3"></i>' +
+        '<span class="nm">' + kfEsc(kfDimOf(d.key).name) + '</span>' +
+        '<span class="vl" style="color:#b0b4c0">' + (why === 'zero' ? '0' : '—') + '</span>' +
+        '<span class="yy" style="color:#b0b4c0;font-size:9.5px">' + kfReasonShort(why) + '</span></div>';
+      return;
+    }
     var v = kfVal(r, d.key, m, m);
     if (!v) return;
     n++;
@@ -2390,7 +2455,7 @@ function kfTipMonth(col, ev) {
   var head = '<div class="kf-tip-h">2026 年 ' + m + ' 月</div>' +
     '<div class="kf-tip-s">' + kfEsc(prov) + ' ｜ 单月值 = 相邻累计快照相减</div>';
   if (!n) {
-    kfPutTip(head + '<div class="kf-tip-note">该月源表无累计快照（2/3/4 月不可拆单月），无法给出渠道明细</div>', true, ev);
+    kfPutTip(head + '<div class="kf-tip-note">该月各渠道均无数据：' + KF_REASON_NOTE + '</div>', true, ev);
     return;
   }
   var body = '<div class="kf-tip-tb"><div class="rw hd"><span class="nm">渠道</span>' +
@@ -2399,10 +2464,11 @@ function kfTipMonth(col, ev) {
       '<span class="vl">' + kfF(sa) + '</span>' +
       '<span class="yy ' + kfYCls(sl ? sa / sl - 1 : null) + '">' + kfP(sl ? sa / sl - 1 : null) + '</span></div>' : '') +
     '</div>';
-  kfPutTip(head + body + (kfMonthWarn(m) ? '<div class="kf-tip-note">⚠ 该月为源表跳增月，单月值待核</div>' : ''), true, ev);
+  kfPutTip(head + body + '<div class="kf-tip-note">' + KF_REASON_NOTE +
+    (kfMonthWarn(m) ? '<br>⚠ 该月为源表跳增月，单月值待核' : '') + '</div>', true, ev);
 }
 
-/* 小倍数：悬停某个渠道卡 → 该渠道逐月金额 + 同比 */
+/* 小倍数：悬停某个渠道卡 → 该渠道逐月金额 + 同比（无数据月份注明原因） */
 function kfTipChan(card, ev) {
   var wrap = card.closest('.kf-sm');
   if (!wrap) return;
@@ -2414,30 +2480,31 @@ function kfTipChan(card, ev) {
   var lo = ri.lo || (kfMeta().snapMonths[0]), hi = ri.hi || (kfMeta().last);
   var v = kfVal(r, dimKey, lo, hi);
   var ser = kfMonthSeries(r, dimKey, lo, hi);
-  var rows = '', sum = 0, avail = [];
-  ser.forEach(function(p) {
-    if (p.na) return;
-    avail.push(p.m);
-    sum += p.v || 0;
-    rows += '<div class="rw"><span class="nm" style="color:var(--text)">' + p.m + '月</span>' +
+  var rows = '', sum = 0, miss = [];
+  for (var m = lo; m <= hi; m++) {
+    var p = ser[m - lo];
+    var zero = p && !p.na && Math.abs(p.v || 0) < 1e-9;
+    if (!p || p.na || zero) {
+      var why = p ? (p.why || 'nosnap') : 'nosnap';
+      miss.push(m + '月');
+      rows += '<div class="rw"><span class="nm" style="color:var(--text)">' + m + '月</span>' +
+        '<span class="vl" style="color:#b0b4c0">' + (why === 'zero' ? '0' : '—') + '</span>' +
+        '<span class="yy" style="color:#b0b4c0;font-size:9.5px">' + kfReasonShort(why) + '</span></div>';
+      continue;
+    }
+    sum += p.v;
+    rows += '<div class="rw"><span class="nm" style="color:var(--text)">' + m + '月</span>' +
       '<span class="vl">' + kfF(p.v) + '</span>' +
       '<span class="yy ' + kfYCls(p.yoy) + '">' + kfP(p.yoy) + '</span></div>';
-  });
+  }
   var head = '<div class="kf-tip-h">' + kfEsc(kfDimOf(dimKey).name) + '</div>' +
     '<div class="kf-tip-s">' + kfEsc(prov) + ' ｜ ' + kfRangeName(lo, hi) +
     ' ｜ 累计 ' + kfF(v ? v.a : null) + ' 万 <span class="' + kfYCls(v ? v.yoy : null) + '">' +
     kfP(v ? v.yoy : null) + '</span></div>';
-  if (!avail.length) {
-    kfPutTip(head + '<div class="kf-tip-note">所选区间内无可用单月数据</div>', true, ev);
-    return;
-  }
   var body = '<div class="kf-tip-tb"><div class="rw hd"><span class="nm">月份</span>' +
     '<span class="vl">金额(万)</span><span class="yy">同比</span></div>' + rows + '</div>';
-  var miss = [];
-  for (var m = lo; m <= hi; m++) if (avail.indexOf(m) < 0) miss.push(m + '月');
-  var note = '逐月之和 ' + kfF(sum) + ' 万' +
-    (miss.length ? '（缺 ' + miss.join('、') + '，故 &lt; 累计）' : '');
-  kfPutTip(head + body + '<div class="kf-tip-note">' + note + '</div>', true, ev);
+  var note = '逐月之和 ' + kfF(sum) + ' 万' + (miss.length ? '（' + miss.join('、') + ' 未计入）' : '');
+  kfPutTip(head + body + '<div class="kf-tip-note">' + note + '<br>' + KF_REASON_NOTE + '</div>', true, ev);
 }
 
 /* 悬停目标识别 */
