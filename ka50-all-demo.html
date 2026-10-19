@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>KA50 改版 · 全部方案合图</title>
+<style>
+  :root{--primary:#4361ee;--border:#dee2e6;--text:#212529;--text2:#6c757d;--text3:#b0b4c0;--soft:#f8f9fc;}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--text);font:15px/1.65 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+  .wrap{width:780px;margin:0 auto;padding:24px 22px 34px}
+  h1{font-size:22px;margin:0 0 5px;letter-spacing:.2px}
+  .lead{color:var(--text2);font-size:13.5px;margin:0 0 6px}
+  .kbd{display:inline-block;background:#eef2ff;color:#2f4bc9;border-radius:5px;padding:0 6px;font-size:12px}
+  .band{background:var(--soft);border:1px solid #e9ecf4;border-radius:10px;padding:11px 14px;margin:18px 0 16px}
+  .band b{font-size:16px}
+  .band p{margin:4px 0 0;font-size:13px;color:var(--text2)}
+  .item{border:1px solid #e6e9f1;border-radius:10px;padding:12px 13px 13px;margin-bottom:11px;background:#fff}
+  .ih{display:flex;align-items:baseline;gap:9px;margin-bottom:9px}
+  .ih b{font-size:14.5px}
+  .ih span{font-size:12px;color:var(--text3)}
+  .ih em{margin-left:auto;font-style:normal;font-size:11.5px;color:var(--text3)}
+  .why{font-size:12.5px;color:var(--text2);margin-top:8px;line-height:1.6}
+  .why b{color:var(--text)}
+  .red{color:#e74c3c}.green{color:#27ae60}
+  .lg{display:flex;flex-wrap:wrap;gap:11px;font-size:12px;color:var(--text2);margin-bottom:8px}
+  .lg i{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:-1px}
+
+  /* 日历 */
+  .calpop{display:flex;border:1px solid #e3e7f0;border-radius:11px;overflow:hidden;background:#fff}
+  .years{flex:0 0 88px;background:#f7f8fc;border-right:1px solid #eef0f5;padding:7px 0}
+  .years .y{font-size:13px;padding:7px 12px;color:var(--text2)}
+  .years .y.on{background:#fff;color:var(--primary);font-weight:500;box-shadow:inset 3px 0 0 var(--primary)}
+  .years .y.off{color:#c8cad4}
+  .years .y small{display:block;font-size:10px;color:#c8cad4}
+  .monwrap{flex:1;padding:12px 13px 10px;min-width:0}
+  .mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .m{text-align:center;border:1.5px solid var(--border);border-radius:7px;padding:11px 0;font-size:13.5px;line-height:1.15}
+  .m s{display:block;font-size:10.5px;text-decoration:none;color:#c8cad4;margin-top:1px}
+  .m.dash{border-style:dashed;color:var(--text3);background:#fbfbfd}
+  .m.in{background:#e6f1fb;border-color:#85b7eb;color:#185fa5}
+  .m.edge{background:var(--primary);border-color:var(--primary);color:#fff}
+  .m.edge s{color:#cfd9ff}
+  .calfoot{display:flex;align-items:center;font-size:12.5px;color:var(--text2);border-top:1px solid #f0f2f7;margin-top:11px;padding-top:9px}
+  .calfoot b{color:var(--text)}
+  .calfoot .r{margin-left:auto;display:flex;gap:7px}
+  .calfoot span.b{font-size:12px;border:1px solid var(--border);border-radius:7px;padding:4px 12px}
+  .calfoot span.p{font-size:12px;border:1px solid var(--primary);border-radius:7px;padding:4px 12px;background:var(--primary);color:#fff}
+  .datebtn{display:inline-block;font-size:13.5px;border:1.5px solid var(--primary);border-radius:8px;padding:9px 32px 9px 12px;
+     position:relative;background:#fff;box-shadow:0 0 0 3px rgba(67,97,238,.12);margin-bottom:9px}
+  .datebtn::after{content:"▾";position:absolute;right:11px;color:#a9aebc;font-size:10px}
+  .datebtn b{color:var(--text)}
+
+  /* 柱图 */
+  .gp{display:flex;align-items:flex-end;gap:10px;height:118px;padding:0 2px 18px}
+  .gp .col{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2.5px;height:100%;position:relative}
+  .gp .col i{width:9px;border-radius:2px 2px 0 0;outline:1px solid rgba(30,40,80,.10);outline-offset:-1px}
+  .gp .col.na{background:repeating-linear-gradient(45deg,#fafbfd,#fafbfd 5px,#f2f4f9 5px,#f2f4f9 10px);border-radius:4px}
+  .gp .col em{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-style:normal;font-size:12px;color:var(--text3)}
+  .sm{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+  .smc{border:1px solid #e9ecf4;border-radius:8px;padding:7px 8px;background:#fff}
+  .smc h4{margin:0 0 5px;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:5px;white-space:nowrap}
+  .smc h4 i{width:8px;height:8px;border-radius:2px;display:inline-block;flex:0 0 8px}
+  .smc h4 em{margin-left:auto;font-style:normal;font-size:11px;color:var(--text2)}
+  .smc .mini{display:flex;align-items:flex-end;gap:3px;height:44px}
+  .smc .mini div{flex:1;height:100%;display:flex;align-items:flex-end}
+  .smc .mini b{display:block;width:100%;border-radius:2px 2px 0 0;outline:1px solid rgba(30,40,80,.10);outline-offset:-1px}
+  .stk{display:flex;align-items:flex-end;gap:10px;height:118px;padding-bottom:18px}
+  .stk .c{flex:1;display:flex;flex-direction:column-reverse;border-radius:3px;overflow:hidden;background:#f4f6fa}
+  .stk .c i{width:100%;outline:1px solid rgba(255,255,255,.55);outline-offset:-1px}
+  .stk .c.na{background:repeating-linear-gradient(45deg,#fafbfd,#fafbfd 5px,#f2f4f9 5px,#f2f4f9 10px)}
+  .stk .c em{position:absolute}
+  .axis{display:flex;gap:10px;font-size:12px;color:var(--text3)}
+  .axis span{flex:1;text-align:center}
+
+  /* 迷你柱（色条上方） */
+  .combo{padding:2px 0 4px}
+  .spr{display:flex;align-items:flex-end;padding:0 8px}
+  .spc{display:flex;flex-direction:column;justify-content:flex-end;padding:0 3px;min-width:0}
+  .spk{display:flex;align-items:flex-end;gap:1px;height:20px;border-bottom:1px solid #e3e7f0}
+  .spk i{flex:1;background:var(--c);opacity:.62;border-radius:1px 1px 0 0;min-height:1px}
+  .spc em{font-style:normal;font-size:10px;color:var(--text3);text-align:center;margin-top:2px;white-space:nowrap;overflow:hidden}
+
+  /* 矩阵 */
+  .mxrow{display:grid;grid-template-columns:64px 1fr 68px 54px 54px;gap:0;align-items:center;padding:6px 8px;
+     border-bottom:1px solid #f2f4f8;font-size:11.5px;background:#fff}
+  .mxrow .p{font-weight:600}
+  .mxrow .n{text-align:right;font-variant-numeric:tabular-nums}
+  .barin{display:flex;height:15px;border-radius:3px;overflow:hidden;margin:0 7px}
+  .barin i{height:15px}
+  .mxhd{display:grid;grid-template-columns:64px 1fr 68px 54px 54px;gap:0;padding:6px 8px;font-size:11.5px;color:var(--text3);
+     background:#f7f8fc;border-bottom:1px solid #eef0f5}
+  .mxhd .n{text-align:right}
+  .exp{background:#fbfcff;border-bottom:1px solid #eef1f8;padding:9px 10px 10px 74px;font-size:11.5px}
+  table.cust{width:100%;border-collapse:collapse;font-size:12px;margin-top:7px}
+  table.cust th{color:var(--text3);font-weight:400;text-align:left;padding:3px 4px;border-bottom:1px solid #eef1f8}
+  table.cust td{padding:3.5px 4px;border-bottom:1px solid #f5f7fb}
+  table.cust td.n,table.cust th.n{text-align:right;font-variant-numeric:tabular-nums}
+
+  /* 省区下拉 4 方案 */
+  .ddRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+  .ms{border:1.5px solid var(--border);border-radius:8px;background:#fff;min-height:38px;display:flex;align-items:center;
+      gap:5px;padding:3px 30px 3px 8px;position:relative;flex-wrap:wrap}
+  .ms.foc{border-color:var(--primary);box-shadow:0 0 0 3px rgba(67,97,238,.12)}
+  .ms .crt{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#a9aebc;font-size:10px}
+  .tg{display:inline-flex;align-items:center;gap:4px;background:#eef2ff;color:#2f4bc9;border:1px solid #d3dcff;
+      border-radius:12px;padding:1px 7px;font-size:12px}
+  .tg i{font-style:normal;color:#8b9ae8;font-size:12px}
+  .ph{color:var(--text3);font-size:12.5px}
+  .btn{font-size:13px;border:1.5px solid var(--border);border-radius:8px;padding:8px 28px 8px 11px;position:relative;background:#fff}
+  .btn::after{content:"▾";position:absolute;right:10px;color:#a9aebc;font-size:10px}
+  .cnt{display:inline-block;background:var(--primary);color:#fff;border-radius:9px;font-size:10.5px;padding:0 5px;margin-left:4px}
+  .chip{padding:4px 11px;border-radius:14px;border:1.5px solid var(--border);font-size:12px;background:#fff}
+  .chip.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .mono{font-size:11.5px;color:var(--text3)}
+  .foot{font-size:12px;color:var(--text3);line-height:1.75;border-top:1px dashed var(--border);margin-top:16px;padding-top:11px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>KA50 页签改版 · 全部方案合图</h1>
+  <p class="lead">共 3 个待定：<span class="kbd">① 时间日历</span> <span class="kbd">② 渠道分月呈现</span> <span class="kbd">③ 省区下拉</span>。数据均为山东真实值（万元）。</p>
+
+  <div class="band"><b>① 时间 · 「左年右月」完整日历</b>
+    <p>左栏选年，右栏 12 个月矩形排列；点两次定起止（同一个月 = 单月）。虚线 = 源表无快照。</p></div>
+  <div class="item">
+    <div class="ih"><b>变体 1 · 弹层式</b><span>筛选项常态只占一个按钮，点开才是日历</span><em>推荐</em></div>
+    <span class="datebtn">2026 年 <b>1月 – 8月</b></span>
+    <div class="calpop">
+      <div class="years">
+        <div class="y off">2025 年<small>无月度快照</small></div>
+        <div class="y on">2026 年</div>
+      </div>
+      <div class="monwrap">
+        <div style="font-size:13.5px;font-weight:500;margin-bottom:2px">2026 年</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:9px">点两次定起止（同一个月 = 单月）· 虚线 = 源表无快照</div>
+        <div class="mgrid">
+          <div class="m edge">1月<s>起</s></div>
+          <div class="m in">2月<s>仅起</s></div>
+          <div class="m dash">3月<s>缺</s></div>
+          <div class="m in">4月<s>仅止</s></div>
+          <div class="m in">5月<s></s></div>
+          <div class="m in">6月<s style="color:#e67e22">待核</s></div>
+          <div class="m in">7月<s style="color:#e67e22">待核</s></div>
+          <div class="m edge">8月<s>止</s></div>
+          <div class="m dash">9月<s>未出</s></div>
+          <div class="m dash">10月<s>未出</s></div>
+          <div class="m dash">11月<s>未出</s></div>
+          <div class="m dash">12月<s>未出</s></div>
+        </div>
+        <div class="calfoot"><span>已选 <b>2026年 1月 – 8月</b></span>
+          <span class="r"><span class="b">清除</span><span class="p">确定</span></span></div>
+      </div>
+    </div>
+    <div class="why"><b>变体 2 · 常驻式</b>：同一套「左年右月」直接铺在筛选区（不用点开），代价是筛选区高约 250px，矩阵要往下滚。</div>
+  </div>
+
+  <div class="band"><b>② 渠道分月怎么呈现</b>
+    <p>现在矩阵上已有「1-8月累计堆叠条」；下面 4 种是**分月**的呈现方式。点色条 → 该渠道累计明细（保持现状）。</p></div>
+
+  <div class="item">
+    <div class="ih"><b>方案 ① 分组柱状图</b><span>x = 月份，每组 5 根柱（渠道配色）</span><em>推荐</em></div>
+    <div class="lg"><span><i style="background:#4361ee"></i>KA购进</span><span><i style="background:#4cc9f0"></i>KA纯销</span>
+      <span><i style="background:#7209b7"></i>重点连锁</span><span><i style="background:#f72585"></i>医馆·礼品店</span>
+      <span><i style="background:#06d6a0"></i>广阔市场</span></div>
+    <div class="gp" id="gp1"></div>
+    <div class="why">能直接横向比「同一个月谁高、同一渠道哪个月高」；斜纹列 = 2/3/4 月无快照。⚠️ 6 月为源表跳增月（待核），会把其他月压矮。</div>
+  </div>
+
+  <div class="item">
+    <div class="ih"><b>方案 ② 小倍数图</b><span>5 个渠道各一个小图，标题带累计与同比</span><em>最省心</em></div>
+    <div class="sm" id="sm1"></div>
+    <div class="why">适合「先看哪个渠道在掉」；柱色 = 该月同比（红涨绿跌）。缺点：跨渠道比高低不直观；且 6 月单月独大（源表 1-6月期跳增）会把其余月份压扁。</div>
+  </div>
+
+  <div class="item">
+    <div class="ih"><b>方案 ③ 月度堆叠柱</b><span>柱 = 月份，段 = 渠道（总高 = 该月合计）</span><em>看总量+结构</em></div>
+    <div class="lg"><span><i style="background:#4361ee"></i>KA购进</span><span><i style="background:#4cc9f0"></i>KA纯销</span>
+      <span><i style="background:#7209b7"></i>重点连锁</span><span><i style="background:#f72585"></i>医馆·礼品店</span>
+      <span><i style="background:#06d6a0"></i>广阔市场</span></div>
+    <div class="stk" id="stk1"></div>
+    <div class="axis"><span>1月</span><span>2月</span><span>3月</span><span>4月</span><span>5月</span><span>6月</span><span>7月</span><span>8月</span></div>
+    <div class="why">一眼看月度总量与结构变化；⚠️ 6 月单月偏高是源表 1-6月期跳增所致（待核）。</div>
+  </div>
+
+  <div class="item">
+    <div class="ih"><b>方案 ④ 色条上方迷你柱</b><span>不展开就能看走势，每段对齐一个渠道</span><em>最省空间</em></div>
+    <div class="combo" id="spk1"></div>
+    <div class="why">纵向只多占 22px；缺点：只能看趋势，读数要悬停。</div>
+  </div>
+
+  <div class="band"><b>③ 组合效果（方案① 嵌进矩阵）</b>
+    <p>点省区行 → 行内出现「各渠道逐月」；再点某段色条 → 该渠道「归属总部」明细。</p></div>
+  <div class="item" style="padding:0;overflow:hidden">
+    <div class="mxhd"><span class="p">省区</span><span>渠道结构（累计 1-8月）</span><span class="n">合计</span><span class="n">同比</span><span class="n">完成率</span></div>
+    <div class="mxrow"><span class="p">山东</span>
+      <span class="barin" id="mbar1"></span>
+      <span class="n">19271.0</span><span class="n green">-16.8%</span><span class="n">68.1%</span></div>
+    <div class="exp">
+      <div style="font-weight:500;margin-bottom:6px">各渠道逐月走势 <span style="font-weight:400;color:var(--text3);font-size:11px">山东 ｜ 2026年 1月 – 8月</span></div>
+      <div class="gp" id="gp2" style="height:100px"></div>
+      <div style="font-weight:500;margin:12px 0 2px">客户明细（按归属总部归集，默认 TOP5）<span style="font-weight:400;color:var(--text3);font-size:11px"> 山东 × KA纯销 ｜ 6215.5 万 · 同比 -5.8%</span></div>
+      <table class="cust">
+        <tr><th>#</th><th>归属总部</th><th>省份</th><th class="n">金额(万)</th><th class="n">占比</th><th class="n">同比</th></tr>
+        <tr><td>1</td><td>漱玉医药物流（山东）有限公司 <span style="color:#b0b4c0;font-size:9px">3 家</span></td><td>山东省</td><td class="n">4161.5</td><td class="n">67.0%</td><td class="n red">+1.1%</td></tr>
+        <tr><td>2</td><td>威海市天福医药有限公司</td><td>山东省</td><td class="n">596.8</td><td class="n">9.6%</td><td class="n green">-19.0%</td></tr>
+        <tr><td>3</td><td>山东立健药店连锁有限公司 <span style="color:#b0b4c0;font-size:9px">2 家</span></td><td>山东省</td><td class="n">524.4</td><td class="n">8.4%</td><td class="n red">+0.9%</td></tr>
+        <tr><td>4</td><td>青岛同方药业连锁有限公司</td><td>山东省</td><td class="n">384.1</td><td class="n">6.2%</td><td class="n green">-2.8%</td></tr>
+        <tr><td>5</td><td>山东康健医药有限公司</td><td>山东省</td><td class="n">146.1</td><td class="n">2.4%</td><td class="n red">+10.8%</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="band"><b>④ 省区下拉 4 种样式</b>
+    <p>渠道 chips 全部方案保持不变。</p></div>
+  <div class="item">
+    <div class="ih"><b>A · 标签式多选下拉</b><span>已选以标签排在框内，可 × 删；点开 3 列复选面板</span><em>最标准</em></div>
+    <div class="ddRow"><span class="ms foc" style="width:330px"><span class="tg">山东<i>×</i></span><span class="tg">江苏<i>×</i></span>
+      <span class="ph">再选 3 个</span><span class="crt">▾</span></span></div>
+  </div>
+  <div class="item">
+    <div class="ih"><b>B · 窄按钮 + 展开面板</b><span>常态只显示「省区 ②」，选完自动收起</span></div>
+    <div class="ddRow"><span class="btn">省区<span class="cnt">2</span></span><span class="mono">→ 点开为 2~3 列复选面板（带搜索）</span></div>
+  </div>
+  <div class="item">
+    <div class="ih"><b>C · 紧凑工具栏（三控件同一行）</b><span>省区 / 渠道 / 时间 挤一行，矩阵上移一屏</span></div>
+    <div class="ddRow">
+      <span class="ms foc" style="width:230px"><span class="tg">山东<i>×</i></span><span class="tg">江苏<i>×</i></span><span class="crt">▾</span></span>
+      <span class="btn">渠道<span class="cnt">2</span></span>
+      <span class="btn">1月 – 8月</span>
+    </div>
+  </div>
+  <div class="item">
+    <div class="ih"><b>D · 下拉 + 常用省区快捷标签</b><span>保留全量下拉，常用 5 省一键点</span><em>改动最小</em></div>
+    <div class="ddRow">
+      <span class="ms" style="width:250px"><span class="tg">山东<i>×</i></span><span class="tg">江苏<i>×</i></span><span class="crt">▾</span></span>
+      <span class="mono">常用</span>
+      <span class="chip">广东</span><span class="chip">四川</span><span class="chip">浙江</span><span class="chip">湖南</span><span class="chip">安徽</span>
+    </div>
+  </div>
+
+  <div class="foot">
+    ⚠️ 口径提示：逐月柱**相加 ≠ 1-8月累计**（源表缺 2/3/4 月快照）。例：山东 KA购进 逐月合计 3,818.5 万 vs 累计 5,629.8 万。
+    所以逐月图只看走势，累计一律看堆叠条。正式版会在图旁标注。
+  </div>
+</div>
+
+<script>
+var CH = [
+  {n:'KA购进',      c:'#4361ee', m:[97.8,null,null,null,88.1,3462.2,78.9,91.5],   yoy:[-93.0,null,null,null,-87.0,28.4,-59.7,-67.1], tot:5629.8, ty:-25.9},
+  {n:'KA纯销',      c:'#4cc9f0', m:[667.8,null,null,null,1315.4,714.0,392.8,726.1], yoy:[-40.2,null,null,null,-15.9,1.7,-22.6,-0.7],  tot:6215.5, ty:-5.6},
+  {n:'重点连锁',    c:'#7209b7', m:[null,null,null,null,86.3,449.0,17.8,154.3],     yoy:[null,null,null,null,-76.1,45.5,-71.0,-38.9], tot:1601.4, ty:-11.2},
+  {n:'医馆·礼品店', c:'#f72585', m:[null,null,null,null,178.0,2933.9,22.7,34.5],    yoy:[null,null,null,null,-22.5,176.7,-66.7,-95.0],tot:4073.1, ty:5.1},
+  {n:'广阔市场',    c:'#06d6a0', m:[null,null,null,null,122.1,722.7,-27.0,119.1],   yoy:[null,null,null,null,-60.3,110.5,-123.0,-1.2],tot:1751.2, ty:-19.8}
+];
+var MTOT=[767.6,null,null,null,1790.0,8282.0,485.1,1125.5], MX=3462.2;
+function yc(x){ if(x==null||x===0) return 'rgb(214,217,226)';
+  var t=Math.min(Math.pow(Math.abs(x)/100,0.75),1);
+  return x>0? 'rgb('+Math.round(255-t*40)+','+Math.round(255-t*223)+','+Math.round(255-t*215)+')'
+            : 'rgb('+Math.round(255-t*227)+','+Math.round(255-t*90)+','+Math.round(255-t*190)+')'; }
+
+function grouped(max){
+  var h='';
+  for(var m=0;m<8;m++){
+    var has=MTOT[m]!=null, bars='';
+    CH.forEach(function(c){ var x=c.m[m]; if(x==null) return;
+      bars+='<i style="height:'+Math.max(Math.abs(x)/(max||MX)*100,1.5).toFixed(1)+'%;background:'+c.c+'"></i>'; });
+    h+='<div class="col'+(has?'':' na')+'">'+bars+'<em>'+(m+1)+'月</em></div>';
+  }
+  return h;
+}
+document.getElementById('gp1').innerHTML=grouped(MX);
+document.getElementById('gp2').innerHTML=grouped(MX);
+
+document.getElementById('sm1').innerHTML=CH.map(function(c){
+  var mx=0; c.m.forEach(function(x){ if(x!=null) mx=Math.max(mx,Math.abs(x)); });
+  var bars=c.m.map(function(x,i){
+    if(x==null) return '<div></div>';
+    return '<div><b style="height:'+Math.max(Math.abs(x)/(mx||1)*100,4).toFixed(1)+'%;background:'+yc(c.yoy[i])+'"></b></div>';
+  }).join('');
+  return '<div class="smc"><h4><i style="background:'+c.c+'"></i>'+c.n+'</h4>'+
+    '<div style="font-size:11.5px;color:#6c757d;margin-bottom:4px">'+c.tot.toFixed(1)+' 万 <span class="'+
+    (c.ty>=0?'red':'green')+'">'+(c.ty>0?'+':'')+c.ty.toFixed(1)+'%</span></div>'+
+    '<div class="mini">'+bars+'</div></div>';
+}).join('');
+
+var sk='';
+for(var m=0;m<8;m++){
+  if(MTOT[m]==null){ sk+='<div class="c na"></div>'; continue; }
+  var seg=CH.map(function(c){ var x=c.m[m]; if(x==null||x<=0) return '';
+    return '<i style="height:'+(x/MTOT[m]*100).toFixed(2)+'%;background:'+c.c+'"></i>'; }).join('');
+  sk+='<div class="c" style="height:'+(MTOT[m]/8282*100).toFixed(1)+'%">'+seg+'</div>';
+}
+document.getElementById('stk1').innerHTML=sk;
+
+var sp='',bar='';
+CH.forEach(function(c){
+  var w=c.tot/19271.0*100, mx=0;
+  c.m.forEach(function(x){ if(x!=null) mx=Math.max(mx,Math.abs(x)); });
+  var bars=c.m.map(function(x){ if(x==null) return '<i style="height:1px;opacity:.25"></i>';
+    return '<i style="height:'+Math.max(Math.abs(x)/(mx||1)*100,10).toFixed(0)+'%"></i>'; }).join('');
+  sp+='<div class="spc" style="width:'+w.toFixed(2)+'%;--c:'+c.c+'"><div class="spk">'+bars+'</div><em>'+c.n+'</em></div>';
+  bar+='<i style="width:'+w.toFixed(2)+'%;background:'+c.c+'"></i>';
+});
+document.getElementById('spk1').innerHTML='<div class="spr">'+sp+'</div>'+
+  '<div style="padding:0 8px"><div class="barin" style="margin:0">'+bar+'</div></div>';
+
+document.getElementById('mbar1').innerHTML=CH.map(function(c){
+  return '<i style="width:'+(c.tot/19271*100).toFixed(2)+'%;background:'+c.c+'"></i>'; }).join('');
+</script>
+</body>
+</html>
