@@ -530,6 +530,8 @@
         .mx-exp { padding:9px 10px 11px 84px; background:#fbfcff; border-bottom:1px solid #eef1f8; animation:pmRowIn .22s ease both; }
         .kc-title { font-size:11px; color:var(--text); font-weight:500; margin-bottom:5px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
         .kc-title .kc-sub { font-weight:400; color:var(--text2); font-size:10.5px; }
+        .kc-title .kc-hi { color:var(--primary); font-weight:600; }
+        .kc-title .sep { color:#b0b4c0; margin:0 5px; font-weight:400; }
         .kf-tip { position:fixed; z-index:9999; display:none; pointer-events:none; width:238px;
           background:#fff; border:1px solid #d8ddea; border-radius:8px; padding:9px 11px;
           box-shadow:0 6px 20px rgba(20,30,70,.14); font-size:11.5px; line-height:1.55; color:var(--text); }
@@ -596,6 +598,7 @@
         .kf-dd-ops span:hover { text-decoration:underline; }
         .kf-dd-ops u { margin-left:auto; text-decoration:none; color:#b0b4c0; }
         .kf-dd-list { max-height:206px; overflow:auto; display:grid; grid-template-columns:repeat(3,1fr); gap:1px 4px; }
+        .kf-dd-list.two { grid-template-columns:repeat(2,1fr); }
         .kf-it { display:flex; align-items:center; gap:6px; padding:4px 6px; border-radius:5px; font-size:12px; cursor:pointer; }
         .kf-it:hover { background:#f4f6ff; }
         .kf-it.on { background:#eef2ff; color:#2f4bc9; font-weight:500; }
@@ -1293,7 +1296,16 @@ function rateClass(rate) {
           <div class="kf-dd-list" id="kfProvBtns" data-page-node-id="0ZRmh0Mkyxl7SRRuUllLLl2"></div>
         </div>
       </div>
-      <div class="kf-chips" id="kfDimBtns" data-page-node-id="49xofahdBKNxKx7dVklGC2"></div>
+      <div class="kf-dd" id="kfDimDD">
+        <div class="kf-dd-box" id="kfDimBox" data-page-node-id="49xofahdBKNxKx7dVklGC2">
+          <span class="kf-dd-ph">渠道（多选）</span><span class="kf-dd-caret">▾</span>
+        </div>
+        <div class="kf-dd-pop" id="kfDimPop">
+          <div class="kf-dd-ops"><span id="kfDimAll">全选</span><span id="kfDimNone">清空</span>
+            <u id="kfDimHint">已选 0 / 4</u></div>
+          <div class="kf-dd-list two" id="kfDimBtns" data-page-node-id="49xofahdBKNxKx7dVklGC22"></div>
+        </div>
+      </div>
       <div class="kf-dd kf-dd-date" id="kfDateDD">
         <div class="kf-dd-box kf-date-box" id="kfDateBox">
           <i class="fas fa-calendar-day" style="color:var(--primary);margin-right:5px"></i>
@@ -1316,8 +1328,8 @@ function rateClass(rate) {
 
   <!-- ② 结果矩阵（堆叠条 + 悬停 + 点色条行内展开客户明细） -->
   <div class="section" id="kfMatrixSec" style="display:none;" data-page-node-id="EZECDsfVtophryILVYPeme">
-    <div class="section-title" data-page-node-id="CR78aNY63i7L2fVCuGHhlg"><i class="fas fa-chart-bar" data-page-node-id="c2hvAtoRiCDkOPNmCab53Z"></i> 结果矩阵（万元）
-      <span class="hint" data-page-node-id="Z94uH304MEjvaS1SHsAwo0">悬停色条看 金额 / 同比 / 完成率 / 年度进度 ｜ <b data-page-node-id="EYO5aOzzRAqHcMpO0agOUW">点击色条展开该省区 × 该指标「归属总部」明细（TOP5）+ 逐月柱图</b></span>
+    <div class="section-title" data-page-node-id="CR78aNY63i7L2fVCuGHhlg"><i class="fas fa-chart-bar" data-page-node-id="c2hvAtoRiCDkOPNmCab53Z"></i> 销售明细（万元）
+      <span class="hint" data-page-node-id="Z94uH304MEjvaS1SHsAwo0">悬停看明细 ｜ <b data-page-node-id="EYO5aOzzRAqHcMpO0agOUW">点击色条展开客户明细与逐月走势</b></span>
     </div>
     <div class="mx-legend" id="kfLegend" data-page-node-id="kfLegend1"></div>
     <div class="mx-wrap" data-page-node-id="CfAIuvAbRkrz9Jtbi5Y5vJ">
@@ -1991,12 +2003,23 @@ function kfRenderProvs() {
 
 function kfRenderDims() {
   var box = document.getElementById('kfDimBtns');
-  if (!box) return;
-  box.innerHTML = KF_CH.map(function(c) {
-    var on = kfState.chs.indexOf(c.k) >= 0;
-    return '<span class="kf-btn' + (on ? ' on' : '') + '" data-ch="' + c.k + '">' + c.n +
-      '<span style="font-weight:400;opacity:.8;">（' + c.sub + '）</span></span>';
-  }).join('');
+  if (box) {
+    box.innerHTML = KF_CH.map(function(c) {
+      var on = kfState.chs.indexOf(c.k) >= 0;
+      return '<div class="kf-it' + (on ? ' on' : '') + '" data-ch="' + c.k + '"><span class="bx"></span>' + c.n + '</div>';
+    }).join('');
+  }
+  var b = document.getElementById('kfDimBox');
+  if (b) {
+    var tags = KF_CH.filter(function(c) { return kfState.chs.indexOf(c.k) >= 0; })
+      .map(function(c) {
+        return '<span class="kf-dd-tag">' + kfEsc(c.n) + '<i data-dimdel="' + c.k + '">×</i></span>';
+      }).join('');
+    if (!tags) tags = '<span class="kf-dd-ph">渠道（多选）</span>';
+    b.innerHTML = tags + '<span class="kf-dd-caret">▾</span>';
+  }
+  var h = document.getElementById('kfDimHint');
+  if (h) h.textContent = '已选 ' + kfState.chs.length + ' / ' + KF_CH.length;
 }
 
 /* 时间：左年右月日历弹层。点 1 次 = 单月；再点 1 次 = 起止区间；点区间内某月 = 收敛成该单月 */
@@ -2158,7 +2181,7 @@ function kfRenderLegend(dims, lo, hi) {
     var ok = kfDimOK(d.key, lo, hi);
     return '<span class="mx-lg' + (ok ? '' : ' na') + '"><i style="background:' + KF_DIM_COLOR[d.key] + '"></i>' +
       kfDimOf(d.key).name + '</span>';
-  }).join('') + '<span class="mx-lg-note">点击任一段色条 → 展开该省区 × 该指标客户明细（默认 TOP5）</span>';
+  }).join('') + '<span class="mx-lg-note">点击色条展开客户明细与逐月走势</span>';
 }
 
 /* ---------- ③ 客户明细（行内展开，默认 TOP5） ---------- */
@@ -2175,8 +2198,9 @@ function kfCustBlock(r, dimKey, lo, hi) {
     (kfState.chart === 'small' ? kfChartSmall(r, dims, lo, hi) : kfChartGroup(r, dims, lo, hi)) +
     '<div class="kf-note-line">斜纹「缺」= 源表该月/该表无数据（缺《1-2月》《1-3月》累计快照，或该期报表无此渠道 sheet）｜' +
     '「无业务」= 该省区该渠道全区间为 0｜灰线「0」= 有快照但当月金额为 0（无发生）｜ 悬停任一月/任一渠道卡可看逐项明细与原因</div>' +
-    '<div class="kc-title">客户明细（按归属总部归集） · ' + kfEsc(r.name) + ' × ' + kfEsc(dm.name) +
-    '（' + kfRangeName(lo, hi) + '，默认 TOP5）' +
+    '<div class="kc-title">客户明细<span class="sep">·</span><span class="kc-hi">' + kfEsc(r.name) +
+    '</span><span class="sep">×</span><span class="kc-hi">' + kfEsc(dm.name) +
+    '</span><span class="sep">｜</span><span class="kc-hi">' + kfRangeName(lo, hi) + '</span>' +
     '<span class="kc-sub">' + kfF(v ? v.a : null) + ' 万 · 同比 ' + kfP(v ? v.yoy : null) + '</span></div>';
   if (dimKey === 'broad') {
     return headTx + '<div class="kc-empty">源表「广阔市场」仅到大区 / 省区两列，无客户级明细' +
@@ -2514,7 +2538,7 @@ function kfTipTarget(t) {
 
 /* 下拉开合 */
 function kfCloseDD() {
-  ['kfProvDD', 'kfDateDD'].forEach(function(id) {
+  ['kfProvDD', 'kfDimDD', 'kfDateDD'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.classList.remove('open');
   });
@@ -2537,11 +2561,21 @@ function kfProvAll() {
   document.addEventListener('click', function(e) {
     var t = e.target;
     if (!t || !t.closest) return;
-    var inProv = t.closest('#kfProvDD'), inDate = t.closest('#kfDateDD');
+    var inProv = t.closest('#kfProvDD'), inDim = t.closest('#kfDimDD'), inDate = t.closest('#kfDateDD');
 
-    // 渠道 chips
-    var b2 = t.closest('#kfDimBtns .kf-btn');
-    if (b2) { kfToggleCh(b2.getAttribute('data-ch')); return; }
+    // 渠道下拉
+    var ddel = t.closest('#kfDimBox .kf-dd-tag i');
+    if (ddel) { kfToggleCh(ddel.getAttribute('data-dimdel')); return; }
+    if (t.closest('#kfDimBox')) { kfDD('kfDimDD'); return; }
+    var dit = t.closest('#kfDimBtns .kf-it');
+    if (dit) { kfToggleCh(dit.getAttribute('data-ch')); return; }
+    if (t.closest('#kfDimAll')) {
+      kfState.chs = KF_CH.map(function(c) { return c.k; });
+      kfState.open = null; kfRenderDims(); kfRender(); return;
+    }
+    if (t.closest('#kfDimNone')) {
+      kfState.chs = []; kfState.open = null; kfRenderDims(); kfRender(); return;
+    }
 
     // 省区下拉
     var del = t.closest('#kfProvBox .kf-dd-tag i');
@@ -2569,7 +2603,7 @@ function kfProvAll() {
     var sg = t.closest('.mx-seg');
     if (sg) { kfToggleSeg(sg.getAttribute('data-prov'), sg.getAttribute('data-dim')); return; }
 
-    if (!inProv && !inDate) kfCloseDD();
+    if (!inProv && !inDim && !inDate) kfCloseDD();
   });
   var si = document.getElementById('kfProvSearch');
   if (si) si.addEventListener('input', kfRenderProvs);
