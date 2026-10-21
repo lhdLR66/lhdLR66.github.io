@@ -349,7 +349,7 @@
         .overview-top .kpi-badge { display: block; margin: 6px 0 0 0; width: fit-content; }
         .overview-bottom { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; align-items: stretch; }
         .overview-bottom > .table-card { min-width: 0; display: flex; flex-direction: column; }
-        /* 布局铁律（2026-10-22）：含表格/图表的卡片禁止 overflow:hidden 裁切 —— 窄视口下内容被遮盖不可达；
+        /* 布局铁律（2026-10-22）：含表格/图表的卡片禁止 overflow:hidden 裁切 —— 窄视口下右侧内容被遮盖不可达；
            一律允许横向滚动（无溢出时不出现滚动条，视觉无变化） */
         .table-card:has(> table) { overflow-x: auto; overflow-y: hidden; }
         @media (max-width: 1100px) {
@@ -723,32 +723,37 @@ window.switchTab = function (name) {
 <div id="tab-overview" class="tab-content active" data-page-node-id="Co3xDliffVymT9XtZGlq4w">
 
 <!-- ====== 产品汇总（顶部横排，全宽 3 等分） ====== -->
-<div class="section" data-page-node-id="7S47gZURg0wQlbf7l4hXGK">
-    <div class="section-title" data-page-node-id="WpJW6qodIFxtle6T7OXAxH"><i class="fas fa-boxes" data-page-node-id="OpCzAtWmGeJ5dlz7hFzfGz"></i> 产品汇总</div>
+<div class="section">
+    <div class="section-title"><i class="fas fa-boxes"></i> 产品汇总</div>
     <div class="overview-top">
-<div class="kpi-card" style="--dot-color: var(--primary);"><div class="kpi-label">OTC复方阿胶浆</div><div class="kpi-value">156,340<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">9月 +65463.9万 &middot; 环比 +2401.8%</span></div><div class="kpi-yoy down"><span class="label">累计同比</span><span class="val">-16.3%</span></div><div class="kpi-sub">全年预算 276554.4 万</div><div class="kpi-progress"><div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate">56.5%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:56.5%"></div></div></div></div>
-<div class="kpi-card" style="--dot-color: var(--over);"><div class="kpi-label">R复方阿胶浆</div><div class="kpi-value">23,492<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">9月 +6526.7万 &middot; 环比 +381.8%</span></div><div class="kpi-yoy up"><span class="label">累计同比</span><span class="val">+20.3%</span></div><div class="kpi-sub">全年预算 27930.0 万</div><div class="kpi-progress"><div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate">84.1%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:84.1%"></div></div></div></div>
-<div class="kpi-card" style="--dot-color: var(--success);"><div class="kpi-label">合计</div><div class="kpi-value">179,832<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">9月 +71990.6万 &middot; 环比 +1712.8%</span></div><div class="kpi-yoy down"><span class="label">累计同比</span><span class="val">-12.8%</span></div><div class="kpi-sub">全年预算 304484.4 万</div><div class="kpi-progress"><div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate">59.1%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:59.1%"></div></div></div></div>
-    </div>
-        </div>
-        <div class="kpi-card" style="--dot-color: var(--over);" data-page-node-id="8wgEj7IT4mLgZsuUR34nv4">
-            <div class="kpi-label" data-page-node-id="TVJmC9jIrpzgLcMHBGhsIA">R复方阿胶浆</div>
-            <div class="kpi-value" data-page-node-id="pLIywxuMjZDxP4ERgjVXIF">16,966<span style="font-size:14px;color:#6c757d" data-page-node-id="dCG2lXIlBZJbTwTLydw1VF"> 万</span><span class="kpi-badge up" data-page-node-id="y4ArA7mctAXxFdAkeD5Oiw">8月 +1,354.5万 &middot; 环比 +72.1%</span></div>
-            <div class="kpi-yoy up" data-page-node-id="6Lk7eRi9EyNhQRSicR3nqt"><span class="label" data-page-node-id="ZBhUYLRK09n04GpdACtWVc">累计同比</span><span class="val" data-page-node-id="IdvRLvemTj21XfGnFFnHMA">+4.0%</span></div>
-            <div class="kpi-sub" data-page-node-id="4yTGLTFzMyYmhfNFtHtDbJ">全年预算 27,930.00 万</div>
-            <div class="kpi-progress" data-page-node-id="aj8mfstZKiBndpsgy7iJHD">
-                <div class="kpi-progress-label" data-page-node-id="23eZaCyN3RJHJEzRG0rt7K"><span data-page-node-id="UuDZgNHPcSCiuhHrqTSVUC">年度完成进度</span><span class="kpi-annual-rate" data-page-node-id="t3vpfO1ZinDE1OAHjdOaz1">60.7%</span></div>
-                <div class="progress-bar-bg" data-page-node-id="OMWcuZAFU3HBDyEFbfLqaS"><div class="progress-bar-fill" style="background:var(--primary);width:60.7%" data-page-node-id="S2BpIVup0fXmA3Uxcb3W5U"></div></div>
+        <div class="kpi-card" style="--dot-color: var(--primary);">
+            <div class="kpi-label">OTC复方阿胶浆</div>
+            <div class="kpi-value">156,340<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">9月 +65463.9万 &middot; 环比 +2401.8%</span></div>
+            <div class="kpi-yoy down"><span class="label">累计同比</span><span class="val">-16.3%</span></div>
+            <div class="kpi-sub">全年预算 276554.4 万</div>
+            <div class="kpi-progress">
+                <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate">56.5%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:56.5%"></div></div>
             </div>
         </div>
-        <div class="kpi-card" style="--dot-color: var(--success);" data-page-node-id="kwDHQs1bi0YMlwoDY8SJ4g">
-            <div class="kpi-label" data-page-node-id="lQMjgGAHB4HWJnRNLVxdBe">合计</div>
-            <div class="kpi-value" data-page-node-id="ZbW7M6WTLUdhbex9DSQsDB">107,842<span style="font-size:14px;color:#6c757d" data-page-node-id="u4cPZIboIYRsv8DXMbaHm2"> 万</span><span class="kpi-badge up" data-page-node-id="vvhOL39dc5FQRAVdzFmDn9">8月 +3,971.2万 &middot; 环比 +254.0%</span></div>
-            <div class="kpi-yoy down" data-page-node-id="A7CBjhacN1nAC4SJNdDOhE"><span class="label" data-page-node-id="igza1VJsKiPWzB8sF4EUTj">累计同比</span><span class="val" data-page-node-id="nYFBSeqBk5G4gtyPBlchcx">-25.0%</span></div>
-            <div class="kpi-sub" data-page-node-id="wcglJ9zqI5ql9LeDZMgLEb">全年预算 304,484 万</div>
-            <div class="kpi-progress" data-page-node-id="H6aW5H1GtTlfvOtxhyCCyl">
-                <div class="kpi-progress-label" data-page-node-id="4SSYhLGTprqp2la2F1vG6k"><span data-page-node-id="D1Mrw8EbZ6XCBVfnkCbGJv">年度完成进度</span><span class="kpi-annual-rate" data-page-node-id="vRmUfCfCxlZmWsX0RXBF6E">35.4%</span></div>
-                <div class="progress-bar-bg" data-page-node-id="rDR2tbymsHwzDO67Gkl1gW"><div class="progress-bar-fill" style="background:var(--primary);width:35.4%" data-page-node-id="r81o92c12dWC4Rto7zLA44"></div></div>
+        <div class="kpi-card" style="--dot-color: var(--over);">
+            <div class="kpi-label">R复方阿胶浆</div>
+            <div class="kpi-value">23,492<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">9月 +6526.7万 &middot; 环比 +381.8%</span></div>
+            <div class="kpi-yoy up"><span class="label">累计同比</span><span class="val">+20.3%</span></div>
+            <div class="kpi-sub">全年预算 27930.0 万</div>
+            <div class="kpi-progress">
+                <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate">84.1%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:84.1%"></div></div>
+            </div>
+        </div>
+        <div class="kpi-card" style="--dot-color: var(--success);">
+            <div class="kpi-label">合计</div>
+            <div class="kpi-value">179,832<span style="font-size:14px;color:#6c757d"> 万</span><span class="kpi-badge up">9月 +71990.6万 &middot; 环比 +1712.8%</span></div>
+            <div class="kpi-yoy down"><span class="label">累计同比</span><span class="val">-12.8%</span></div>
+            <div class="kpi-sub">全年预算 304484.4 万</div>
+            <div class="kpi-progress">
+                <div class="kpi-progress-label"><span>年度完成进度</span><span class="kpi-annual-rate">59.1%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:59.1%"></div></div>
             </div>
         </div>
     </div>
@@ -831,8 +836,55 @@ window.switchTab = function (name) {
                     <th class="progress-cell" data-page-node-id="e9u5k3GI3Ol0dc25Q6aBo6">年度完成进度</th>
                 </tr>
             </thead>
-            <tbody>
-<tr><td>OTC事业部（药品）</td><td class="num">127,725</td><td class="num">169,683</td><td class="num" style="color:var(--danger);">-22.2%</td><td class="num"><span class="rate-tag rate-warning">75.3%</span></td><td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:52.69075369657884%"></div></div><span class="progress-pct">52.7%</span></div></td></tr><tr><td>数字营销</td><td class="num">26,575</td><td class="num">19,225</td><td class="num" style="color:var(--success);">+35.2%</td><td class="num"><span class="rate-tag rate-success">138.2%</span></td><td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:87.08677625550348%"></div></div><span class="progress-pct">87.1%</span></div></td></tr><tr><td>海外事业部</td><td class="num">1,055</td><td class="num">2,030</td><td class="num" style="color:var(--danger);">-56.1%</td><td class="num"><span class="rate-tag rate-danger">52.0%</span></td><td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:37.46421686485295%"></div></div><span class="progress-pct">37.5%</span></div></td></tr><tr><td>滋补生活事业部 零售</td><td class="num">329</td><td class="num">312</td><td class="num" style="color:var(--success);">+22.5%</td><td class="num"><span class="rate-tag rate-success">105.5%</span></td><td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:76.32019688672743%"></div></div><span class="progress-pct">76.3%</span></div></td></tr><tr><td>文旅事业部 零售</td><td class="num">657</td><td class="num">290</td><td class="num" style="color:var(--success);">+110.1%</td><td class="num"><span class="rate-tag rate-success">226.2%</span></td><td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:100%"></div></div><span class="progress-pct">169.1%</span></div></td></tr><tr class="total"><td><b>OTC装 合计</b></td><td class="num"><b>156,340</b></td><td class="num"><b>191,540</b></td><td class="num" style="color:var(--danger);"><b>-16.3</b>%</td><td class="num"><span class="rate-tag rate-warning"><b>81.6</b>%</span></td><td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:56.53129704629384%"></div></div><span class="progress-pct"><b>56.5</b>%</span></div></td></tr>
+            <tbody data-page-node-id="gaOnwwBHGSzoAJwR55v7TF">
+                <tr>
+                    <td>OTC事业部（药品）</td>
+                    <td class="num">127,725</td>
+                    <td class="num">169,683</td>
+                    <td class="num" style="color:var(--danger);">-22.2%</td>
+                    <td class="num"><span class="rate-tag rate-warning">75.3%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:52.69075369657884%"></div></div><span class="progress-pct">52.7%</span></div></td>
+                </tr>
+                <tr>
+                    <td>数字营销</td>
+                    <td class="num">26,575</td>
+                    <td class="num">19,225</td>
+                    <td class="num" style="color:var(--success);">+35.2%</td>
+                    <td class="num"><span class="rate-tag rate-success">138.2%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:87.08677625550348%"></div></div><span class="progress-pct">87.1%</span></div></td>
+                </tr>
+                <tr>
+                    <td>海外事业部</td>
+                    <td class="num">1,055</td>
+                    <td class="num">2,030</td>
+                    <td class="num" style="color:var(--danger);">-56.1%</td>
+                    <td class="num"><span class="rate-tag rate-danger">52.0%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:37.46421686485295%"></div></div><span class="progress-pct">37.5%</span></div></td>
+                </tr>
+                <tr>
+                    <td>滋补生活事业部 零售</td>
+                    <td class="num">329</td>
+                    <td class="num">312</td>
+                    <td class="num" style="color:var(--success);">+22.5%</td>
+                    <td class="num"><span class="rate-tag rate-success">105.5%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:76.32019688672743%"></div></div><span class="progress-pct">76.3%</span></div></td>
+                </tr>
+                <tr>
+                    <td>文旅事业部 零售</td>
+                    <td class="num">657</td>
+                    <td class="num">290</td>
+                    <td class="num" style="color:var(--success);">+110.1%</td>
+                    <td class="num"><span class="rate-tag rate-success">226.2%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:100%"></div></div><span class="progress-pct">169.1%</span></div></td>
+                </tr>
+                <tr class="total">
+                    <td><b>OTC装 合计</b></td>
+                    <td class="num"><b>156,340</b></td>
+                    <td class="num"><b>191,540</b></td>
+                    <td class="num" style="color:var(--danger);"><b>-16.3</b>%</td>
+                    <td class="num"><span class="rate-tag rate-warning"><b>81.6</b>%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:56.53129704629384%"></div></div><span class="progress-pct"><b>56.5</b>%</span></div></td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -867,9 +919,23 @@ window.switchTab = function (name) {
                     <th class="progress-cell" data-page-node-id="CqGXYT2a9DrW319JdYjZk5">年度完成进度</th>
                 </tr>
             </thead>
-            <tbody>
-<tr><td>医疗事业部</td><td class="num">23,492</td><td class="num">20,948</td><td class="num" style="color:var(--success);">+20.6%</td><td class="num"><span class="rate-tag rate-success">112.1%</span></td><td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:84.11189128910387%"></div></div><span class="progress-pct">84.1%</span></div></td></tr>
-<tr class="total"><td><b>R装 合计</b></td><td class="num"><b>23,492</b></td><td class="num"><b>20,948</b></td><td class="num" style="color:var(--success);"><b>+20.3</b>%</td><td class="num"><span class="rate-tag rate-success"><b>112.1</b>%</span></td><td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:84.11189128910387%"></div></div><span class="progress-pct"><b>84.1</b>%</span></div></td></tr>
+            <tbody data-page-node-id="Wtl7HRFeD9vFqYh0D8Gqxk">
+                <tr>
+                    <td>医疗事业部</td>
+                    <td class="num">23,492</td>
+                    <td class="num">20,948</td>
+                    <td class="num" style="color:var(--success);">+20.6%</td>
+                    <td class="num"><span class="rate-tag rate-success">112.1%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:84.11189128910387%"></div></div><span class="progress-pct">84.1%</span></div></td>
+                </tr>
+                <tr class="total">
+                    <td><b>R装 合计</b></td>
+                    <td class="num"><b>23,492</b></td>
+                    <td class="num"><b>20,948</b></td>
+                    <td class="num" style="color:var(--success);"><b>+20.3</b>%</td>
+                    <td class="num"><span class="rate-tag rate-success"><b>112.1</b>%</span></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:84.11189128910387%"></div></div><span class="progress-pct"><b>84.1</b>%</span></div></td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -1440,9 +1506,9 @@ var provinceMonth = /*@PROV_MONTH_JSON@*/ {"发货": {"山东": {"m": [12.018, n
 
 // 省区容器 → 维度名
 var PROV_DIM = { shipBars: '发货', deliveryBars: '终端配送', ka50Bars: 'KA50纯销' };
-var PROV_MONTH_LABELS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月'];
-var PROV_MI = [0, null, null, null, 4, 5, 6, 7, 8];   // 月份 → m[] 下标（null = 无源）
-var PROV_SI = [0, null, null, null, 1, 2, 3, 4, 5];   // 月份 → s[]（同期）下标
+var PROV_MONTH_LABELS = ['1月','2月','3月','4月','5月','6月','7月','8月'];
+var PROV_MI = [0, null, null, null, 4, 5, 6, 7];   // 月份 → m[] 下标（null = 无源）
+var PROV_SI = [0, null, null, null, 1, 2, 3, 4];   // 月份 → s[]（同期）下标
 
 /* ===== 渠道库存（复方阿胶浆类 · 9月底时点）=====
    数据源：2026年1-9月OTC事业部指标完成报表 → sheet「渠道库存」复方阿胶浆类块 c21–c28
@@ -1987,7 +2053,7 @@ function kfRenderCal() {
   var h = '';
   for (var m = 1; m <= 12; m++) {
     var cls = 'kf-cal-m', tag = '';
-    if (m > (kfMeta().last || 8)) { cls += ' dash'; tag = '未出'; }
+    if (m >= 9) { cls += ' dash'; tag = '未出'; }
     else if (!kfHasSnap(m)) cls += ' dash';
     if (m === 2) tag = '仅起';
     else if (m === 3) tag = '缺';
