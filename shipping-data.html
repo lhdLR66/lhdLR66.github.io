@@ -349,6 +349,9 @@
         .overview-top .kpi-badge { display: block; margin: 6px 0 0 0; width: fit-content; }
         .overview-bottom { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; align-items: stretch; }
         .overview-bottom > .table-card { min-width: 0; display: flex; flex-direction: column; }
+        /* 布局铁律（2026-10-22）：含表格/图表的卡片禁止 overflow:hidden 裁切 —— 窄视口下内容被遮盖不可达；
+           一律允许横向滚动（无溢出时不出现滚动条，视觉无变化） */
+        .table-card:has(> table) { overflow-x: auto; overflow-y: hidden; }
         @media (max-width: 1100px) {
           .overview-bottom { grid-template-columns: 1fr; }
         }
@@ -1005,6 +1008,14 @@ function renderMonthly(month) {
       bar.style.height = bar.getAttribute('data-h') + 'px';
     });
   });
+  // 兜底（2026-10-22）：移动端省电/后台标签会暂停 CSS transition，柱子可能永远停在 0
+  // → 700ms 后强制落到目标高度，保证"显示不全"不再发生
+  setTimeout(function() {
+    document.querySelectorAll('#monthlyBars .bar').forEach(function(bar) {
+      bar.style.transition = 'none';
+      bar.style.height = bar.getAttribute('data-h') + 'px';
+    });
+  }, 700);
   
   // --- Data table（按 OTC装 / R装 分组，格式参考「累计看板」）---
   var prevData = null;
