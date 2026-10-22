@@ -724,7 +724,7 @@ window.switchTab = function (name) {
 
 <!-- ====== 产品汇总（顶部横排，全宽 3 等分） ====== -->
 <div class="section">
-    <div class="section-title"><i class="fas fa-boxes"></i> 产品汇总</div>
+    <div class="section-title"><i class="fas fa-boxes"></i> 产品汇总 <span class="hint" style="font-weight:400;">口径：发货跟踪表 表5「含税发出销售额」（全渠道）· 与「OTC销售总览」的发货口径不同，勿直接对比</span></div>
     <div class="overview-top">
         <div class="kpi-card" style="--dot-color: var(--primary);">
             <div class="kpi-label">OTC复方阿胶浆</div>
@@ -832,8 +832,8 @@ window.switchTab = function (name) {
                     <th class="num" data-page-node-id="WYWXCQECpuJgCoXAEabWv8">1-9月完成<br data-page-node-id="53r8EuBY3F3u3XpzFs8sf0"><span style="font-size:10px;color:var(--text2);" data-page-node-id="maRbQYXI1iWjcPc0UrItZi">（万元）</span></th>
                     <th class="num" data-page-node-id="121VwVBAyMZQTZZrxF3f0E">1-9月预算<br data-page-node-id="1iBieJ9JB8XkBlllMc9tL4"><span style="font-size:10px;color:var(--text2);" data-page-node-id="fLkGz07BryC3RfVxesGlu2">（万元）</span></th>
                     <th class="num" data-page-node-id="dkMhbYPcrw9soglNhgVgex">同比变化</th>
-                    <th class="num" data-page-node-id="zr9QOMuG06LEintTLKihqz">累计完成率</th>
-                    <th class="progress-cell" data-page-node-id="e9u5k3GI3Ol0dc25Q6aBo6">年度完成进度</th>
+                    <th class="num" data-page-node-id="zr9QOMuG06LEintTLKihqz">累计完成率<br><span style="font-size:10px;color:var(--text2);">完成/累计预算</span></th>
+                    <th class="progress-cell" data-page-node-id="e9u5k3GI3Ol0dc25Q6aBo6">年度完成进度<br><span style="font-size:10px;color:var(--text2);">完成/年度预算</span></th>
                 </tr>
             </thead>
             <tbody data-page-node-id="gaOnwwBHGSzoAJwR55v7TF">
@@ -924,9 +924,9 @@ window.switchTab = function (name) {
                     <td>医疗事业部</td>
                     <td class="num">23,492</td>
                     <td class="num">20,948</td>
-                    <td class="num" style="color:var(--success);">+20.6%</td>
+                    <td class="num" style="color:var(--success);">+20.3%</td>
                     <td class="num"><span class="rate-tag rate-success">112.1%</span></td>
-                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:84.11189128910387%"></div></div><span class="progress-pct">84.1%</span></div></td>
+                    <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="background:var(--primary);width:84.1%"></div></div><span class="progress-pct">84.1%</span></div></td>
                 </tr>
                 <tr class="total">
                     <td><b>R装 合计</b></td>
@@ -2181,7 +2181,7 @@ function kfRenderMatrix(dims, lo, hi) {
     var neg = rows.filter(function(w) {
       return w.segs.some(function(e) { return e.v && e.v.a < 0; });
     }).map(function(w) { return w.name; });
-    var parts = ['「' + kfRangeName(lo, hi) + '」· 单位万元 · 区间值 = 累计快照 S(止) − S(起−1)（不做单月相加，避免漏 2/3/4 月）'];
+    var parts = ['「' + kfRangeName(lo, hi) + '」· 单位万元 · 区间值 = 累计快照 S(止) − S(起−1)（不做单月相加）· <b>合计列 = 五指标段之和，非「KA50纯销」单项</b>'];
     if (neg.length) parts.push('含负值（退货 / 冲销）的省区：' + neg.join('、') + ' —— 色条仅绘制正值段，合计列为真实净额');
     if (smallDrops) parts.push('另有 ' + smallDrops + ' 段占比 <0.5% 未绘制（数值仍计入合计）');
     foot.innerHTML = parts.join(' ｜ ');
