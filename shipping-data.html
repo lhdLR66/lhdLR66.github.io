@@ -520,6 +520,8 @@
         .mx-lg em { font-style:normal; font-size:10px; color:#b0b4c0; }
         .mx-lg.na { opacity:.4; }
         .mx-lg-note { margin-left:auto; font-size:10.5px; color:#b0b4c0; }
+        .mx-line.mx-adj { border-top:1px dashed #cfd6e4; margin-top:5px; padding-top:5px; background:#fcfcfe; }
+        .mx-adj-hint { font-size:11px; color:#8b95a8; line-height:1.3; padding-left:2px; }
         .mx-line { display:grid; align-items:center; padding:5px 6px; font-size:11px; border-bottom:1px solid #f2f4f8; }
         .mx-item:hover > .mx-line { background:rgba(67,97,238,.05); }
         .mx-barh { font-size:10px; color:var(--text2); padding-left:4px; }
@@ -1957,6 +1959,7 @@ function kfF(v) { return v == null ? '—' : v.toFixed(1); }
 function kfP(v) { return v == null ? '—' : (v > 0 ? '+' : '') + (v * 100).toFixed(1) + '%'; }
 function kfCls(v) { return v == null ? '' : (v >= 0 ? 'red' : 'green'); }
 function kfNum(v) { return kfF(v); }
+function kfComma(v) { return v == null ? '—' : v.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 function kfPct(v) { return kfP(v); }
 function kfYCls(v) { return kfCls(v); }
 function kfRate(v) { return v == null ? '—' : (v * 100).toFixed(1) + '%'; }
@@ -2149,6 +2152,34 @@ function kfRenderMatrix(dims, lo, hi) {
   });
 
   var smallDrops = 0;
+  /* 2026-10-26 方案B：换期调整行
+     报表换期时会回头改老数据（补录），但只给全国的数、没给分省明细。
+     所以这里把「全国（报表当月列）− 各省快照差」的差单列一行，让合计数能对上。 */
+  var adjVal = null;
+  (function() {
+    if (!dims.some(function(d) { return d.key === 'kaSell'; })) return;
+    var mt = (ka50Detail.meta && ka50Detail.meta.monthTotal) || {};
+    var sumAll = 0;
+    (ka50Detail.regions || []).forEach(function(r) {
+      var v = kfVal(r, 'kaSell', lo, hi);
+      if (v && v.a) sumAll += v.a;
+    });
+    var mtSum = 0, ok = true;
+    for (var mm = lo; mm <= hi; mm++) {
+      var t = mt[String(mm)];
+      if (t && t.v != null) mtSum += t.v; else { ok = false; break; }
+    }
+    if (ok && Math.abs(mtSum - sumAll) > 1) {
+      adjVal = { all: mtSum, prov: sumAll, diff: mtSum - sumAll };
+    }
+  })();
+  var adjHtml = adjVal
+    ? '<div class="mx-line mx-adj" style="grid-template-columns:' + GRID + '">' +
+        '<span class="mx-prov">换期调整</span>' +
+        '<span class="mx-bar mx-adj-hint">报表后来补录老数据，还没分到各省</span>' +
+        '<span class="mx-num" style="color:#b8860b;font-weight:700;">' + kfNum(adjVal.diff, 1) + '</span>' +
+        '<span class="mx-num">—</span><span class="mx-num">—</span><span class="mx-num">—</span></div>'
+    : '';
   body.innerHTML = rows.map(function(w) {
     var barW = maxSeg ? (w.posSum / maxSeg * 100) : 0;
     var segH = w.segs.map(function(e) {
@@ -2172,7 +2203,7 @@ function kfRenderMatrix(dims, lo, hi) {
       exp = '<div class="mx-exp">' + kfCustBlock(w.r, kfState.open.split('|')[1], lo, hi) + '</div>';
     }
     return '<div class="mx-item">' + line + exp + '</div>';
-  }).join('');
+  }).join('') + adjHtml;
 
   kfRenderLegend(dims, lo, hi);
   var foot = document.getElementById('kfMatrixFoot');
@@ -2181,34 +2212,12 @@ function kfRenderMatrix(dims, lo, hi) {
     var neg = rows.filter(function(w) {
       return w.segs.some(function(e) { return e.v && e.v.a < 0; });
     }).map(function(w) { return w.name; });
-    var parts = ['「' + kfRangeName(lo, hi) + '」· 单位万元 · 区间值 = 累计快照 S(止) − S(起−1)（不做单月相加）· <b>合计列 = 五指标段之和，非「KA50纯销」单项</b>'];
-    /* 2026-10-23 「较晚为准」矫正：全国 KA50纯销 以各期报表「当月完成」列为准；
-       省区行仍为累计快照差（报表无「较晚口径」的分省数据），两者差额即报表换期回溯调整量 */
-    (function() {
-      var mt = (ka50Detail.meta && ka50Detail.meta.monthTotal) || {};
-      var hasKaSell = dims.some(function(d) { return d.key === 'kaSell'; });
-      if (!hasKaSell) return;
-      var sumProvKa = 0;
-      /* 必须用「全部省区」对比全国，不能用当前筛选的 rows（否则差额无意义） */
-      (ka50Detail.regions || []).forEach(function(r) {
-        var v = kfVal(r, 'kaSell', lo, hi);
-        if (v && v.a) sumProvKa += v.a;
-      });
-      var mtSum = 0, mtOk = true, miss = [];
-      for (var mm = lo; mm <= hi; mm++) {
-        var t = mt[String(mm)];
-        if (t && t.v != null) mtSum += t.v; else { mtOk = false; miss.push(mm); }
-      }
-      if (!mtOk) return;
-      var d = mtSum - sumProvKa;
-      if (Math.abs(d) > 1) {
-        parts.push('<b style="color:#b8860b">全国 KA50纯销以报表「当月完成」列为准 = ' + kfNum(mtSum, 1) +
-          ' 万 ｜ 各省累计快照差合计 = ' + kfNum(sumProvKa, 1) + ' 万 ｜ 差 ' + kfNum(d, 1) +
-          ' 万 = 报表换期回溯调整（省区行保留快照差口径，可下钻）</b>');
-      } else {
-        parts.push('全国 KA50纯销（报表当月列）与各省快照差一致：' + kfNum(mtSum, 1) + ' 万');
-      }
-    })();
+    var parts = ['「' + kfRangeName(lo, hi) + '」· 单位万元 ｜ 数是按累计相减算的；<b>合计是五个指标加起来，不是单指「KA50纯销」</b>'];
+    if (adjVal) {
+      parts.push('全国 ' + kfComma(adjVal.all) + ' 万（报表口径）｜ 各省加起来 ' + kfComma(adjVal.prov) +
+        ' 万，多出 ' + kfComma(Math.abs(adjVal.diff)) +
+        ' 万 —— 报表后来补录了老数据、又没给分省明细，先挂在最后一行「换期调整」里扣掉。');
+    }
     if (neg.length) parts.push('含负值（退货 / 冲销）的省区：' + neg.join('、') + ' —— 色条仅绘制正值段，合计列为真实净额');
     if (smallDrops) parts.push('另有 ' + smallDrops + ' 段占比 <0.5% 未绘制（数值仍计入合计）');
     foot.innerHTML = parts.join(' ｜ ');
