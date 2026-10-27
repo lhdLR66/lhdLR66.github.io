@@ -675,6 +675,14 @@
         .kf-note-line { font-size:10px; color:var(--text3); margin:6px 0 12px; line-height:1.6; }
         .prov-header-row { display:flex; align-items:center; gap:4px; padding:2px 0 4px; border-bottom:1px solid var(--border); margin-bottom:4px; }
         .prov-header-row .prov-hdr { width:48px; text-align:right; font-size:9px; color:var(--text2); flex-shrink:0; font-weight:500; }
+        /* ===== 子图导出按钮（纯前端 CSV，无需后端） ===== */
+        .exp-btn { display:inline-flex; align-items:center; gap:3px; padding:2px 9px; font-size:11px; font-weight:500;
+                   border:1px solid var(--border); background:#fff; color:var(--text2); border-radius:4px;
+                   cursor:pointer; line-height:1.6; transition:all .15s; font-family:inherit; }
+        .exp-btn:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .exp-btn:active { transform:scale(.97); }
+        .exp-bar { display:flex; align-items:center; gap:8px; justify-content:center; }
+        .exp-bar.right { justify-content:flex-end; }
   </style>
 </head>
 <body data-page-node-id="OJOUjuUAfVMGeg19c4tZbO">
@@ -772,7 +780,8 @@ window.switchTab = function (name) {
             <button class="month-pill" data-month="7月" onclick="switchMonthlyMonth('7月')" data-page-node-id="9gEOFkhUJA9QCyh2GfDplY">7月</button>
             <button class="month-pill" data-month="8月" onclick="switchMonthlyMonth('8月')" data-page-node-id="vuiWOWUAWXYG9anpb4rF8h">8月</button>
             <button class="month-pill active" data-month="9月" onclick="switchMonthlyMonth('9月')" data-page-node-id="vuiWOWUAWXYG9anpb4rF9h">9月</button>
-        </span></span>
+        </span>
+        <button class="exp-btn" onclick="exportMonthlyCurrent()" title="导出当前月份数据（CSV，Excel 可直接打开）">⬇ 导出</button></span>
     </div>
     <div class="insight" id="monthlyInsight" data-page-node-id="doSHLtDeHTpv6sHkOQuVKq"></div>
 
@@ -805,8 +814,9 @@ window.switchTab = function (name) {
 
 <!-- ====== 累计看板 + 全年完成进度 ====== -->
 <div class="section" data-page-node-id="cqasShRpvlmK28Uqa8GYJM">
-    <div class="section-title" data-page-node-id="OXqzA9QdLKAWM7wQ8gooWr">
+    <div class="section-title" style="display:flex;align-items:center;gap:10px;" data-page-node-id="OXqzA9QdLKAWM7wQ8gooWr">
         <i class="fas fa-chart-line" data-page-node-id="ztlTcTbqOkWoDdTOhZDjIk"></i> 累计看板 — 1-9月
+        <button class="exp-btn" onclick="exportCumulative()" title="导出累计看板数据（CSV，Excel 可直接打开）">⬇ 导出</button>
 
     </div>
 
@@ -1230,7 +1240,8 @@ function rateClass(rate) {
 <!-- 1-9月分月数据：柱=完成额（左轴） + 曲线=同比（右轴） -->
 <div class="section" data-page-node-id="lR4lkoB11oJZEj0bY67jSy">
   <div class="section-title" data-page-node-id="tntdrk8WgBE5AunCVxiCQB"><i class="fas fa-calendar-alt" data-page-node-id="PXGXjruqlFsjTBDj64Gu3V"></i> 1-9月分月数据
-    <span class="hint" data-page-node-id="VjVbs6l3fvcSCB9wPuvgEs">柱 = 各维度完成额（左轴·万元）｜ 紫色水位带 = 渠道库存月末余额（第二条右轴·万元）｜ 虚线 = 各维度同比（右轴·%）｜ 悬浮查看明细<br><span style="color:#b8860b">⚠ 各月均取当期报表「当月完成」，因报表换期会回溯调整历史累计，逐月相加与最新累计存在版本差（1-6月：发货 +126 / 配送 −789 / KA50 −1,828 万）</span></span>
+    <span class="hint" data-page-node-id="VjVbs6l3fvcSCB9wPuvgEs">柱 = 各维度完成额（左轴·万元）｜ 紫色水位带 = 渠道库存月末余额（第二条右轴·万元）｜ 虚线 = 各维度同比（右轴·%）｜ 悬浮查看明细</span>
+    <button class="exp-btn" onclick="exportMonthlyMix()" style="margin-left:8px;" title="导出分月数据（CSV，Excel 可直接打开）">⬇ 导出</button>
   </div>
   <div class="table-card" style="padding:20px;" data-page-node-id="AGxnJJRK6bvfWSPWBS2C2o">
     <div style="height:460px;position:relative;" data-page-node-id="esNuzfLosxJOUzGRiMxHfP">
@@ -1264,10 +1275,6 @@ function rateClass(rate) {
     </div>
   </div>
 
-  <div style="padding-top:8px;border-top:1px dashed var(--border);font-size:10px;color:var(--text2);line-height:1.7;" data-page-node-id="Q9RUpDlkcMMW7SNDm2fTAs">
-    前三图：复方阿胶浆「本期」= 1-9月<b data-page-node-id="Qvdk7iQv4xG9WF04GdQcdN">累计</b>金额（色条长度 = 金额，色按同比：<b data-page-node-id="UoI2DDLeU5D5DqbNuorGuR">红=增长 · 绿=下滑</b>，深浅表示幅度）；2/3/4月源报表缺失，展开面板显示「无源」<br data-page-node-id="zlbnAMtD18jGWFU0FwDwI9">
-    第四图：渠道库存（复方阿胶浆类）= <b data-page-node-id="Pi4GN6t3Y3agw8eahIvugZ">9月底时点余额</b>（一二级商在库 + 已采购未入库在途）｜ 周转天数 = 渠道库存 ÷ MAT月均配送 × 30 ｜ 展开面板为该省 1-9月分月余额（<b data-page-node-id="DOlwhSHVCkhKwjNByxeMLy">2月无源，留空待补</b>）
-  </div>
 
   <!-- 共享悬浮提示 -->
   <div id="ka50Tooltip" style="display:none;position:fixed;z-index:1000;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:18px 20px;min-width:240px;pointer-events:none;border:1px solid var(--border);" data-page-node-id="vSiAy7uOhhCIC48GmNfrzS">
@@ -1291,12 +1298,6 @@ function rateClass(rate) {
 
 <!-- Tab: KA50纯销 -->
 <div id="tab-ka50" class="tab-content" data-page-node-id="h768vD8HfAtNZPC7XhttZT">
-  <!-- 口径说明 -->
-  <div class="ka50-note" data-page-node-id="snsZ3y0GQX4lFxpNbQ0iKG">
-    数据口径：<b>复方阿胶浆类</b> · <b>省区粒度</b>（21 个）｜五个指标：KA购进 · KA纯销 · 重点连锁购进 · 医馆·礼品店购进 · <b>广阔市场配送</b>（同为复方阿胶浆类，非全产品）<br>
-    金额 / 同比来源：1.2KA50分部明细（KA）· 1.3重点连锁 · 1.4医馆、礼品店 ｜ <b>完成率 / 年度进度</b>来源：省区级汇总表复方阿胶浆类块<br>
-    时间：日历选起止月份，区间值 = <b>累计快照相减</b> ｜ <b>1-9 月快照齐全</b>（含 2/3 月）· <b>6 月为半年度集中发货月</b>（单月偏高属正常，已核实）
-  </div>
 
   <!-- ① 筛选区（紧凑工具栏：省区下拉 + 渠道 chips + 时间日历弹层） -->
   <div class="section" data-page-node-id="17WaejIixcwfgoLqKP1yBy">
@@ -1349,6 +1350,7 @@ function rateClass(rate) {
   <div class="section" id="kfMatrixSec" style="display:none;" data-page-node-id="EZECDsfVtophryILVYPeme">
     <div class="section-title" data-page-node-id="CR78aNY63i7L2fVCuGHhlg"><i class="fas fa-chart-bar" data-page-node-id="c2hvAtoRiCDkOPNmCab53Z"></i> 销售明细（万元）
       <span class="hint" data-page-node-id="Z94uH304MEjvaS1SHsAwo0">悬停看明细 ｜ <b data-page-node-id="EYO5aOzzRAqHcMpO0agOUW">点击色条展开客户明细与逐月走势</b></span>
+      <button class="exp-btn" onclick="exportMatrix()" style="margin-left:8px;" title="导出当前筛选的矩阵数据（CSV，Excel 可直接打开）">⬇ 导出</button>
     </div>
     <div class="mx-legend" id="kfLegend" data-page-node-id="kfLegend1"></div>
     <div class="mx-wrap" data-page-node-id="CfAIuvAbRkrz9Jtbi5Y5vJ">
@@ -2124,11 +2126,11 @@ function kfRenderMatrix(dims, lo, hi) {
   kfState._lo = lo; kfState._hi = hi;
   var head = document.getElementById('ka50MatrixHead'), body = document.getElementById('ka50MatrixBody');
   if (!head || !body) return;
-  var GRID = '78px minmax(200px,1fr) 78px 62px 60px 66px';
+  /* 2026-10-27 用户要求：五个渠道分属不同维度，合计/同比/完成率/年度进度无业务意义 → 移除，
+     只保留「省区 + 渠道结构色条」；明细数字看行内展开 */
+  var GRID = '78px minmax(240px,1fr)';
   head.innerHTML = '<span class="mx-prov">省区</span>' +
-    '<span class="mx-barh">渠道结构 · 色条长度 = 该省区选中指标合计 ÷ 最大省</span>' +
-    '<span class="mx-num">合计</span><span class="mx-num">同比</span>' +
-    '<span class="mx-num">完成率</span><span class="mx-num">年度进度</span>';
+    '<span class="mx-barh">渠道结构 · 色条长度 = 该省区选中指标合计 ÷ 最大省（点击色条看明细）</span>';
   head.style.gridTemplateColumns = GRID;
 
   var rows = [], maxSeg = 0;
@@ -2181,13 +2183,8 @@ function kfRenderMatrix(dims, lo, hi) {
       adjVal = { all: mtSum, prov: sumAll, diff: mtSum - sumAll };
     }
   })();
-  var adjHtml = adjVal
-    ? '<div class="mx-line mx-adj" style="grid-template-columns:' + GRID + '">' +
-        '<span class="mx-prov">换期调整</span>' +
-        '<span class="mx-bar mx-adj-hint">报表后来补录老数据，还没分到各省</span>' +
-        '<span class="mx-num" style="color:#b8860b;font-weight:700;">' + kfNum(adjVal.diff, 1) + '</span>' +
-        '<span class="mx-num">—</span><span class="mx-num">—</span><span class="mx-num">—</span></div>'
-    : '';
+  /* 换期调整行已随汇总列一并移除：差额改由脚注说明（各省之和 vs 全国报表口径） */
+  var adjHtml = '';
   body.innerHTML = rows.map(function(w) {
     var barW = maxSeg ? (w.posSum / maxSeg * 100) : 0;
     var segH = w.segs.map(function(e) {
@@ -2201,11 +2198,7 @@ function kfRenderMatrix(dims, lo, hi) {
     }).join('');
     var line = '<div class="mx-line" style="grid-template-columns:' + GRID + '">' +
       '<span class="mx-prov">' + kfEsc(w.name) + '</span>' +
-      '<span class="mx-bar"><span class="mx-bar-in" style="width:' + barW.toFixed(2) + '%">' + segH + '</span></span>' +
-      '<span class="mx-num">' + kfNum(w.total, 1) + '</span>' +
-      '<span class="mx-num ' + kfYCls(w.yoy) + '">' + kfPct(w.yoy) + '</span>' +
-      '<span class="mx-num">' + kfRate(w.rate) + '</span>' +
-      '<span class="mx-num">' + kfRate(w.prog) + '</span></div>';
+      '<span class="mx-bar"><span class="mx-bar-in" style="width:' + barW.toFixed(2) + '%">' + segH + '</span></span></div>';
     var exp = '';
     if (kfState.open && kfState.open.indexOf(w.name + '|') === 0) {
       exp = '<div class="mx-exp">' + kfCustBlock(w.r, kfState.open.split('|')[1], lo, hi) + '</div>';
@@ -2220,14 +2213,14 @@ function kfRenderMatrix(dims, lo, hi) {
     var neg = rows.filter(function(w) {
       return w.segs.some(function(e) { return e.v && e.v.a < 0; });
     }).map(function(w) { return w.name; });
-    var parts = ['「' + kfRangeName(lo, hi) + '」· 单位万元 ｜ 数是按累计相减算的；<b>合计是五个指标加起来，不是单指「KA50纯销」</b>'];
+    var parts = ['「' + kfRangeName(lo, hi) + '」· 单位万元 ｜ 数字按累计相减算 ｜ 点色条看该渠道明细'];
     if (adjVal) {
       parts.push('全国 ' + kfComma(adjVal.all) + ' 万（报表口径）｜ 各省加起来 ' + kfComma(adjVal.prov) +
         ' 万，多出 ' + kfComma(Math.abs(adjVal.diff)) +
-        ' 万 —— 报表后来补录了老数据、又没给分省明细，先挂在最后一行「换期调整」里扣掉。');
+        ' 万 —— 报表后来补录了老数据、没给分省明细，以全国口径为准。');
     }
-    if (neg.length) parts.push('含负值（退货 / 冲销）的省区：' + neg.join('、') + ' —— 色条仅绘制正值段，合计列为真实净额');
-    if (smallDrops) parts.push('另有 ' + smallDrops + ' 段占比 <0.5% 未绘制（数值仍计入合计）');
+    if (neg.length) parts.push('含负值（退货 / 冲销）的省区：' + neg.join('、') + ' —— 色条仅绘制正值段');
+    if (smallDrops) parts.push('另有 ' + smallDrops + ' 段占比 <0.5% 未绘制');
     foot.innerHTML = parts.join(' ｜ ');
   }
 }
@@ -2255,17 +2248,12 @@ function kfCustBlock(r, dimKey, lo, hi) {
     '<span class="s">' + kfEsc(r.name) + ' ｜ ' + kfRangeName(lo, hi) +
     ' ｜ 逐月之和 &lt; 累计（源表缺 2/3/4 月快照）</span>' + tg + '</div>' +
     (kfState.chart === 'small' ? kfChartSmall(r, dims, lo, hi) : kfChartGroup(r, dims, lo, hi)) +
-    '<div class="kf-note-line">斜纹「缺」= 源表该月/该表无数据（该期报表无此渠道 sheet）｜' +
-    '「无业务」= 该省区该渠道全区间为 0｜灰线「0」= 有快照但当月金额为 0（无发生）｜ 悬停任一月/任一渠道卡可看逐项明细与原因</div>' +
     '<div class="kc-title">客户明细<span class="sep">·</span><span class="kc-hi">' + kfEsc(r.name) +
     '</span><span class="sep">×</span><span class="kc-hi">' + kfEsc(dm.name) +
     '</span><span class="sep">｜</span><span class="kc-hi">' + kfRangeName(lo, hi) + '</span>' +
     '<span class="kc-sub">本行（签约口径）' + kfF(v ? v.a : null) + ' 万 · 同比 ' + kfP(v ? v.yoy : null) +
     (v && v.custA != null && Math.abs((v.custA || 0) - (v.a || 0)) > 0.5
-      ? ' ｜ 明细合计（门店口径）' + kfF(v.custA) + ' 万' : '') + '</span></div>' +
-    (v && v.custA != null && Math.abs((v.custA || 0) - (v.a || 0)) > 0.5
-      ? '<div class="kf-note-line" style="margin:1px 0 6px;">客户按<b>门店所在省</b>归集，上方本行按<b>签约省区</b>归集 —— 大客户总部所在省（如老百姓总部湖南、跨16省）门店多签约少，两者加总不等属正常，不是错账</div>'
-      : '');
+      ? ' ｜ 明细合计（门店口径）' + kfF(v.custA) + ' 万' : '') + '</span></div>';
   if (dimKey === 'broad') {
     return headTx + '<div class="kc-empty">源表「广阔市场」仅到大区 / 省区两列，无客户级明细' +
       (v ? ' ｜ 该省区 ' + kfRangeName(lo, hi) + ' ' + kfF(v.a) + ' 万 · 同比 ' + kfP(v.yoy) : '') + '</div>';
@@ -2684,14 +2672,143 @@ function kfProvAll() {
   });
   document.addEventListener('scroll', kfHideTip, true);
 })();
+/* ===================== 子图数据导出（纯前端 CSV，无需后端 / 数据库） =====================
+   原理：数据已经在页面内存里（JS 对象），导出 = 序列化成 CSV 文本 → Blob → 触发浏览器下载。
+   不经过任何服务器，也不需要数据库。中文用 UTF-8 BOM 头，Excel 双击打开不乱码。
+   ================================================================================ */
+function _csvCell(v) {
+  if (v === null || v === undefined) return '';
+  var t = String(v);
+  return /[",\n\r]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+}
+function _todayStr() {
+  var d = new Date();
+  return d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
+}
+function downloadCSV(filename, rows) {
+  var csv = rows.map(function(r) { return r.map(_csvCell).join(','); }).join('\r\n');
+  var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+}
+/* 省区四图（发货 / 配送 / KA50） */
+function exportProvBars(cid, title) {
+  var d = (document.getElementById(cid) || {})._expData || [];
+  if (!d.length) { alert('暂无数据可导出'); return; }
+  var rows = [['省区', '金额(万元)', '同比(%)', '环比(%)', '年度进度(%)']];
+  d.forEach(function(x) { rows.push([x.name, x.amount, x.yoy, x.mom, x.annualProgress]); });
+  downloadCSV(title.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g, '') + '_省区明细_' + _todayStr() + '.csv', rows);
+}
+/* 渠道库存图 */
+function exportInventory() {
+  var D = (typeof inventoryData !== 'undefined') ? inventoryData : null;
+  if (!D || !D.provinces || !D.provinces.length) { alert('暂无数据可导出'); return; }
+  var rows = [['省区', '库存余额(万元)', '周转天数', '同比(%)', '环比(%)', 'MAT月均配送(万元)']];
+  var pc = function(v) { return v == null ? '' : (v * 100).toFixed(1); };
+  D.provinces.forEach(function(p) {
+    rows.push([p.name, p.amt, p.days, pc(p.yoy), pc(p.mom), p.mat]);
+  });
+  rows.push([]);
+  rows.push(['分月余额（万元）']);
+  var mh = ['省区'].concat(D.months || []);
+  rows.push(mh);
+  D.provinces.forEach(function(p) {
+    var line = [p.name];
+    (p.m || []).forEach(function(x) { line.push(x && x.amt != null ? x.amt : ''); });
+    rows.push(line);
+  });
+  downloadCSV('渠道库存_省区明细_' + _todayStr() + '.csv', rows);
+}
+/* 1-9月分月数据 */
+function exportMonthlyMix() {
+  if (typeof otcMonthlyMix === 'undefined') { alert('暂无数据可导出'); return; }
+  var m = otcMonthlyMix.months, S = otcMonthlyMix.series;
+  var head = ['月份'];
+  S.forEach(function(x) { head.push(x.name + '(万元)', x.name + '同比(%)'); });
+  var rows = [head];
+  m.forEach(function(mm, i) {
+    var r = [mm];
+    S.forEach(function(x) { r.push(x.amount[i], x.yoy[i]); });
+    rows.push(r);
+  });
+  downloadCSV('分月数据_' + m[0] + '-' + m[m.length - 1] + '_' + _todayStr() + '.csv', rows);
+}
+/* KA50 销售明细矩阵（当前筛选 / 当前区间） */
+function exportMatrix() {
+  if (typeof ka50Detail === 'undefined' || !kfState.provs.length) { alert('请先选择省区与时间'); return; }
+  var lo = kfState.tFrom, hi = kfState.tTo;
+  if (!lo || !hi) { alert('请先选择时间区间'); return; }
+  var dims = kfDims();
+  var head = ['省区'];
+  dims.forEach(function(d) { var nm = kfDimOf(d.key).name; head.push(nm + '(万元)', nm + '同比(%)'); });
+  var rows = [['区间', kfRangeName(lo, hi)], head];
+  kfState.provs.forEach(function(n) {
+    var r = kfRegion(n); if (!r) return;
+    var line = [n];
+    dims.forEach(function(d) {
+      var v = kfDimOK(d.key, lo, hi) ? kfVal(r, d.key, lo, hi) : null;
+      line.push(v ? v.a : '', v && v.yoy != null ? (v.yoy * 100).toFixed(1) : '');
+    });
+    rows.push(line);
+  });
+  downloadCSV('KA50销售明细_' + String(lo) + '-' + String(hi) + '月_' + _todayStr() + '.csv', rows);
+}
+/* 月度看板（自动取当前选中月份） */
+function exportMonthlyCurrent() {
+  var b = document.querySelector('.month-pill.active');
+  exportMonthly(b ? b.getAttribute('data-month') : '9月');
+}
+function exportMonthly(key) {
+  if (typeof monthlyData === 'undefined') { alert('暂无数据可导出'); return; }
+  var D = monthlyData[key];
+  if (!D) { alert('该月份无数据'); return; }
+  var rows = [[key + ' 分部门（万元）'], ['部门', 'OTC装', 'R装', '合计']];
+  D.channels.forEach(function(c) {
+    rows.push([c.name, c.otc, c.r, (c.otc || 0) + (c.r || 0)]);
+  });
+  var so = 0, sr = 0;
+  D.channels.forEach(function(c) { so += c.otc || 0; sr += c.r || 0; });
+  rows.push(['合计', so.toFixed(2), sr.toFixed(2), (so + sr).toFixed(2)]);
+  downloadCSV('月度看板_' + key + '_' + _todayStr() + '.csv', rows);
+}
+/* 累计看板（直接从表格取，保证与页面显示一致） */
+function exportCumulative() {
+  var tbl = document.querySelector('#tab-overview #otcDetail');
+  var tbl2 = document.querySelector('#tab-overview #rDetail');
+  var rows = [];
+  function grab(t, label) {
+    if (!t) return;
+    rows.push([label]);
+    t.querySelectorAll('tr').forEach(function(tr) {
+      var cells = [];
+      tr.querySelectorAll('th,td').forEach(function(c) {
+        cells.push((c.innerText || '').replace(/\s*\n\s*/g, ' ').trim());
+      });
+      if (cells.length) rows.push(cells);
+    });
+    rows.push([]);
+  }
+  grab(tbl, 'OTC装 累计（1-9月）');
+  grab(tbl2, 'R装 累计（1-9月）');
+  if (rows.length < 3) { alert('暂无数据可导出'); return; }
+  downloadCSV('累计看板_1-9月_' + _todayStr() + '.csv', rows);
+}
+
 function renderProvinceBars(containerId, dataArr, chartTitle) {
   var container = document.getElementById(containerId);
   if (!container) return;
+  container._expData = dataArr;   // 导出用：记住当前渲染的数据
   var sorted = dataArr.slice().sort(function(a,b){return b.amount - a.amount;});
   var absMax = Math.max(Math.abs(sorted[0]?.amount||1), 1);
   // Pick MoM data by chart type
   var momMap = chartTitle.indexOf('发货')>=0 ? shipMomData : (chartTitle.indexOf('配送')>=0 ? deliveryMomData : ka50MomData);
-  var html = '<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;text-align:center;">'+chartTitle+' · 省区明细</div>';
+  var html = '<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;" class="exp-bar">' +
+    '<span>' + chartTitle + ' · 省区明细</span>' +
+    '<button class="exp-btn" onclick="exportProvBars(\'' + containerId + '\',\'' + chartTitle + '\')" title="导出本图数据（CSV，Excel 可直接打开）">⬇ 导出</button>' +
+    '</div>';
   // Header row
   html += '<div class="prov-header-row">'+
     '<span class="prov-hdr" style="width:48px;"></span>'+
@@ -2781,8 +2898,9 @@ function renderInventoryBars() {
     if (p.days != null && p.days > daysMax) daysMax = p.days;
   });
 
-  var html = '<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;text-align:center;">' +
-    '\uD83C\uDFEC 渠道库存 · 省区明细<span style="font-weight:400;font-size:11px;color:var(--text2);">（9月底 · 复方阿胶浆类）</span></div>';
+  var html = '<div class="exp-bar" style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;">' +
+    '<span>\uD83C\uDFEC 渠道库存 · 省区明细<span style="font-weight:400;font-size:11px;color:var(--text2);">（9月底 · 复方阿胶浆类）</span></span>' +
+    '<button class="exp-btn" onclick="exportInventory()" title="导出本图数据（CSV，Excel 可直接打开）">⬇ 导出</button></div>';
   html += '<div class="prov-header-row">' +
     '<span class="prov-hdr" style="width:10px;"></span>' +
     '<span class="prov-hdr" style="width:38px;"></span>' +
