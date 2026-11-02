@@ -675,12 +675,14 @@
         .kf-note-line { font-size:10px; color:var(--text3); margin:6px 0 12px; line-height:1.6; }
         .prov-header-row { display:flex; align-items:center; gap:4px; padding:2px 0 4px; border-bottom:1px solid var(--border); margin-bottom:4px; }
         .prov-header-row .prov-hdr { width:48px; text-align:right; font-size:9px; color:var(--text2); flex-shrink:0; font-weight:500; }
-        /* ===== 子图导出按钮（纯前端 CSV，无需后端） ===== */
-        .exp-btn { display:inline-flex; align-items:center; gap:3px; padding:2px 9px; font-size:11px; font-weight:500;
+        /* ===== 子图导出按钮（A 版：20×20 纯图标，纯前端 CSV 无需后端） ===== */
+        .exp-btn { width:20px; height:20px; padding:0; flex-shrink:0;
+                   display:inline-flex; align-items:center; justify-content:center;
                    border:1px solid var(--border); background:#fff; color:var(--text2); border-radius:4px;
-                   cursor:pointer; line-height:1.6; transition:all .15s; font-family:inherit; }
-        .exp-btn:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
-        .exp-btn:active { transform:scale(.97); }
+                   cursor:pointer; transition:all .15s; font-family:inherit; }
+        .exp-btn svg { display:block; stroke:currentColor; }
+        .exp-btn:hover { background:var(--primary); border-color:var(--primary); color:#fff; }
+        .exp-btn:active { transform:scale(.94); }
         .exp-bar { display:flex; align-items:center; gap:8px; justify-content:center; }
         .exp-bar.right { justify-content:flex-end; }
   </style>
@@ -781,7 +783,7 @@ window.switchTab = function (name) {
             <button class="month-pill" data-month="8月" onclick="switchMonthlyMonth('8月')" data-page-node-id="vuiWOWUAWXYG9anpb4rF8h">8月</button>
             <button class="month-pill active" data-month="9月" onclick="switchMonthlyMonth('9月')" data-page-node-id="vuiWOWUAWXYG9anpb4rF9h">9月</button>
         </span>
-        <button class="exp-btn" onclick="exportMonthlyCurrent()" title="导出当前月份数据（CSV，Excel 可直接打开）">⬇ 导出</button></span>
+        <button class="exp-btn" onclick="exportMonthlyCurrent()" title="导出当前月份数据（CSV，Excel 可直接打开）" aria-label="导出当前月份数据"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M2.5 13.5h11"/></svg></button></span>
     </div>
     <div class="insight" id="monthlyInsight" data-page-node-id="doSHLtDeHTpv6sHkOQuVKq"></div>
 
@@ -816,7 +818,7 @@ window.switchTab = function (name) {
 <div class="section" data-page-node-id="cqasShRpvlmK28Uqa8GYJM">
     <div class="section-title" style="display:flex;align-items:center;gap:10px;" data-page-node-id="OXqzA9QdLKAWM7wQ8gooWr">
         <i class="fas fa-chart-line" data-page-node-id="ztlTcTbqOkWoDdTOhZDjIk"></i> 累计看板 — 1-9月
-        <button class="exp-btn" onclick="exportCumulative()" title="导出累计看板数据（CSV，Excel 可直接打开）">⬇ 导出</button>
+        <button class="exp-btn" onclick="exportCumulative()" title="导出累计看板数据（CSV，Excel 可直接打开）" aria-label="导出累计看板数据"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M2.5 13.5h11"/></svg></button>
 
     </div>
 
@@ -1241,7 +1243,7 @@ function rateClass(rate) {
 <div class="section" data-page-node-id="lR4lkoB11oJZEj0bY67jSy">
   <div class="section-title" data-page-node-id="tntdrk8WgBE5AunCVxiCQB"><i class="fas fa-calendar-alt" data-page-node-id="PXGXjruqlFsjTBDj64Gu3V"></i> 1-9月分月数据
     <span class="hint" data-page-node-id="VjVbs6l3fvcSCB9wPuvgEs">柱 = 各维度完成额（左轴·万元）｜ 紫色水位带 = 渠道库存月末余额（第二条右轴·万元）｜ 虚线 = 各维度同比（右轴·%）｜ 悬浮查看明细</span>
-    <button class="exp-btn" onclick="exportMonthlyMix()" style="margin-left:8px;" title="导出分月数据（CSV，Excel 可直接打开）">⬇ 导出</button>
+    <button class="exp-btn" onclick="exportMonthlyMix()" style="margin-left:8px;" title="导出分月数据（CSV，Excel 可直接打开）" aria-label="导出分月数据"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M2.5 13.5h11"/></svg></button>
   </div>
   <div class="table-card" style="padding:20px;" data-page-node-id="AGxnJJRK6bvfWSPWBS2C2o">
     <div style="height:460px;position:relative;" data-page-node-id="esNuzfLosxJOUzGRiMxHfP">
@@ -1350,7 +1352,7 @@ function rateClass(rate) {
   <div class="section" id="kfMatrixSec" style="display:none;" data-page-node-id="EZECDsfVtophryILVYPeme">
     <div class="section-title" data-page-node-id="CR78aNY63i7L2fVCuGHhlg"><i class="fas fa-chart-bar" data-page-node-id="c2hvAtoRiCDkOPNmCab53Z"></i> 销售明细（万元）
       <span class="hint" data-page-node-id="Z94uH304MEjvaS1SHsAwo0">悬停看明细 ｜ <b data-page-node-id="EYO5aOzzRAqHcMpO0agOUW">点击色条展开客户明细与逐月走势</b></span>
-      <button class="exp-btn" onclick="exportMatrix()" style="margin-left:8px;" title="导出当前筛选的矩阵数据（CSV，Excel 可直接打开）">⬇ 导出</button>
+      <button class="exp-btn" onclick="exportMatrix()" style="margin-left:8px;" title="导出当前筛选的矩阵数据（CSV，Excel 可直接打开）" aria-label="导出矩阵数据"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M2.5 13.5h11"/></svg></button>
     </div>
     <div class="mx-legend" id="kfLegend" data-page-node-id="kfLegend1"></div>
     <div class="mx-wrap" data-page-node-id="CfAIuvAbRkrz9Jtbi5Y5vJ">
@@ -2807,7 +2809,7 @@ function renderProvinceBars(containerId, dataArr, chartTitle) {
   var momMap = chartTitle.indexOf('发货')>=0 ? shipMomData : (chartTitle.indexOf('配送')>=0 ? deliveryMomData : ka50MomData);
   var html = '<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;" class="exp-bar">' +
     '<span>' + chartTitle + ' · 省区明细</span>' +
-    '<button class="exp-btn" onclick="exportProvBars(\'' + containerId + '\',\'' + chartTitle + '\')" title="导出本图数据（CSV，Excel 可直接打开）">⬇ 导出</button>' +
+    '<button class="exp-btn" onclick="exportProvBars(\'' + containerId + '\',\'' + chartTitle + '\')" title="导出本图数据（CSV，Excel 可直接打开）" aria-label="导出本图数据"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M2.5 13.5h11"/></svg></button>' +
     '</div>';
   // Header row
   html += '<div class="prov-header-row">'+
@@ -2900,7 +2902,7 @@ function renderInventoryBars() {
 
   var html = '<div class="exp-bar" style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;">' +
     '<span>\uD83C\uDFEC 渠道库存 · 省区明细<span style="font-weight:400;font-size:11px;color:var(--text2);">（9月底 · 复方阿胶浆类）</span></span>' +
-    '<button class="exp-btn" onclick="exportInventory()" title="导出本图数据（CSV，Excel 可直接打开）">⬇ 导出</button></div>';
+    '<button class="exp-btn" onclick="exportInventory()" title="导出本图数据（CSV，Excel 可直接打开）" aria-label="导出本图数据"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M2.5 13.5h11"/></svg></button></div>';
   html += '<div class="prov-header-row">' +
     '<span class="prov-hdr" style="width:10px;"></span>' +
     '<span class="prov-hdr" style="width:38px;"></span>' +
