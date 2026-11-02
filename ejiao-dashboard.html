@@ -260,6 +260,29 @@
         tr:hover { background: #f5f7ff; }
         .total-row td { font-weight: 700; background: #f0f2ff; border-top: 2px solid #667eea; }
 
+        /* ===== 方案A · 城市×月度热力矩阵（2026-11-02）===== */
+        .heat-tbl { border-collapse: separate; border-spacing: 3px; table-layout: fixed; }
+        .heat-tbl th { background: transparent; border: none; padding: 3px 2px 7px;
+                       font-size: 10.5px; color: #8b96aa; font-weight: 600;
+                       text-align: center; position: static; }
+        .heat-tbl th:first-child { text-align: left; padding-left: 6px; width: 88px; }
+        .heat-tbl th:nth-child(n+2):nth-child(-n+10) { width: 42px; }   /* 月份列定宽，避免压缩城市列 */
+        .heat-tbl th:nth-last-child(3) { width: 52px; }   /* 累计 */
+        .heat-tbl th:nth-last-child(2) { width: 58px; }   /* 同比 */
+        .heat-tbl th:last-child { width: 92px; }          /* 走势 */
+        .heat-tbl td { border: none; padding: 0; height: 30px; text-align: center;
+                       border-radius: 4px; font-size: 11.5px; font-variant-numeric: tabular-nums;
+                       transition: outline .1s; }
+        .heat-tbl td.ht-city { text-align: left; padding-left: 5px; font-weight: 600; white-space: nowrap;
+                               font-size: 11px; letter-spacing: -.2px;
+                               color: #2b3a55; background: transparent; }
+        .heat-tbl td.ht-cell { cursor: default; font-weight: 500; }
+        .heat-tbl td.ht-cell:hover { outline: 2px solid #4361ee; outline-offset: -1px; }
+        .heat-tbl td.ht-cum { background: #f5f8fd; font-weight: 700; color: #1f2330; }
+        .heat-tbl td.ht-yoy { font-weight: 700; background: transparent; }
+        .heat-tbl td.ht-spark { background: transparent; padding: 0 2px; }
+        .heat-tbl tr:hover td.ht-city { color: #4361ee; }
+
         .badge-up {
             display: inline-block;
             padding: 2px 8px;
@@ -329,10 +352,11 @@
     <div class="combined-block">
         <div class="combined-left">
             <div class="table-header">
-                <span><i class="fas fa-table"></i> 各城市详细数据（含月度同比）</span>
+                <span><i class="fas fa-table"></i> 各城市月度热力（色深=同比幅度 · 悬停看去年对比）</span>
                 <div class="filter-group">
                     <select id="metricFilter">
                         <option value="cx">纯销额</option>
+                        <option value="ka">KA50纯销</option>
                         <option value="ps">配送额（区域）</option>
                         <option value="psq">配送额（省区）</option>
                         <option value="psq">配送额（省区）</option>
@@ -340,7 +364,7 @@
                 </div>
             </div>
             <div style="overflow-x: auto;">
-                <table id="dataTable">
+                <table id="dataTable" class="heat-tbl">
                     <thead><tr id="tableHead"></tr></thead>
                     <tbody id="tableBody"></tbody>
                 </table>
@@ -492,23 +516,54 @@ function renderTrends(metric) {
             }).join('');
 }
 
-// ---- 表格 ----
+// ---- 表格：方案A 热力矩阵（色 = 同比，格内 = 当月值，右侧累计/同比/走势）----
+/* 同比 → 底色：红涨绿跌（中国惯例），|40%| 以上基本饱和 */
+function heatBg(y) {
+    if (y == null) return '#f2f4f8';
+    const t = Math.max(-0.6, Math.min(0.6, y)) / 0.6;
+    const a = (0.10 + Math.abs(t) * 0.70).toFixed(3);
+    return t >= 0 ? 'rgba(192,57,43,' + a + ')' : 'rgba(28,124,84,' + a + ')';
+}
+function heatFg(y) { return (y != null && Math.abs(y) > 0.30) ? '#fff' : '#33405c'; }
+
+/* 双线迷你图：实线=今年，虚线=去年 */
+function sparkSVG(d, metric, w, h) {
+    const cur = d[metric + '_m'], prev = d[metric + '_lm'];
+    const mx = Math.max(...cur, ...prev, 0.0001);
+    const px = i => (i / (cur.length - 1)) * (w - 4) + 2;
+    const py = v => h - 3 - (v / mx) * (h - 6);
+    const p1 = cur.map((v, i) => px(i).toFixed(1) + ',' + py(v).toFixed(1)).join(' ');
+    const p2 = prev.map((v, i) => px(i).toFixed(1) + ',' + py(v).toFixed(1)).join(' ');
+    return '<svg width="' + w + '" height="' + h + '" style="display:block;margin:0 auto">' +
+        '<polyline points="' + p2 + '" fill="none" stroke="#c2c9d9" stroke-width="1.2" stroke-dasharray="2,2"/>' +
+        '<polyline points="' + p1 + '" fill="none" stroke="#4361ee" stroke-width="1.7" stroke-linejoin="round"/></svg>';
+}
+
 function renderTable(metric) {
-    const cols = ['城市'];
-    for (let i = 1; i <= 8; i++) cols.push(i + '月', '同比');
-    cols.push('1-9月', '累计同比');
-    document.getElementById('tableHead').innerHTML = cols.map(c => `<th>${c}</th>`).join('');
+    const N = MONTHS.length;
+    const head = '<th>城市</th>' + MONTHS.map(m => `<th>${m}</th>`).join('')
+               + '<th>累计</th><th>同比</th><th style="width:92px">走势</th>';
+    document.getElementById('tableHead').innerHTML = head;
 
-    const filtered = [...DATA].sort((a, b) => b[metric + '_cum'] - a[metric + '_cum']);
-
-    document.getElementById('tableBody').innerHTML = filtered.map(d => {
-        const cells = d[metric + '_m'].map((v, i) =>
-            `<td><strong>${fmt(v)}</strong></td><td>${badge(monthlyYoy(d, metric, i))}</td>`).join('');
-        return `<tr>
-            <td>${d.city}</td>
-            ${cells}
-            <td><strong>${fmt(d[metric + '_cum'])}</strong></td><td>${badge(d[metric + '_yoy'])}</td>
-        </tr>`;
+    const sorted = [...DATA].sort((a, b) => b[metric + '_cum'] - a[metric + '_cum']);
+    document.getElementById('tableBody').innerHTML = sorted.map(d => {
+        let cells = '';
+        for (let i = 0; i < N; i++) {
+            const v = d[metric + '_m'][i], lm = d[metric + '_lm'][i];
+            const y = (lm && lm !== 0) ? v / lm - 1 : null;
+            const tip = d.city + ' · ' + MONTHS[i] + '\n今年 ' + v.toFixed(2) + ' 百万' +
+                        '\n去年 ' + lm.toFixed(2) + ' 百万' +
+                        '\n同比 ' + (y == null ? '—' : (y >= 0 ? '+' : '') + (y * 100).toFixed(1) + '%');
+            cells += '<td class="ht-cell" style="background:' + heatBg(y) + ';color:' + heatFg(y) +
+                     '" title="' + tip + '">' + v.toFixed(1) + '</td>';
+        }
+        const yy = d[metric + '_yoy'];
+        const ycls = yy == null ? 'flat' : (yy >= 0 ? 'up' : 'down');
+        const ytxt = yy == null ? '—' : (yy >= 0 ? '+' : '') + (yy * 100).toFixed(1) + '%';
+        return '<tr><td class="ht-city" title="' + d.city + '">' + d.city.replace(/市$/, '') + '</td>' + cells +
+               '<td class="ht-cum">' + d[metric + '_cum'].toFixed(1) + '</td>' +
+               '<td class="ht-yoy ' + ycls + '">' + ytxt + '</td>' +
+               '<td class="ht-spark">' + sparkSVG(d, metric, 88, 22) + '</td></tr>';
     }).join('');
 }
 
