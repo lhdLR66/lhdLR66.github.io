@@ -153,21 +153,6 @@
             overflow: auto;
             max-height: 620px;
         }
-        .combined-right {
-            padding: 20px;
-            border-left: 1px solid #e9ecef;
-            overflow-y: auto;
-            max-height: 620px;
-        }
-        .combined-right h3 {
-            font-size: 14px;
-            margin-bottom: 14px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .combined-right h3 i { color: #667eea; }
         .trend-list {
             display: flex;
             flex-direction: column;
@@ -485,55 +470,6 @@ document.getElementById('dimBar').addEventListener('change', function(e) {
     renderMonthChart();
 });
 renderMonthChart();
-
-// ---- 同比趋势分析（按上涨月数分档 · 月数跟随 MONTHS 自适应）----
-const NMON = MONTHS.length;
-function monthlyYoy(d, metric, i) {
-    const cur = d[metric + '_m'][i], prev = d[metric + '_lm'][i];
-    if (prev && prev !== 0) return cur / prev - 1;
-    return null;
-}
-
-function upCount(d, metric) {
-    let n = 0;
-    for (let i = 0; i < NMON; i++) { const y = monthlyYoy(d, metric, i); if (y !== null && y > 0) n++; }
-    return n;
-}
-
-function upBucket(n) {
-    if (n >= NMON) return 'n8';
-    if (n >= NMON - 2) return 'n67';
-    if (n >= NMON - 4) return 'n45';
-    if (n >= 2) return 'n23';
-    return 'n01';
-}
-
-const trendNames = {
-    n8:  { label: NMON + '个月全部上涨', cls: 'rise' },
-    n67: { label: (NMON - 2) + '-' + (NMON - 1) + '个月上涨', cls: 'mix-pn' },
-    n45: { label: '涨跌基本各半', cls: 'mix-np' },
-    n23: { label: '2-' + (NMON - 3) + '个月上涨', cls: 'fall' },
-    n01: { label: '基本全跌', cls: 'fall' }
-};
-
-function renderTrends(metric) {
-    const groups = { n8: [], n67: [], n45: [], n23: [], n01: [] };
-    DATA.forEach(d => { groups[upBucket(upCount(d, metric))].push(d.city); });
-    document.getElementById('trendList').innerHTML =
-        ['n8', 'n67', 'n45', 'n23', 'n01']
-            .filter(k => groups[k].length > 0)
-            .map(key => {
-                const info = trendNames[key];
-                const borderColor = key === 'n8' ? '#e65100' : key === 'n67' ? '#c62828' : key === 'n45' ? '#1565c0' : '#880e4f';
-                return `<div class="trend-card" style="background:${borderColor}11">
-                    <h4 style="color:${borderColor}">
-                        ${info.label}
-                        <span style="margin-left:auto;font-size:12px;font-weight:400;color:#888;">${groups[key].length}城</span>
-                    </h4>
-                    <div>${groups[key].map(c => `<span class="trend-tag ${info.cls}">${c}</span>`).join('')}</div>
-                </div>`;
-            }).join('');
-}
 
 // ---- 表格：方案A 热力矩阵（色 = 同比，格内 = 当月值，右侧累计/同比/走势）----
 /* 同比 → 底色：红涨绿跌（中国惯例），|40%| 以上基本饱和 */
