@@ -312,7 +312,7 @@
         .hd-row .tag { width: 56px; text-align: center; font-size: 10px; border-radius: 3px;
                        padding: 1px 0; flex-shrink: 0; }
         .hd-row:hover { background: #fafbff; }
-        .hd-row .spk { width: 74px; flex-shrink: 0; display: flex; align-items: center; }
+        .hd-row .spk { width: 90px; flex-shrink: 0; display: flex; align-items: center; }
         .hd-trend { border-top: 1px solid #eef1f7; padding: 14px 20px 16px; }
         .hd-trend-h { display: flex; align-items: baseline; gap: 9px; margin-bottom: 2px; }
         .hd-trend-h .t { font-size: 13px; font-weight: 700; color: #1f2330; }
@@ -689,23 +689,58 @@ function hdCityCum(d) {
     }
     return out;
 }
-/* 迷你趋势线（累计动销率） */
+/* 迷你趋势线 —— 单月动销率（y 轴固定 0–300%，便于各城横向比较）
+   分母过小 / 配送为负的月份断开，不连线 */
+const HSPARK_CAP = 2.0;
 function hdSpark(d, w, h) {
-    const arr = hdCityCum(d).filter(v => v != null);
-    if (arr.length < 2) return '';
-    const lo = Math.min(...arr, 1), hi = Math.max(...arr, 1);
-    const span = Math.max(hi - lo, 0.25);
-    const px = i => (i / (arr.length - 1)) * (w - 4) + 2;
-    const py = v => h - 2 - ((v - lo) / span) * (h - 4);
-    const pts = arr.map((v, i) => px(i).toFixed(1) + ',' + py(v).toFixed(1)).join(' ');
-    const balY = py(1).toFixed(1);
-    const last = arr[arr.length - 1];
+    const arr = [];
+    for (let i = 0; i < MONTHS.length; i++) {
+        const ps = d.ps_m[i];
+        arr.push(ps > 0.3 ? Math.min(d.cx_m[i] / ps, HSPARK_CAP) : null);
+    }
+    const valid = arr.filter(v => v != null);
+    if (valid.length < 1) return '';
+    const px = i => (i / (MONTHS.length - 1)) * (w - 5) + 2.5;
+    const py = v => h - 2.5 - (v / HSPARK_CAP) * (h - 5);
+    // 分段（null 断开）
+    const segs = [];
+    let cur = [];
+    arr.forEach((v, i) => {
+        if (v == null) { if (cur.length) { segs.push(cur); cur = []; } }
+        else cur.push([px(i), py(v)]);
+    });
+    if (cur.length) segs.push(cur);
+
+    const last = valid[valid.length - 1];
     const col = last >= 1 ? '#1c7c54' : last >= 0.8 ? '#4ca37a' : last >= 0.6 ? '#d68c1f' : '#c0392b';
+    let body = '';
+    segs.forEach(sg => {
+        if (sg.length > 1) {
+            body += '<polyline points="' + sg.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') +
+                    '" fill="none" stroke="' + col + '" stroke-width="1.5" stroke-linejoin="round"/>';
+        } else {
+            body += '<circle cx="' + sg[0][0].toFixed(1) + '" cy="' + sg[0][1].toFixed(1) +
+                    '" r="1.5" fill="' + col + '"/>';
+        }
+    });
+    // 溢出的点（>200% 贴顶）标一个小三角
+    let capMark = '';
+    arr.forEach((v, i) => {
+        if (v != null && d.cx_m[i] / d.ps_m[i] > HSPARK_CAP) {
+            const x = px(i).toFixed(1), y = py(HSPARK_CAP).toFixed(1);
+            capMark += '<path d="M' + x + ',' + (parseFloat(y) - 1.5) + ' L' + (parseFloat(x) - 2.2) + ',' +
+                       (parseFloat(y) + 2) + ' L' + (parseFloat(x) + 2.2) + ',' + (parseFloat(y) + 2) +
+                       ' Z" fill="' + col + '"/>';
+        }
+    });
+    // 末端点
+    const lastIdx = arr.lastIndexOf(last);
     return '<svg width="' + w + '" height="' + h + '" style="display:block">' +
-        '<line x1="0" y1="' + balY + '" x2="' + w + '" y2="' + balY +
+        '<line x1="0" y1="' + py(1).toFixed(1) + '" x2="' + w + '" y2="' + py(1).toFixed(1) +
         '" stroke="#e2e7f0" stroke-width="1" stroke-dasharray="2,2"/>' +
-        '<polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="1.5" stroke-linejoin="round"/>' +
-        '<circle cx="' + px(arr.length - 1).toFixed(1) + '" cy="' + py(last).toFixed(1) + '" r="2.2" fill="' + col + '"/></svg>';
+        body + capMark +
+        '<circle cx="' + px(lastIdx).toFixed(1) + '" cy="' + py(last).toFixed(1) +
+        '" r="2.2" fill="' + col + '"/></svg>';
 }
 
 function renderHealth() {
@@ -733,7 +768,8 @@ function renderHealth() {
                 return '<div class="lg"><i style="background:' + L.color + '"></i>' + x[1] +
                        '<span class="n">' + cnt[x[0]] + ' 城</span></div>'; }).join('') +
             '<div style="margin-top:6px;font-size:10.5px;color:#a0aab8;line-height:1.5;">' +
-                '横条满格 = 200%　竖虚线 = 100%（进多少卖多少的平衡点）</div>' +
+                '横条满格 = 200%　竖虚线 = 100%（进多少卖多少的平衡点）<br>' +
+                '右侧折线 = 单月动销率走势（y 轴 0–200%，跳空处为该月不可比）</div>' +
         '</div>';
 
     // 20 城横条（按动销率降序；满格 200%，100% 画平衡线）
@@ -747,7 +783,7 @@ function renderHealth() {
             '<span class="track"><span class="bal"></span>' +
               '<span class="bar" style="width:' + pct.toFixed(1) + '%;background:' + L.color + '"></span></span>' +
             '<span class="vl" style="color:' + L.color + '">' + (r == null ? '--' : (r * 100).toFixed(1) + '%') + '</span>' +
-            '<span class="spk">' + hdSpark(d, 72, 17) + '</span>' +
+            '<span class="spk">' + hdSpark(d, 88, 23) + '</span>' +
             '<span class="tag" style="background:' + L.bg + ';color:' + L.color + '">' + L.name + '</span>' +
         '</div>';
     }).join('');
