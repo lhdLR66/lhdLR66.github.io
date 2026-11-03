@@ -312,6 +312,14 @@
         .hd-row .tag { width: 56px; text-align: center; font-size: 10px; border-radius: 3px;
                        padding: 1px 0; flex-shrink: 0; }
         .hd-row:hover { background: #fafbff; }
+        .hd-row .spk { width: 74px; flex-shrink: 0; display: flex; align-items: center; }
+        .hd-trend { border-top: 1px solid #eef1f7; padding: 14px 20px 16px; }
+        .hd-trend-h { display: flex; align-items: baseline; gap: 9px; margin-bottom: 2px; }
+        .hd-trend-h .t { font-size: 13px; font-weight: 700; color: #1f2330; }
+        .hd-trend-h .s { font-size: 10.5px; color: #a0aab8; }
+        .hd-trend-note { font-size: 10.5px; color: #a0aab8; line-height: 1.55; margin-top: 6px; }
+        .hd-trend-note b { color: #6b7789; }
+        .hd-chart { height: 186px; position: relative; }
         @media (max-width: 900px) {
             .hd-body { grid-template-columns: 1fr; }
             .hd-sum { border-right: none; border-bottom: 1px solid #eef1f7; padding: 0 0 14px; }
@@ -433,6 +441,18 @@
         <div class="hd-body">
             <div class="hd-sum" id="hdSummary"></div>
             <div class="hd-list" id="hdList"></div>
+        </div>
+        <div class="hd-trend">
+            <div class="hd-trend-h">
+                <span class="t">月度动销率趋势</span>
+                <span class="s">20 城累计口径 · 虚线 = 100% 进销平衡点</span>
+            </div>
+            <div class="hd-chart"><canvas id="chartHdTrend"></canvas></div>
+            <div class="hd-trend-note">
+                口径：<b>累计到 N 月</b>（1–N 月纯销合计 ÷ 1–N 月配送合计）。
+                不用单月比值 —— 配送月度波动极大，分母过小会让比值失真
+                （单月实测：2月 518%、6月 32.5%、9月 35.3%，无法反映真实趋势）。
+            </div>
         </div>
     </div>
 </div>
@@ -598,6 +618,46 @@ function hdLevel(r) {
     if (r >= 0.6)  return { k: 'low',  name: '偏低',     color: '#d68c1f', bg: '#fdf4e6' };
     return           { k: 'bad',  name: '压货',     color: '#c0392b', bg: '#fbeceb' };
 }
+/* 累计动销率序列（1..N 月） */
+function hdCumSeries() {
+    const out = [];
+    let cc = 0, pp = 0;
+    for (let i = 0; i < MONTHS.length; i++) {
+        cc += DATA.reduce((a, d) => a + d.cx_m[i], 0);
+        pp += DATA.reduce((a, d) => a + d.ps_m[i], 0);
+        out.push(pp ? cc / pp : null);
+    }
+    return out;
+}
+/* 单城累计动销率序列 */
+function hdCityCum(d) {
+    const out = [];
+    let cc = 0, pp = 0;
+    for (let i = 0; i < MONTHS.length; i++) {
+        cc += d.cx_m[i]; pp += d.ps_m[i];
+        out.push(pp ? cc / pp : null);
+    }
+    return out;
+}
+/* 迷你趋势线（累计动销率） */
+function hdSpark(d, w, h) {
+    const arr = hdCityCum(d).filter(v => v != null);
+    if (arr.length < 2) return '';
+    const lo = Math.min(...arr, 1), hi = Math.max(...arr, 1);
+    const span = Math.max(hi - lo, 0.25);
+    const px = i => (i / (arr.length - 1)) * (w - 4) + 2;
+    const py = v => h - 2 - ((v - lo) / span) * (h - 4);
+    const pts = arr.map((v, i) => px(i).toFixed(1) + ',' + py(v).toFixed(1)).join(' ');
+    const balY = py(1).toFixed(1);
+    const last = arr[arr.length - 1];
+    const col = last >= 1 ? '#1c7c54' : last >= 0.8 ? '#4ca37a' : last >= 0.6 ? '#d68c1f' : '#c0392b';
+    return '<svg width="' + w + '" height="' + h + '" style="display:block">' +
+        '<line x1="0" y1="' + balY + '" x2="' + w + '" y2="' + balY +
+        '" stroke="#e2e7f0" stroke-width="1" stroke-dasharray="2,2"/>' +
+        '<polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '<circle cx="' + px(arr.length - 1).toFixed(1) + '" cy="' + py(last).toFixed(1) + '" r="2.2" fill="' + col + '"/></svg>';
+}
+
 function renderHealth() {
     const sumCX = DATA.reduce((a, d) => a + d.cx_cum, 0);
     const sumPS = DATA.reduce((a, d) => a + d.ps_cum, 0);
@@ -637,11 +697,60 @@ function renderHealth() {
             '<span class="track"><span class="bal"></span>' +
               '<span class="bar" style="width:' + pct.toFixed(1) + '%;background:' + L.color + '"></span></span>' +
             '<span class="vl" style="color:' + L.color + '">' + (r == null ? '--' : (r * 100).toFixed(1) + '%') + '</span>' +
+            '<span class="spk">' + hdSpark(d, 72, 17) + '</span>' +
             '<span class="tag" style="background:' + L.bg + ';color:' + L.color + '">' + L.name + '</span>' +
         '</div>';
     }).join('');
 }
 renderHealth();
+
+/* 月度累计动销率趋势 */
+(function renderHealthTrend() {
+    const cum = hdCumSeries().map(v => v == null ? null : v * 100);
+    const balLine = MONTHS.map(() => 100);
+    new Chart(document.getElementById('chartHdTrend'), {
+        type: 'line',
+        data: {
+            labels: MONTHS,
+            datasets: [
+                { label: '累计动销率', data: cum,
+                  borderColor: '#1c7c54', backgroundColor: 'rgba(28,124,84,.10)',
+                  borderWidth: 2.4, tension: .28, fill: true, spanGaps: true,
+                  pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: '#fff',
+                  pointBorderColor: '#1c7c54', pointBorderWidth: 2.2 },
+                { label: '100% 平衡点', data: balLine,
+                  borderColor: '#c3cbe0', borderDash: [5, 4], borderWidth: 1.2,
+                  pointRadius: 0, pointHitRadius: 0, fill: false, tension: 0 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: {
+                    label: function (ctx) {
+                        if (ctx.datasetIndex === 1) return '100% 平衡点';
+                        return '累计到 ' + ctx.label + '：' + ctx.parsed.y.toFixed(1) + '%';
+                    },
+                    afterLabel: function (ctx) {
+                        if (ctx.datasetIndex !== 0) return '';
+                        const i = ctx.dataIndex;
+                        const cx = DATA.reduce((a, d) => a + d.cx_m[i], 0);
+                        const ps = DATA.reduce((a, d) => a + d.ps_m[i], 0);
+                        return '当月纯销 ' + cx.toFixed(1) + ' ÷ 配送 ' + ps.toFixed(1);
+                    }
+                } }
+            },
+            scales: {
+                y: { beginAtZero: true, suggestedMax: 160,
+                     ticks: { callback: v => v + '%', font: { size: 10 } },
+                     grid: { color: '#f2f4f8' } },
+                x: { grid: { display: false }, ticks: { font: { size: 10.5 } } }
+            }
+        }
+    });
+})();
 
 // 健康度行 hover 明细（复用悬浮卡）
 document.getElementById('hdList').addEventListener('mouseover', function (e) {
