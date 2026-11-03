@@ -465,7 +465,7 @@
             <h3><i class="fas fa-th"></i> 月度动销率 · 单月（20 城 × 1-9月）</h3>
             <div class="sub">
                 每格 = 该城该月 <b>纯销 ÷ 区域配送</b>。色按健康分档，一眼看出「哪个月在压货」。
-                配送过小（≤0.3 百万）的月份比值失真，留白标「·」不计。
+                配送异常小（低于该城月均 15%）的月份比值失真，留白标「·」不计 —— 按各城自身规模判断，不用统一金额。
             </div>
         </div>
         <div style="overflow-x:auto;">
@@ -689,14 +689,27 @@ function hdCityCum(d) {
     }
     return out;
 }
-/* 迷你趋势线 —— 单月动销率（y 轴固定 0–300%，便于各城横向比较）
-   分母过小 / 配送为负的月份断开，不连线 */
+/* ---- 单月动销率「是否可比」判定 ----
+   ❌ 旧规则：配送 ≤0.3 百万 一刀切 → 小城被误杀（沈阳月均仅 0.29，9 格断 6 格）
+   ✅ 新规则：配送 ≤0 直接不可比（退货）；
+             其余要求 |配送| ≥ max(该城月均 × 15%, 0.05 百万)，
+             即「相对该城自身规模」判断，避免用绝对金额歧视小城市 */
+const HD_ABS_MIN = 0.05;      // 绝对下限 5 万元，防除以极小数
+const HD_REL_MIN = 0.15;      // 相对下限：该城月均配送的 15%
+function hdUsable(d, i) {
+    const ps = d.ps_m[i];
+    if (ps === null || ps === undefined || ps <= 0) return false;
+    const avg = d.ps_cum / MONTHS.length;
+    return Math.abs(ps) >= Math.max(avg * HD_REL_MIN, HD_ABS_MIN);
+}
+
+/* 迷你趋势线 —— 单月动销率（y 轴固定 0–200%，便于各城横向比较）
+   不可比的月份断开，不连线 */
 const HSPARK_CAP = 2.0;
 function hdSpark(d, w, h) {
     const arr = [];
     for (let i = 0; i < MONTHS.length; i++) {
-        const ps = d.ps_m[i];
-        arr.push(ps > 0.3 ? Math.min(d.cx_m[i] / ps, HSPARK_CAP) : null);
+        arr.push(hdUsable(d, i) ? Math.min(d.cx_m[i] / d.ps_m[i], HSPARK_CAP) : null);
     }
     const valid = arr.filter(v => v != null);
     if (valid.length < 1) return '';
@@ -791,7 +804,6 @@ function renderHealth() {
 renderHealth();
 
 /* ===== 月度动销率矩阵（单月口径）===== */
-const HM_MIN_PS = 0.3;   // 配送 ≤0.3 百万视为分母过小，比值不可比
 function renderHealthMatrix() {
     const head = '<th>城市</th>' + MONTHS.map(m => '<th>' + m + '</th>').join('') +
                  '<th>累计</th><th>分档</th>';
@@ -803,17 +815,19 @@ function renderHealthMatrix() {
         let cells = '';
         for (let i = 0; i < MONTHS.length; i++) {
             const v = d.cx_m[i], lm = d.ps_m[i];
-            if (lm === null || lm === undefined || Math.abs(lm) <= HM_MIN_PS) {
-                cells += '<td class="hm-c hm-na"' +
-                         ' data-city="' + d.city + '" data-mon="' + MONTHS[i] + '"' +
-                         ' data-ps="' + (lm || 0).toFixed(2) + '" data-na="1">·</td>';
-                continue;
-            }
             if (lm <= 0) {   // 当月配送为负（渠道退货到厂），比值无意义，与「压货」区分开
                 cells += '<td class="hm-c" style="background:#9b8ec4;color:#fff"' +
                          ' data-city="' + d.city + '" data-mon="' + MONTHS[i] + '"' +
                          ' data-cx="' + v.toFixed(2) + '" data-ps="' + lm.toFixed(2) + '"' +
                          ' data-neg="1">退</td>';
+                continue;
+            }
+            if (!hdUsable(d, i)) {
+                const avg = d.ps_cum / MONTHS.length;
+                cells += '<td class="hm-c hm-na"' +
+                         ' data-city="' + d.city + '" data-mon="' + MONTHS[i] + '"' +
+                         ' data-ps="' + (lm || 0).toFixed(2) + '" data-avg="' + avg.toFixed(2) + '"' +
+                         ' data-na="1">·</td>';
                 continue;
             }
             const r = v / lm, L = hdLevel(r);
@@ -849,7 +863,8 @@ document.getElementById('hmBody').addEventListener('mouseover', function (e) {
             '<div class="hm-tip-h">' + td.dataset.city + ' · ' + td.dataset.mon + '</div>' +
             '<div class="hm-tip-s">动销率 = 纯销 ÷ 区域配送</div>' +
             '<div class="hm-tip-r"><span>区域配送</span><b>' + td.dataset.ps + ' 百万</b></div>' +
-            '<div class="hm-tip-f">该月配送过小（≤0.3 百万），比值会失真，故不计算</div>'
+            '<div class="hm-tip-f">该月配送低于该城月均 15%（月均 ' + (td.dataset.avg || '--') +
+                ' 百万），分母过小比值会失真，故不计算</div>'
         );
     } else {
         const r = parseFloat(td.dataset.r), L = hdLevel(r);
