@@ -325,6 +325,33 @@
             .hd-sum { border-right: none; border-bottom: 1px solid #eef1f7; padding: 0 0 14px; }
         }
 
+        /* ===== 月度动销率矩阵 ===== */
+        .hm-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(20,30,60,0.06);
+                   margin-bottom: 24px; overflow: hidden; padding: 16px 20px 18px; }
+        .hm-hd h3 { font-size: 15px; font-weight: 700; color: #1f2330; display: flex; align-items: center; gap: 8px; }
+        .hm-hd h3 i { color: #4361ee; }
+        .hm-hd .sub { font-size: 11.5px; color: #8892a6; margin: 6px 0 0; line-height: 1.6; }
+        .hm-tbl { width: 100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed; margin-top: 12px; }
+        .hm-tbl th { background: transparent; border: none; padding: 2px 2px 6px;
+                     font-size: 10.5px; color: #8b96aa; font-weight: 600; text-align: center; position: static; }
+        .hm-tbl th:first-child { text-align: left; padding-left: 5px; width: 84px; }
+        .hm-tbl th:nth-child(n+2):nth-child(-n+10) { width: 40px; }
+        .hm-tbl th:nth-last-child(2) { width: 52px; }
+        .hm-tbl th:last-child { width: 62px; }
+        .hm-tbl td { border: none; padding: 0; height: 27px; text-align: center; border-radius: 4px;
+                     font-size: 11px; font-variant-numeric: tabular-nums; transition: outline .1s; }
+        .hm-tbl td.hm-city { text-align: left; padding-left: 5px; font-weight: 600; font-size: 11px;
+                             white-space: nowrap; color: #2b3a55; background: transparent; }
+        .hm-tbl td.hm-c { font-weight: 500; }
+        .hm-tbl td.hm-c:hover { outline: 2px solid #4361ee; outline-offset: -1px; }
+        .hm-tbl td.hm-na { background: #f6f7fa; color: #c3c9d8; }
+        .hm-tbl td.hm-all { font-weight: 700; background: #f5f8fd; }
+        .hm-tbl tr:hover td.hm-city { color: #4361ee; }
+        .hm-legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 11px;
+                     font-size: 10.5px; color: #8b96aa; }
+        .hm-legend .it { display: inline-flex; align-items: center; gap: 5px; }
+        .hm-legend .it i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
         /* ===== 悬浮卡（视觉语言对齐 shipping-data 的 kf-tip）===== */
         .hm-tip { position: fixed; z-index: 9999; display: none; pointer-events: none;
                   background: #fff; border: 1px solid #d8ddea; border-radius: 8px; padding: 9px 11px;
@@ -430,6 +457,29 @@
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <div class="hm-card">
+        <div class="hm-hd">
+            <h3><i class="fas fa-th"></i> 月度动销率 · 单月（20 城 × 1-9月）</h3>
+            <div class="sub">
+                每格 = 该城该月 <b>纯销 ÷ 区域配送</b>。色按健康分档，一眼看出「哪个月在压货」。
+                配送过小（≤0.3 百万）的月份比值失真，留白标「·」不计。
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="hm-tbl"><thead><tr id="hmHead"></tr></thead><tbody id="hmBody"></tbody></table>
+        </div>
+        <div class="hm-legend">
+            <span>动销率</span>
+            <span class="it"><i style="background:#1c7c54"></i>≥100% 消化库存</span>
+            <span class="it"><i style="background:#4ca37a"></i>80-100% 健康</span>
+            <span class="it"><i style="background:#d68c1f"></i>60-80% 偏低</span>
+            <span class="it"><i style="background:#c0392b"></i>&lt;60% 压货</span>
+            <span class="it"><i style="background:#f6f7fa;border:1px solid #e6eaf3"></i>配送过小不可比</span>
+            <span class="it"><i style="background:#9b8ec4"></i>当月配送为负（退货）</span>
+            <span style="margin-left:auto">悬停看纯销 / 配送 / 比值</span>
         </div>
     </div>
 
@@ -703,6 +753,89 @@ function renderHealth() {
     }).join('');
 }
 renderHealth();
+
+/* ===== 月度动销率矩阵（单月口径）===== */
+const HM_MIN_PS = 0.3;   // 配送 ≤0.3 百万视为分母过小，比值不可比
+function renderHealthMatrix() {
+    const head = '<th>城市</th>' + MONTHS.map(m => '<th>' + m + '</th>').join('') +
+                 '<th>累计</th><th>分档</th>';
+    document.getElementById('hmHead').innerHTML = head;
+
+    // 行顺序与上方横条一致（按累计动销率降序）
+    const sorted = [...DATA].sort((a, b) => (hdRate(b) || 0) - (hdRate(a) || 0));
+    document.getElementById('hmBody').innerHTML = sorted.map(d => {
+        let cells = '';
+        for (let i = 0; i < MONTHS.length; i++) {
+            const v = d.cx_m[i], lm = d.ps_m[i];
+            if (lm === null || lm === undefined || Math.abs(lm) <= HM_MIN_PS) {
+                cells += '<td class="hm-c hm-na"' +
+                         ' data-city="' + d.city + '" data-mon="' + MONTHS[i] + '"' +
+                         ' data-ps="' + (lm || 0).toFixed(2) + '" data-na="1">·</td>';
+                continue;
+            }
+            if (lm <= 0) {   // 当月配送为负（渠道退货到厂），比值无意义，与「压货」区分开
+                cells += '<td class="hm-c" style="background:#9b8ec4;color:#fff"' +
+                         ' data-city="' + d.city + '" data-mon="' + MONTHS[i] + '"' +
+                         ' data-cx="' + v.toFixed(2) + '" data-ps="' + lm.toFixed(2) + '"' +
+                         ' data-neg="1">退</td>';
+                continue;
+            }
+            const r = v / lm, L = hdLevel(r);
+            cells += '<td class="hm-c" style="background:' + L.color + ';color:#fff"' +
+                     ' data-city="' + d.city + '" data-mon="' + MONTHS[i] + '"' +
+                     ' data-cx="' + v.toFixed(2) + '" data-ps="' + lm.toFixed(2) + '"' +
+                     ' data-r="' + r.toFixed(4) + '">' + (r * 100).toFixed(0) + '</td>';
+        }
+        const R = hdRate(d), L = hdLevel(R);
+        return '<tr><td class="hm-city" title="' + d.city + '">' + d.city.replace(/市$/, '') + '</td>' +
+               cells +
+               '<td class="hm-all" style="color:' + L.color + '">' +
+                   (R == null ? '--' : (R * 100).toFixed(0) + '%') + '</td>' +
+               '<td style="background:' + L.bg + ';color:' + L.color + ';font-size:10px">' + L.name + '</td></tr>';
+    }).join('');
+}
+renderHealthMatrix();
+
+/* 矩阵格子 hover（复用悬浮卡） */
+document.getElementById('hmBody').addEventListener('mouseover', function (e) {
+    const td = e.target.closest('.hm-c');
+    if (!td) return;
+    if (td.dataset.neg) {
+        tipShow(
+            '<div class="hm-tip-h">' + td.dataset.city + ' · ' + td.dataset.mon + '</div>' +
+            '<div class="hm-tip-s">当月配送为负</div>' +
+            '<div class="hm-tip-r"><span>纯销</span><b>' + td.dataset.cx + ' 百万</b></div>' +
+            '<div class="hm-tip-r"><span>区域配送</span><b style="color:#7a6bab">' + td.dataset.ps + ' 百万</b></div>' +
+            '<div class="hm-tip-f">该月渠道退货 / 冲销，配送为负，动销率无意义</div>'
+        );
+    } else if (td.dataset.na) {
+        tipShow(
+            '<div class="hm-tip-h">' + td.dataset.city + ' · ' + td.dataset.mon + '</div>' +
+            '<div class="hm-tip-s">动销率 = 纯销 ÷ 区域配送</div>' +
+            '<div class="hm-tip-r"><span>区域配送</span><b>' + td.dataset.ps + ' 百万</b></div>' +
+            '<div class="hm-tip-f">该月配送过小（≤0.3 百万），比值会失真，故不计算</div>'
+        );
+    } else {
+        const r = parseFloat(td.dataset.r), L = hdLevel(r);
+        tipShow(
+            '<div class="hm-tip-h">' + td.dataset.city + ' · ' + td.dataset.mon + '</div>' +
+            '<div class="hm-tip-s">动销率 = 纯销 ÷ 区域配送</div>' +
+            '<div class="hm-tip-r"><span>纯销</span><b>' + td.dataset.cx + ' 百万</b></div>' +
+            '<div class="hm-tip-r"><span>区域配送</span><b>' + td.dataset.ps + ' 百万</b></div>' +
+            '<div class="hm-tip-r"><span>动销率</span><b style="color:' + L.color + '">' +
+                (r * 100).toFixed(1) + '%</b></div>' +
+            '<div class="hm-tip-f">判定：' + L.name +
+                (r < 0.6 ? '（进货是卖出的 ' + (1 / r).toFixed(1) + ' 倍）' : '') + '</div>'
+        );
+    }
+    tipMove(e);
+});
+document.getElementById('hmBody').addEventListener('mousemove', function (e) {
+    if (hmTip.style.display === 'block' && e.target.closest('.hm-c')) tipMove(e);
+});
+document.getElementById('hmBody').addEventListener('mouseout', function (e) {
+    if (e.target.closest('.hm-c')) tipHide();
+});
 
 /* 月度累计动销率趋势 */
 (function renderHealthTrend() {
