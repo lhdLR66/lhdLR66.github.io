@@ -270,6 +270,53 @@
         .heat-tbl td.ht-spark { cursor: pointer; }
         .heat-tbl td.ht-spark:hover { outline: 1px solid #c3cbe0; outline-offset: -1px; }
 
+        /* ===== 渠道健康度（动销率）===== */
+        .hd-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(20,30,60,0.06);
+                   margin-bottom: 24px; overflow: hidden; }
+        .hd-hd { padding: 16px 20px 0; }
+        .hd-hd h3 { font-size: 15px; font-weight: 700; color: #1f2330; display: flex; align-items: center; gap: 8px; }
+        .hd-hd h3 i { color: #4361ee; }
+        .hd-formula { display: inline-block; margin: 7px 0 0; padding: 4px 10px; border-radius: 6px;
+                      background: #f5f7fd; font-size: 11.5px; color: #5a6580;
+                      font-variant-numeric: tabular-nums; }
+        .hd-formula b { color: #1f2330; font-weight: 600; }
+        .hd-body { display: grid; grid-template-columns: 216px 1fr; gap: 20px; padding: 14px 20px 20px; }
+        .hd-sum { border-right: 1px solid #eef1f7; padding-right: 18px; }
+        .hd-big { font-size: 40px; font-weight: 700; color: #1c7c54; line-height: 1;
+                  font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
+        .hd-big.warn { color: #c0392b; }
+        .hd-sub { font-size: 11.5px; color: #8892a6; margin-top: 5px; }
+        .hd-calc { font-size: 11px; color: #6b7789; margin-top: 12px; padding: 8px 10px;
+                   background: #fafbfe; border-radius: 6px; line-height: 1.7;
+                   font-variant-numeric: tabular-nums; }
+        .hd-calc .k { color: #a0aab8; }
+        .hd-legend { margin-top: 12px; }
+        .hd-legend .lg { display: flex; align-items: center; gap: 7px; font-size: 11.5px;
+                         color: #5a6580; padding: 3px 0; }
+        .hd-legend .lg i { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+        .hd-legend .lg .n { margin-left: auto; font-weight: 600; color: #1f2330;
+                            font-variant-numeric: tabular-nums; }
+        .hd-list { min-width: 0; }
+        .hd-row { display: flex; align-items: center; gap: 9px; padding: 3px 0; }
+        .hd-row .nm { width: 58px; font-size: 11.5px; font-weight: 600; color: #2b3a55;
+                      flex-shrink: 0; white-space: nowrap; }
+        .hd-row .track { flex: 1; height: 17px; background: #f4f6fa; border-radius: 3px;
+                         position: relative; overflow: hidden; }
+        .hd-row .bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px;
+                       transition: width .35s ease; }
+        .hd-row .bal { position: absolute; top: 0; bottom: 0; width: 1px; left: 50%;
+                       background: repeating-linear-gradient(180deg, #9aa6bd 0 2px, transparent 2px 4px); }
+
+        .hd-row .vl { width: 52px; text-align: right; font-size: 11.5px; font-weight: 600;
+                      font-variant-numeric: tabular-nums; flex-shrink: 0; }
+        .hd-row .tag { width: 56px; text-align: center; font-size: 10px; border-radius: 3px;
+                       padding: 1px 0; flex-shrink: 0; }
+        .hd-row:hover { background: #fafbff; }
+        @media (max-width: 900px) {
+            .hd-body { grid-template-columns: 1fr; }
+            .hd-sum { border-right: none; border-bottom: 1px solid #eef1f7; padding: 0 0 14px; }
+        }
+
         /* ===== 悬浮卡（视觉语言对齐 shipping-data 的 kf-tip）===== */
         .hm-tip { position: fixed; z-index: 9999; display: none; pointer-events: none;
                   background: #fff; border: 1px solid #d8ddea; border-radius: 8px; padding: 9px 11px;
@@ -375,6 +422,17 @@
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <div class="hd-card">
+        <div class="hd-hd">
+            <h3><i class="fas fa-heartbeat"></i> 渠道健康度 · 1-9月动销率</h3>
+            <span class="hd-formula">动销率 = <b>中心城市纯销</b> ÷ <b>区域终端配送</b> × 100%</span>
+        </div>
+        <div class="hd-body">
+            <div class="hd-sum" id="hdSummary"></div>
+            <div class="hd-list" id="hdList"></div>
         </div>
     </div>
 </div>
@@ -529,6 +587,86 @@ document.getElementById('metricFilter').addEventListener('change', function() {
 });
 
 renderTable('cx');
+
+// ===================== 渠道健康度（动销率）=====================
+/* 口径固定：纯销 / 区域配送（不跟随 metricFilter） */
+function hdRate(d) { return d.ps_cum ? d.cx_cum / d.ps_cum : null; }
+function hdLevel(r) {
+    if (r == null) return { k: 'na',  name: '无数据',   color: '#c9cfdd', bg: '#f2f4f8' };
+    if (r >= 1.0)  return { k: 'over', name: '消化库存', color: '#1c7c54', bg: '#e8f3ed' };
+    if (r >= 0.8)  return { k: 'ok',   name: '健康',     color: '#4ca37a', bg: '#edf7f1' };
+    if (r >= 0.6)  return { k: 'low',  name: '偏低',     color: '#d68c1f', bg: '#fdf4e6' };
+    return           { k: 'bad',  name: '压货',     color: '#c0392b', bg: '#fbeceb' };
+}
+function renderHealth() {
+    const sumCX = DATA.reduce((a, d) => a + d.cx_cum, 0);
+    const sumPS = DATA.reduce((a, d) => a + d.ps_cum, 0);
+    const rate = sumPS ? sumCX / sumPS : null;
+
+    // 分档统计
+    const cnt = { over: 0, ok: 0, low: 0, bad: 0, na: 0 };
+    DATA.forEach(d => { cnt[hdLevel(hdRate(d)).k]++; });
+
+    document.getElementById('hdSummary').innerHTML =
+        '<div class="hd-big' + (rate < 0.6 ? ' warn' : '') + '">' + (rate * 100).toFixed(1) + '%</div>' +
+        '<div class="hd-sub">20 城整体动销率</div>' +
+        '<div class="hd-calc">' +
+            '<div><span class="k">中心城市纯销</span> ' + sumCX.toFixed(2) + ' 百万</div>' +
+            '<div><span class="k">区域终端配送</span> ' + sumPS.toFixed(2) + ' 百万</div>' +
+            '<div style="margin-top:4px;border-top:1px dashed #e6eaf3;padding-top:4px">' +
+                '<span class="k">=</span> ' + sumCX.toFixed(2) + ' ÷ ' + sumPS.toFixed(2) +
+                ' = <b>' + (rate * 100).toFixed(1) + '%</b></div>' +
+        '</div>' +
+        '<div class="hd-legend">' +
+            [['over', '≥100% 消化库存'], ['ok', '80-100% 健康'], ['low', '60-80% 偏低'], ['bad', '<60% 压货']]
+            .map(x => { const L = hdLevel(x[0] === 'over' ? 1.2 : x[0] === 'ok' ? 0.9 : x[0] === 'low' ? 0.7 : 0.4);
+                return '<div class="lg"><i style="background:' + L.color + '"></i>' + x[1] +
+                       '<span class="n">' + cnt[x[0]] + ' 城</span></div>'; }).join('') +
+            '<div style="margin-top:6px;font-size:10.5px;color:#a0aab8;line-height:1.5;">' +
+                '横条满格 = 200%　竖虚线 = 100%（进多少卖多少的平衡点）</div>' +
+        '</div>';
+
+    // 20 城横条（按动销率降序；满格 200%，100% 画平衡线）
+    const sorted = [...DATA].sort((a, b) => (hdRate(b) || 0) - (hdRate(a) || 0));
+    document.getElementById('hdList').innerHTML = sorted.map(d => {
+        const r = hdRate(d), L = hdLevel(r);
+        const pct = r == null ? 0 : Math.min(r / 2, 1) * 100;
+        return '<div class="hd-row" data-city="' + d.city + '"' +
+                 ' data-cx="' + d.cx_cum.toFixed(2) + '" data-ps="' + d.ps_cum.toFixed(2) + '">' +
+            '<span class="nm">' + d.city.replace(/市$/, '') + '</span>' +
+            '<span class="track"><span class="bal"></span>' +
+              '<span class="bar" style="width:' + pct.toFixed(1) + '%;background:' + L.color + '"></span></span>' +
+            '<span class="vl" style="color:' + L.color + '">' + (r == null ? '--' : (r * 100).toFixed(1) + '%') + '</span>' +
+            '<span class="tag" style="background:' + L.bg + ';color:' + L.color + '">' + L.name + '</span>' +
+        '</div>';
+    }).join('');
+}
+renderHealth();
+
+// 健康度行 hover 明细（复用悬浮卡）
+document.getElementById('hdList').addEventListener('mouseover', function (e) {
+    const row = e.target.closest('.hd-row');
+    if (!row) return;
+    const cx = parseFloat(row.dataset.cx), ps = parseFloat(row.dataset.ps);
+    const r = ps ? cx / ps : null, L = hdLevel(r);
+    tipShow(
+        '<div class="hm-tip-h">' + row.dataset.city + ' · 渠道健康度</div>' +
+        '<div class="hm-tip-s">动销率 = 纯销 ÷ 区域配送</div>' +
+        '<div class="hm-tip-r"><span>中心城市纯销</span><b>' + cx.toFixed(2) + ' 百万</b></div>' +
+        '<div class="hm-tip-r"><span>区域终端配送</span><b>' + ps.toFixed(2) + ' 百万</b></div>' +
+        '<div class="hm-tip-r"><span>动销率</span><b style="color:' + L.color + '">' +
+            (r == null ? '--' : (r * 100).toFixed(1) + '%') + '</b></div>' +
+        '<div class="hm-tip-f">判定：' + L.name +
+            (r != null && r < 0.6 ? '（进货是卖出的 ' + (1 / r).toFixed(1) + ' 倍）' : '') + '</div>'
+    );
+    tipMove(e);
+});
+document.getElementById('hdList').addEventListener('mousemove', function (e) {
+    if (hmTip.style.display === 'block' && e.target.closest('.hd-row')) tipMove(e);
+});
+document.getElementById('hdList').addEventListener('mouseout', function (e) {
+    if (e.target.closest('.hd-row')) tipHide();
+});
 
 // ===================== 悬浮卡（格子 / 走势） =====================
 const hmTip = document.getElementById('hmTip');
