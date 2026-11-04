@@ -251,12 +251,12 @@
         .heat-tbl th { background: transparent; border: none; padding: 3px 2px 7px;
                        font-size: 10.5px; color: #8b96aa; font-weight: 600;
                        text-align: center; position: static; }
-        .heat-tbl th:first-child { text-align: left; padding-left: 6px; width: 88px; }
-        .heat-tbl th:nth-child(n+2):nth-child(-n+10) { width: 42px; }   /* 月份列定宽，避免压缩城市列 */
-        .heat-tbl th:nth-last-child(3) { width: 52px; }   /* 累计 */
-        .heat-tbl th:nth-last-child(2) { width: 58px; }   /* 同比 */
-        .heat-tbl th:last-child { width: 92px; }          /* 走势 */
-        .heat-tbl td { border: none; padding: 0; height: 30px; text-align: center;
+        .heat-tbl th:first-child { text-align: left; padding-left: 5px; width: 70px; }
+        .heat-tbl th:nth-child(n+2):nth-child(-n+10) { width: 33px; }
+        .heat-tbl th:nth-last-child(3) { width: 44px; }
+        .heat-tbl th:nth-last-child(2) { width: 48px; }
+        .heat-tbl th:last-child { width: 58px; }
+        .heat-tbl td { border: none; padding: 0; height: 27px; text-align: center;
                        border-radius: 4px; font-size: 11.5px; font-variant-numeric: tabular-nums;
                        transition: outline .1s; }
         .heat-tbl td.ht-city { text-align: left; padding-left: 5px; font-weight: 600; white-space: nowrap;
@@ -271,6 +271,14 @@
         .heat-tbl td.ht-spark { cursor: pointer; }
         .heat-tbl td.ht-spark:hover { outline: 1px solid #c3cbe0; outline-offset: -1px; }
 
+        /* ===== 双栏并排（热力矩阵 + 渠道健康度）===== */
+        .grid-2col { display: grid; grid-template-columns: 1.03fr 0.97fr; gap: 16px;
+                     margin-bottom: 16px; align-items: start; }
+        @media (max-width: 1280px) { .grid-2col { grid-template-columns: 1fr; } }
+        .grid-2col > .combined-block, .grid-2col > .hd-card { margin-bottom: 0; }
+        .hd-trend-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(20,30,60,0.06);
+                         padding: 14px 20px 16px; margin-bottom: 24px; }
+
         /* ===== 渠道健康度（动销率）===== */
         .hd-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(20,30,60,0.06);
                    margin-bottom: 24px; overflow: hidden; }
@@ -281,7 +289,14 @@
                       background: #f5f7fd; font-size: 11.5px; color: #5a6580;
                       font-variant-numeric: tabular-nums; }
         .hd-formula b { color: #1f2330; font-weight: 600; }
-        .hd-body { display: grid; grid-template-columns: 216px 1fr; gap: 20px; padding: 14px 20px 20px; }
+        .hd-body { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 12px 16px 16px; }
+        .hd-sum { display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+                  border-right: none; border-bottom: 1px solid #eef1f7; padding: 0 0 10px; }
+        .hd-sum .hd-big { font-size: 28px; }
+        .hd-sum .hd-calc { margin-top: 0; padding: 5px 8px; font-size: 10px; line-height: 1.5; }
+        .hd-sum .hd-legend { margin-top: 0; display: flex; gap: 10px; flex-wrap: wrap; }
+        .hd-sum .hd-legend .lg { padding: 0; font-size: 10.5px; }
+        .hd-sum .hd-note { font-size: 9.5px; color: #a0aab8; line-height: 1.45; width: 100%; margin-top: 2px; }
         .hd-sum { border-right: 1px solid #eef1f7; padding-right: 18px; }
         .hd-big { font-size: 40px; font-weight: 700; color: #1c7c54; line-height: 1;
                   font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
@@ -299,7 +314,7 @@
                             font-variant-numeric: tabular-nums; }
         .hd-list { min-width: 0; }
         .hd-row { display: flex; align-items: center; gap: 9px; padding: 3px 0; }
-        .hd-row .nm { width: 58px; font-size: 11.5px; font-weight: 600; color: #2b3a55;
+        .hd-row .nm { width: 46px; font-size: 10.5px; font-weight: 600; color: #2b3a55;
                       flex-shrink: 0; white-space: nowrap; }
         .hd-row .track { flex: 1; height: 17px; background: #f4f6fa; border-radius: 3px;
                          position: relative; overflow: hidden; }
@@ -308,12 +323,11 @@
         .hd-row .bal { position: absolute; top: 0; bottom: 0; width: 1px; left: 50%;
                        background: repeating-linear-gradient(180deg, #9aa6bd 0 2px, transparent 2px 4px); }
 
-        .hd-row .vl { width: 52px; text-align: right; font-size: 11.5px; font-weight: 600;
+        .hd-row .vl { width: 42px; text-align: right; font-size: 10.5px; font-weight: 600;
                       font-variant-numeric: tabular-nums; flex-shrink: 0; }
-        .hd-row .tag { width: 56px; text-align: center; font-size: 10px; border-radius: 3px;
-                       padding: 1px 0; flex-shrink: 0; }
+        .hd-row .tag { width: 26px; text-align: center; font-size: 9.5px; flex-shrink: 0; }
         .hd-row:hover { background: #fafbff; }
-        .hd-row .spk { width: 90px; flex-shrink: 0; display: flex; align-items: center; }
+        .hd-row .spk { width: 66px; flex-shrink: 0; display: flex; align-items: center; cursor: pointer; }
         .hd-trend { border-top: 1px solid #eef1f7; padding: 14px 20px 16px; }
         .hd-trend-h { display: flex; align-items: baseline; gap: 9px; margin-bottom: 2px; }
         .hd-trend-h .t { font-size: 13px; font-weight: 700; color: #1f2330; }
@@ -395,7 +409,7 @@
     </div>
     <span class="badge">2026年9月更新</span>
     <span style="font-size:11px;color:#a0aab8;margin-left:8px;font-variant-numeric:tabular-nums;"
-          title="页面构建时间（不是数据截止时间）">构建 11-04 11:28</span>
+          title="页面构建时间（不是数据截止时间）">构建 11-04 14:15</span>
 </div>
 
     <div class="kpi-row" id="kpiRow"></div>
@@ -413,6 +427,8 @@
         </div>
     </div>
 
+    <div class="grid-2col">
+
     <div class="combined-block">
         <div class="combined-left">
             <div class="table-header">
@@ -422,7 +438,7 @@
                     <select id="metricFilter">
                         <option value="cx">纯销额</option>
                         <option value="ka">KA50纯销</option>
-                        <option value="kp">KA50 渗透率</option>
+                        <option value="kp">KA50 集中度</option>
                         <option value="ps">配送额（区域）</option>
                         <option value="psq">配送额（省区）</option>
                     </select>
@@ -446,19 +462,22 @@
             <div class="hd-sum" id="hdSummary"></div>
             <div class="hd-list" id="hdList"></div>
         </div>
-        <div class="hd-trend">
-            <div class="hd-trend-h">
-                <span class="t">月度动销率趋势</span>
-                <span class="s">20 城累计口径 · 虚线 = 100% 进销平衡点</span>
-            </div>
-            <div class="hd-chart"><canvas id="chartHdTrend"></canvas></div>
-            <div class="hd-trend-note">
-                口径：<b>累计到 N 月</b>（1–N 月纯销合计 ÷ 1–N 月配送合计）。
-                不用单月比值 —— 配送月度波动极大，分母过小会让比值失真
-                （单月实测：2月 518%、6月 32.5%、9月 35.3%，无法反映真实趋势）。
-            </div>
-        </div>
     </div>
+
+    </div><!-- /grid-2col -->
+
+    <div class="hd-trend-card">
+                <div class="hd-trend-h">
+                    <span class="t">月度动销率趋势</span>
+                    <span class="s">左轴 20 城累计动销率 · 右轴 TOP5 城市集中度（当月纯销前 5 城占比）</span>
+                </div>
+                <div class="hd-chart"><canvas id="chartHdTrend"></canvas></div>
+                <div class="hd-trend-note">
+                    口径：<b>累计到 N 月</b>（1–N 月纯销合计 ÷ 1–N 月配送合计）。
+                    不用单月比值 —— 配送月度波动极大，分母过小会让比值失真
+                    （单月实测：2月 518%、6月 32.5%、9月 35.3%，无法反映真实趋势）。
+                </div>
+    </div><!-- /hd-trend-card -->
 </div>
 
 <div class="hm-tip" id="hmTip"></div>
@@ -558,7 +577,7 @@ document.getElementById('dimBar').addEventListener('change', function(e) {
 renderMonthChart();
 
 // ---- 表格：方案A 热力矩阵（色 = 同比，格内 = 当月值，右侧累计/同比/走势）----
-/* 指标取数抽象：kp（KA50 渗透率）= 比率型，其余为金额型 */
+/* 指标取数抽象：kp（KA50 集中度）= 比率型，其余为金额型 */
 const RATIO_METRICS = { kp: 1 };
 function isRatio(m) { return !!RATIO_METRICS[m]; }
 function mArr(d, metric, prev) {
@@ -575,7 +594,7 @@ function mCum(d, metric, prev) {
     }
     return prev ? d[metric + '_lcum'] : d[metric + '_cum'];
 }
-/* 渗透率底色：蓝色系，50% 触底、100% 最深（越高=KA 覆盖越强，不是涨跌语义） */
+/* 集中度底色：蓝色系，50% 触底、100% 最深（越高=KA 覆盖越强，不是涨跌语义） */
 function penBg(v) {
     if (v == null) return '#f2f4f8';
     const t = Math.max(0, Math.min(1, (v - 0.5) / 0.5));
@@ -620,7 +639,7 @@ function renderTable(metric) {
             const v = cur[i], lm = prev[i];
             let bg, fg, show, tipYoy;
             if (ratio) {
-                // 渗透率：色=绝对值高低，格内显示百分比
+                // 集中度：色=绝对值高低，格内显示百分比
                 bg = penBg(v);
                 fg = (v != null && v > 0.82) ? '#fff' : '#33405c';
                 show = v == null ? '—' : Math.round(v * 100) + '';
@@ -642,7 +661,7 @@ function renderTable(metric) {
                      ' data-yoy="' + (y == null ? '' : y) + '"' +
                      ' data-share="' + (v / tot * 100).toFixed(1) + '">' + v.toFixed(1) + '</td>';
         }
-        // 右列：渗透率显示百分点变化
+        // 右列：集中度显示百分点变化
         let yyTxt, yyCls;
         if (ratio) {
             const pp = (cum != null && lcum != null) ? (cum - lcum) * 100 : null;
@@ -701,6 +720,15 @@ function hdCumSeries() {
     }
     return out;
 }
+/* TOP5 城市集中度（按月，取当月纯销前 5 城合计 ÷ 当月全国） */
+function top5Series() {
+    return MONTHS.map((_, i) => {
+        const vals = DATA.map(d => d.cx_m[i]).sort((a, b) => b - a);
+        const tot = vals.reduce((a, b) => a + b, 0);
+        return tot ? vals.slice(0, 5).reduce((a, b) => a + b, 0) / tot : null;
+    });
+}
+
 /* 单城累计动销率序列 */
 function hdCityCum(d) {
     const out = [];
@@ -711,6 +739,53 @@ function hdCityCum(d) {
     }
     return out;
 }
+/* 悬停大图：单月动销率（放大版，含负值区与月份轴） */
+function hdBigChart(d) {
+    const W = 320, H = 118, padT = 6, padB = 16, padL = 6, padR = 6;
+    const arr = MONTHS.map((_, i) => {
+        const ps = d.ps_m[i];
+        return (ps === 0 || ps == null) ? null : d.cx_m[i] / ps;
+    });
+    const px = i => padL + (i / (MONTHS.length - 1)) * (W - padL - padR);
+    const py = v => {
+        const c = Math.max(HSPARK_LO, Math.min(v, HSPARK_HI));
+        return H - padB - ((c - HSPARK_LO) / HSPARK_RANGE) * (H - padT - padB);
+    };
+    let grid = '';
+    for (let k = 0; k <= 3; k++) {
+        const yy = padT + (H - padT - padB) * k / 3;
+        grid += '<line x1="' + padL + '" y1="' + yy.toFixed(1) + '" x2="' + (W - padR) +
+                '" y2="' + yy.toFixed(1) + '" stroke="#f0f2f7" stroke-width="1"/>';
+    }
+    let body = '', labels = '';
+    const segs = []; let cur = [];
+    arr.forEach((v, i) => {
+        if (v == null) { if (cur.length) { segs.push(cur); cur = []; } }
+        else cur.push([px(i), py(v)]);
+    });
+    if (cur.length) segs.push(cur);
+    segs.forEach(sg => {
+        if (sg.length > 1) {
+            body += '<polyline points="' + sg.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') +
+                    '" fill="none" stroke="#1c7c54" stroke-width="2" stroke-linejoin="round"/>';
+        }
+        sg.forEach(p => {
+            body += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="2.6" fill="#1c7c54"/>';
+        });
+    });
+    arr.forEach((_, i) => {
+        labels += '<text x="' + px(i).toFixed(1) + '" y="' + (H - 4) +
+                  '" font-size="9" fill="#a0aab8" text-anchor="middle">' + (i + 1) + '</text>';
+    });
+    return '<svg style="display:block;margin:6px 0 2px" width="' + W + '" height="' + H + '">' +
+        grid +
+        '<line x1="' + padL + '" y1="' + py(0).toFixed(1) + '" x2="' + (W - padR) + '" y2="' + py(0).toFixed(1) +
+        '" stroke="#dfe4ee" stroke-width="1"/>' +
+        '<line x1="' + padL + '" y1="' + py(1).toFixed(1) + '" x2="' + (W - padR) + '" y2="' + py(1).toFixed(1) +
+        '" stroke="#e6eaf3" stroke-width="1" stroke-dasharray="2,2"/>' +
+        body + labels + '</svg>';
+}
+
 /* ---- 单月动销率趋势线（连续，含负值）----
    只要配送 ≠ 0 就计算，不因「过小」或「为负」断线：
    负值 = 当月渠道退货（配送为负），是真实业务状态，曲线必须连续。
@@ -826,7 +901,7 @@ function renderHealth() {
               '<span class="bar" style="width:' + pct.toFixed(1) + '%;background:' + L.color + '"></span></span>' +
             '<span class="vl" style="color:' + L.color + '">' + (r == null ? '--' : (r * 100).toFixed(1) + '%') + '</span>' +
             '<span class="spk">' + hdSpark(d, 88, 23) + '</span>' +
-            '<span class="tag" style="background:' + L.bg + ';color:' + L.color + '">' + L.name + '</span>' +
+            '<span class="tag" style="color:' + L.color + '" title="' + L.name + '">' + L.name.slice(0, 2) + '</span>' +
         '</div>';
     }).join('');
 }
@@ -848,18 +923,24 @@ renderHealth();
                   pointBorderColor: '#1c7c54', pointBorderWidth: 2.2 },
                 { label: '100% 平衡点', data: balLine,
                   borderColor: '#c3cbe0', borderDash: [5, 4], borderWidth: 1.2,
-                  pointRadius: 0, pointHitRadius: 0, fill: false, tension: 0 }
+                  pointRadius: 0, pointHitRadius: 0, fill: false, tension: 0 },
+                { label: 'TOP5 城市集中度', data: top5Series().map(v => v == null ? null : v * 100),
+                  borderColor: '#e08a3c', backgroundColor: '#e08a3c', borderDash: [3, 3],
+                  borderWidth: 1.8, tension: .28, fill: false, spanGaps: true,
+                  pointRadius: 2.8, pointHoverRadius: 5, pointBackgroundColor: '#fff',
+                  pointBorderColor: '#e08a3c', pointBorderWidth: 1.8, yAxisID: 'y1' }
             ]
         },
         options: {
             responsive: true, maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: { display: false },
+                legend: { display: true, position: 'top', labels: { boxWidth: 10, boxHeight: 10, padding: 10, font: { size: 10 }, filter: it => it.text !== '100% 平衡点' } },
                 tooltip: { callbacks: {
                     label: function (ctx) {
                         if (ctx.datasetIndex === 1) return '100% 平衡点';
-                        return '累计到 ' + ctx.label + '：' + ctx.parsed.y.toFixed(1) + '%';
+                        if (ctx.datasetIndex === 2) return 'TOP5 集中度 ' + ctx.parsed.y.toFixed(1) + '%';
+                        return '累计动销率 ' + ctx.parsed.y.toFixed(1) + '%';
                     },
                     afterLabel: function (ctx) {
                         if (ctx.datasetIndex !== 0) return '';
@@ -871,9 +952,14 @@ renderHealth();
                 } }
             },
             scales: {
-                y: { beginAtZero: true, suggestedMax: 160,
+                y: { beginAtZero: true, suggestedMax: 160, position: 'left',
+                     title: { display: true, text: '动销率', font: { size: 9.5 }, color: '#a0aab8' },
                      ticks: { callback: v => v + '%', font: { size: 10 } },
                      grid: { color: '#f2f4f8' } },
+                y1: { position: 'right', min: 30, max: 65,
+                      title: { display: true, text: 'TOP5 集中度', font: { size: 9.5 }, color: '#e08a3c' },
+                      grid: { drawOnChartArea: false },
+                      ticks: { callback: v => v + '%', font: { size: 10 }, color: '#e08a3c' } },
                 x: { grid: { display: false }, ticks: { font: { size: 10.5 } } }
             }
         }
@@ -884,6 +970,30 @@ renderHealth();
 document.getElementById('hdList').addEventListener('mouseover', function (e) {
     const row = e.target.closest('.hd-row');
     if (!row) return;
+    // 悬停折线 → 出趋势大图（优先于整行明细）
+    if (e.target.closest('.spk')) {
+        const city = row.dataset.city;
+        const d = DATA.find(x => x.city === city);
+        if (d) {
+            const arr = MONTHS.map((_, i) => d.ps_m[i] ? d.cx_m[i] / d.ps_m[i] : null)
+                             .filter(v => v != null);
+            const mn = arr.length ? Math.min(...arr) : null;
+            const mx = arr.length ? Math.max(...arr) : null;
+            const peakI = d.cx_m.indexOf(Math.max(...d.cx_m));
+            tipShow(
+                '<div class="hm-tip-h">' + city + ' · 单月动销率走势</div>' +
+                '<div class="hm-tip-s">纯销 ÷ 区域配送 ｜ 实线 0% 分界、虚线 100% 平衡</div>' +
+                hdBigChart(d) +
+                '<div class="hm-tip-r"><span>最低</span><b class="down">' + (mn == null ? '--' : (mn * 100).toFixed(0) + '%') + '</b></div>' +
+                '<div class="hm-tip-r"><span>最高</span><b class="up">' + (mx == null ? '--' : (mx * 100).toFixed(0) + '%') + '</b></div>' +
+                '<div class="hm-tip-r"><span>累计</span><b>' + (hdRate(d) * 100).toFixed(1) + '%</b></div>' +
+                '<div class="hm-tip-f">纯销峰值在 ' + MONTHS[peakI] + '（' + d.cx_m[peakI].toFixed(2) + ' 百万）</div>',
+                true
+            );
+            tipMove(e);
+            return;
+        }
+    }
     const cx = parseFloat(row.dataset.cx), ps = parseFloat(row.dataset.ps);
     const r = ps ? cx / ps : null, L = hdLevel(r);
     tipShow(
@@ -932,10 +1042,10 @@ document.getElementById('tableBody').addEventListener('mouseover', function (e) 
         const pp = (v !== '' && lm !== '') ? (parseFloat(v) - parseFloat(lm)) : null;
         tipShow(
             '<div class="hm-tip-h">' + td.dataset.city + ' · ' + td.dataset.mon + '</div>' +
-            '<div class="hm-tip-s">KA50 渗透率 = KA50纯销 ÷ 纯销</div>' +
+            '<div class="hm-tip-s">KA50 集中度 = KA50纯销 ÷ 纯销</div>' +
             '<div class="hm-tip-r"><span>KA50纯销</span><b>' + td.dataset.cur2 + ' 百万</b></div>' +
             '<div class="hm-tip-r"><span>纯销</span><b>' + td.dataset.prev2 + ' 百万</b></div>' +
-            '<div class="hm-tip-r"><span>渗透率</span><b>' + v + '%</b></div>' +
+            '<div class="hm-tip-r"><span>集中度</span><b>' + v + '%</b></div>' +
             (pp == null ? '' : '<div class="hm-tip-f">去年同月 ' + lm + '%　较去年 ' +
                 (pp >= 0 ? '+' : '') + pp.toFixed(1) + 'pp</div>')
         );
