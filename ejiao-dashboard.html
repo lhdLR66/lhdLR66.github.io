@@ -151,8 +151,8 @@
             min-width: 0;
         }
         .combined-left {
-            overflow: auto;
-            max-height: 620px;
+            overflow-x: auto;
+            overflow-y: visible;
         }
         .trend-list {
             display: flex;
@@ -268,12 +268,17 @@
         .heat-tbl td.ht-yoy { font-weight: 700; background: transparent; }
         .heat-tbl td.ht-spark { background: transparent; padding: 0 2px; }
         .heat-tbl tr:hover td.ht-city { color: #4361ee; }
+        /* TOP5 集中度汇总行（表头下方，列维度指标） */
+        .heat-tbl tr.t5-row td { height: 24px; font-size: 10.5px; }
+        .heat-tbl tr.t5-row td.ht-city { font-weight: 600; color: #e08a3c; font-style: normal; }
+        .heat-tbl tr.t5-row td.ht-cum { background: #fdf6ec; color: #b8722a; font-weight: 700; }
+        .heat-tbl tr.t5-row td.t5sep { background: transparent; }
         .heat-tbl td.ht-spark { cursor: pointer; }
         .heat-tbl td.ht-spark:hover { outline: 1px solid #c3cbe0; outline-offset: -1px; }
 
         /* ===== 双栏并排（热力矩阵 + 渠道健康度）===== */
         .grid-2col { display: grid; grid-template-columns: 1.03fr 0.97fr; gap: 16px;
-                     margin-bottom: 16px; align-items: start; }
+                     margin-bottom: 24px; align-items: stretch; }
         @media (max-width: 1280px) { .grid-2col { grid-template-columns: 1fr; } }
         .grid-2col > .combined-block, .grid-2col > .hd-card { margin-bottom: 0; }
         .hd-trend-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(20,30,60,0.06);
@@ -383,7 +388,6 @@
             .main { margin-left: 0; padding: 12px; }
             .chart-grid { grid-template-columns: 1fr; }
             .combined-block { grid-template-columns: 1fr; }
-            .combined-left { max-height: 460px; }
             .header h1 { font-size: 20px; }
         }
     </style>
@@ -409,7 +413,7 @@
     </div>
     <span class="badge">2026年9月更新</span>
     <span style="font-size:11px;color:#a0aab8;margin-left:8px;font-variant-numeric:tabular-nums;"
-          title="页面构建时间（不是数据截止时间）">构建 11-04 14:15</span>
+          title="页面构建时间（不是数据截止时间）">构建 11-04 14:40</span>
 </div>
 
     <div class="kpi-row" id="kpiRow"></div>
@@ -466,18 +470,6 @@
 
     </div><!-- /grid-2col -->
 
-    <div class="hd-trend-card">
-                <div class="hd-trend-h">
-                    <span class="t">月度动销率趋势</span>
-                    <span class="s">左轴 20 城累计动销率 · 右轴 TOP5 城市集中度（当月纯销前 5 城占比）</span>
-                </div>
-                <div class="hd-chart"><canvas id="chartHdTrend"></canvas></div>
-                <div class="hd-trend-note">
-                    口径：<b>累计到 N 月</b>（1–N 月纯销合计 ÷ 1–N 月配送合计）。
-                    不用单月比值 —— 配送月度波动极大，分母过小会让比值失真
-                    （单月实测：2月 518%、6月 32.5%、9月 35.3%，无法反映真实趋势）。
-                </div>
-    </div><!-- /hd-trend-card -->
 </div>
 
 <div class="hm-tip" id="hmTip"></div>
@@ -631,7 +623,29 @@ function renderTable(metric) {
 
     const cumOf = d => mCum(d, metric) || 0;
     const sorted = [...DATA].sort((a, b) => cumOf(b) - cumOf(a));
-    document.getElementById('tableBody').innerHTML = sorted.map(d => {
+
+    /* TOP5 集中度行：固定在表头下方，表示「当月纯销前 5 城合计占全国比」
+       —— 只在纯销视图下显示（其他指标口径不同，避免误读） */
+    let t5Row = '';
+    if (metric === 'cx') {
+        const t5 = top5Series();
+        const cells = t5.map((v, i) =>
+            '<td style="background:' + penBg(v) + ';color:' + (v > 0.5 ? '#fff' : '#33405c') +
+            '" data-t5="1" data-mon="' + MONTHS[i] + '"' +
+            ' data-v="' + (v * 100).toFixed(1) + '">' + Math.round(v * 100) + '</td>').join('');
+        const tot = DATA.reduce((a, d) => a + d.cx_cum, 0);
+        const top = [...DATA].sort((a, b) => b.cx_cum - a.cx_cum).slice(0, 5);
+        const cumPct = top.reduce((a, d) => a + d.cx_cum, 0) / tot * 100;
+        t5Row = '<tr class="t5-row" data-t5row="1">' +
+            '<td class="ht-city" title="TOP5 占比 = 当月纯销前 5 城合计 ÷ 当月全国">TOP5</td>' +
+            cells +
+            '<td class="ht-cum">' + cumPct.toFixed(1) + '%</td>' +
+            '<td style="color:#a0aab8;font-size:9.5px">占比</td>' +
+            '<td class="ht-spark">' + sparkSVG({ kp_m: t5, kp_lm: t5.map(() => null), cx_m: t5, cx_lm: [] }, 'cx', 74, 18) + '</td>' +
+            '</tr>';
+    }
+
+    document.getElementById('tableBody').innerHTML = t5Row + sorted.map(d => {
         const cur = mArr(d, metric), prev = mArr(d, metric, true);
         const cum = mCum(d, metric), lcum = mCum(d, metric, true);
         let cells = '';
@@ -907,65 +921,6 @@ function renderHealth() {
 }
 renderHealth();
 
-/* 月度累计动销率趋势 */
-(function renderHealthTrend() {
-    const cum = hdCumSeries().map(v => v == null ? null : v * 100);
-    const balLine = MONTHS.map(() => 100);
-    new Chart(document.getElementById('chartHdTrend'), {
-        type: 'line',
-        data: {
-            labels: MONTHS,
-            datasets: [
-                { label: '累计动销率', data: cum,
-                  borderColor: '#1c7c54', backgroundColor: 'rgba(28,124,84,.10)',
-                  borderWidth: 2.4, tension: .28, fill: true, spanGaps: true,
-                  pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: '#fff',
-                  pointBorderColor: '#1c7c54', pointBorderWidth: 2.2 },
-                { label: '100% 平衡点', data: balLine,
-                  borderColor: '#c3cbe0', borderDash: [5, 4], borderWidth: 1.2,
-                  pointRadius: 0, pointHitRadius: 0, fill: false, tension: 0 },
-                { label: 'TOP5 城市集中度', data: top5Series().map(v => v == null ? null : v * 100),
-                  borderColor: '#e08a3c', backgroundColor: '#e08a3c', borderDash: [3, 3],
-                  borderWidth: 1.8, tension: .28, fill: false, spanGaps: true,
-                  pointRadius: 2.8, pointHoverRadius: 5, pointBackgroundColor: '#fff',
-                  pointBorderColor: '#e08a3c', pointBorderWidth: 1.8, yAxisID: 'y1' }
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { display: true, position: 'top', labels: { boxWidth: 10, boxHeight: 10, padding: 10, font: { size: 10 }, filter: it => it.text !== '100% 平衡点' } },
-                tooltip: { callbacks: {
-                    label: function (ctx) {
-                        if (ctx.datasetIndex === 1) return '100% 平衡点';
-                        if (ctx.datasetIndex === 2) return 'TOP5 集中度 ' + ctx.parsed.y.toFixed(1) + '%';
-                        return '累计动销率 ' + ctx.parsed.y.toFixed(1) + '%';
-                    },
-                    afterLabel: function (ctx) {
-                        if (ctx.datasetIndex !== 0) return '';
-                        const i = ctx.dataIndex;
-                        const cx = DATA.reduce((a, d) => a + d.cx_m[i], 0);
-                        const ps = DATA.reduce((a, d) => a + d.ps_m[i], 0);
-                        return '当月纯销 ' + cx.toFixed(1) + ' ÷ 配送 ' + ps.toFixed(1);
-                    }
-                } }
-            },
-            scales: {
-                y: { beginAtZero: true, suggestedMax: 160, position: 'left',
-                     title: { display: true, text: '动销率', font: { size: 9.5 }, color: '#a0aab8' },
-                     ticks: { callback: v => v + '%', font: { size: 10 } },
-                     grid: { color: '#f2f4f8' } },
-                y1: { position: 'right', min: 30, max: 65,
-                      title: { display: true, text: 'TOP5 集中度', font: { size: 9.5 }, color: '#e08a3c' },
-                      grid: { drawOnChartArea: false },
-                      ticks: { callback: v => v + '%', font: { size: 10 }, color: '#e08a3c' } },
-                x: { grid: { display: false }, ticks: { font: { size: 10.5 } } }
-            }
-        }
-    });
-})();
-
 // 健康度行 hover 明细（复用悬浮卡）
 document.getElementById('hdList').addEventListener('mouseover', function (e) {
     const row = e.target.closest('.hd-row');
@@ -1035,6 +990,17 @@ const METRIC_NAME = { cx: '纯销', ka: 'KA50纯销', ps: '配送（区域）', 
 
 /* 格子卡 */
 document.getElementById('tableBody').addEventListener('mouseover', function (e) {
+    const t5 = e.target.closest('[data-t5]');
+    if (t5) {
+        tipShow(
+            '<div class="hm-tip-h">TOP5 城市集中度 · ' + t5.dataset.mon + '</div>' +
+            '<div class="hm-tip-s">当月纯销前 5 城合计 ÷ 当月全国</div>' +
+            '<div class="hm-tip-r"><span>集中度</span><b style="color:#e08a3c">' + t5.dataset.v + '%</b></div>' +
+            '<div class="hm-tip-f">占比越高说明当月越依赖头部 5 城</div>'
+        );
+        tipMove(e);
+        return;
+    }
     const td = e.target.closest('.ht-cell');
     if (!td) return;
     if (td.dataset.ratio) {
