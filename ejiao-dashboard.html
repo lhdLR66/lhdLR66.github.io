@@ -301,7 +301,6 @@
         .hd-sum .hd-calc { margin-top: 0; padding: 5px 8px; font-size: 10px; line-height: 1.5; }
         .hd-sum .hd-legend { margin-top: 0; display: flex; gap: 10px; flex-wrap: wrap; }
         .hd-sum .hd-legend .lg { padding: 0; font-size: 10.5px; }
-        .hd-sum .hd-note { font-size: 9.5px; color: #a0aab8; line-height: 1.45; width: 100%; margin-top: 2px; }
         .hd-sum { border-right: 1px solid #eef1f7; padding-right: 18px; }
         .hd-big { font-size: 40px; font-weight: 700; color: #1c7c54; line-height: 1;
                   font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
@@ -413,7 +412,7 @@
     </div>
     <span class="badge">2026年9月更新</span>
     <span style="font-size:11px;color:#a0aab8;margin-left:8px;font-variant-numeric:tabular-nums;"
-          title="页面构建时间（不是数据截止时间）">构建 11-04 14:40</span>
+          title="页面构建时间（不是数据截止时间）">构建 11-04 14:31</span>
 </div>
 
     <div class="kpi-row" id="kpiRow"></div>
@@ -436,8 +435,7 @@
     <div class="combined-block">
         <div class="combined-left">
             <div class="table-header">
-                <span><i class="fas fa-table"></i> 各城市月度热力（色深=同比幅度 · 悬停看去年对比）
-                <span id="concHint" style="font-size:11px;color:#8b96aa;font-weight:400;margin-left:6px;"></span></span>
+                <span><i class="fas fa-table"></i> 各城市月度热力（色深=同比幅度 · 悬停看去年对比）</span>
                 <div class="filter-group">
                     <select id="metricFilter">
                         <option value="cx">纯销额</option>
@@ -571,6 +569,8 @@ renderMonthChart();
 // ---- 表格：方案A 热力矩阵（色 = 同比，格内 = 当月值，右侧累计/同比/走势）----
 /* 指标取数抽象：kp（KA50 集中度）= 比率型，其余为金额型 */
 const RATIO_METRICS = { kp: 1 };
+/* TOP5 行标签：必须在首次 renderTable() 之前初始化（const 有 TDZ） */
+const T5_LABEL = { cx: '纯销', ka: 'KA50纯销', kp: 'KA50集中度', ps: '配送（区域）', psq: '配送（省区）' };
 function isRatio(m) { return !!RATIO_METRICS[m]; }
 function mArr(d, metric, prev) {
     if (metric === 'kp') {
@@ -624,26 +624,25 @@ function renderTable(metric) {
     const cumOf = d => mCum(d, metric) || 0;
     const sorted = [...DATA].sort((a, b) => cumOf(b) - cumOf(a));
 
-    /* TOP5 集中度行：固定在表头下方，表示「当月纯销前 5 城合计占全国比」
-       —— 只在纯销视图下显示（其他指标口径不同，避免误读） */
-    let t5Row = '';
-    if (metric === 'cx') {
-        const t5 = top5Series();
-        const cells = t5.map((v, i) =>
-            '<td style="background:' + penBg(v) + ';color:' + (v > 0.5 ? '#fff' : '#33405c') +
-            '" data-t5="1" data-mon="' + MONTHS[i] + '"' +
-            ' data-v="' + (v * 100).toFixed(1) + '">' + Math.round(v * 100) + '</td>').join('');
-        const tot = DATA.reduce((a, d) => a + d.cx_cum, 0);
-        const top = [...DATA].sort((a, b) => b.cx_cum - a.cx_cum).slice(0, 5);
-        const cumPct = top.reduce((a, d) => a + d.cx_cum, 0) / tot * 100;
-        t5Row = '<tr class="t5-row" data-t5row="1">' +
-            '<td class="ht-city" title="TOP5 占比 = 当月纯销前 5 城合计 ÷ 当月全国">TOP5</td>' +
-            cells +
-            '<td class="ht-cum">' + cumPct.toFixed(1) + '%</td>' +
-            '<td style="color:#a0aab8;font-size:9.5px">占比</td>' +
-            '<td class="ht-spark">' + sparkSVG({ kp_m: t5, kp_lm: t5.map(() => null), cx_m: t5, cx_lm: [] }, 'cx', 74, 18) + '</td>' +
-            '</tr>';
-    }
+    /* TOP5 集中度行：随当前下拉指标动态计算，5 个维度都可用 */
+    const t5 = top5Series(metric);
+    const t5cells = t5.map((x, i) =>
+        '<td style="background:' + t5Bg(x.v, ratio) + ';color:' +
+        ((x.v != null && x.v > (ratio ? 0.78 : 0.49)) ? '#fff' : '#8a4d16') + '"' +
+        ' data-t5="1" data-mon="' + MONTHS[i] + '" data-metric="' + metric + '"' +
+        ' data-v="' + (x.v == null ? '' : (x.v * 100).toFixed(1)) + '"' +
+        ' data-names="' + x.names.join('、') + '">' +
+        (x.v == null ? '—' : Math.round(x.v * 100)) + '</td>').join('');
+    const t5c = t5Cum(metric);
+    const t5Row = '<tr class="t5-row" data-t5row="1">' +
+        '<td class="ht-city" title="' + (ratio
+            ? 'TOP5 集中度 = 按当月 KA50纯销排序前 5 城的 KA50纯销合计 ÷ 纯销合计'
+            : 'TOP5 占比 = 当月 ' + T5_LABEL[metric] + ' 前 5 城合计 ÷ 20 城合计（负值月按绝对值规模口径）') + '">TOP5</td>' +
+        t5cells +
+        '<td class="ht-cum">' + (t5c == null ? '—' : (t5c * 100).toFixed(1) + '%') + '</td>' +
+        '<td style="color:#a0aab8;font-size:9.5px">' + (ratio ? '集中度' : '占比') + '</td>' +
+        '<td class="ht-spark">' + t5Spark(t5, 74, 18) + '</td>' +
+        '</tr>';
 
     document.getElementById('tableBody').innerHTML = t5Row + sorted.map(d => {
         const cur = mArr(d, metric), prev = mArr(d, metric, true);
@@ -703,16 +702,6 @@ document.getElementById('metricFilter').addEventListener('change', function() {
 
 renderTable('cx');
 
-/* 城市集中度：TOP5 占全国比 */
-(function showConcentration() {
-    const tot = DATA.reduce((a, d) => a + d.cx_cum, 0);
-    const top = [...DATA].sort((a, b) => b.cx_cum - a.cx_cum).slice(0, 5);
-    const pct = top.reduce((a, d) => a + d.cx_cum, 0) / tot * 100;
-    const el = document.getElementById('concHint');
-    if (el) el.innerHTML = '｜ TOP5 占全国 <b style="color:#2b3a55">' + pct.toFixed(1) + '%</b>' +
-        '（' + top.map(d => d.city.replace(/市$/, '') + ' ' + (d.cx_cum / tot * 100).toFixed(1) + '%').join('、') + '）';
-})();
-
 // ===================== 渠道健康度（动销率）=====================
 /* 口径固定：纯销 / 区域配送（不跟随 metricFilter） */
 function hdRate(d) { return d.ps_cum ? d.cx_cum / d.ps_cum : null; }
@@ -734,13 +723,54 @@ function hdCumSeries() {
     }
     return out;
 }
-/* TOP5 城市集中度（按月，取当月纯销前 5 城合计 ÷ 当月全国） */
-function top5Series() {
+/* ---- TOP5 集中度：随下拉指标动态切换（5 个维度）---- */
+function t5Bg(v, ratio) {
+    if (v == null) return '#f2f4f8';
+    const lo = ratio ? 0.55 : 0.35, hi = ratio ? 0.95 : 0.60;
+    const t = Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
+    return 'rgba(224,138,60,' + (0.10 + t * 0.66).toFixed(3) + ')';
+}
+/* 金额型 = 当月 |前5城| / |20城|（负值月按规模口径，避免分母抵消）；
+   比率型 kp = 按当月 KA50纯销排序前 5 城的 ΣKA50纯销 / Σ纯销 */
+function top5Series(metric) {
+    const ratio = isRatio(metric);
     return MONTHS.map((_, i) => {
-        const vals = DATA.map(d => d.cx_m[i]).sort((a, b) => b - a);
-        const tot = vals.reduce((a, b) => a + b, 0);
-        return tot ? vals.slice(0, 5).reduce((a, b) => a + b, 0) / tot : null;
+        let top, num, den;
+        if (ratio) {
+            top = [...DATA].sort((a, b) => b.ka_m[i] - a.ka_m[i]).slice(0, 5);
+            num = top.reduce((s, d) => s + d.ka_m[i], 0);
+            den = top.reduce((s, d) => s + d.cx_m[i], 0);
+        } else {
+            const vals = DATA.map(d => ({ city: d.city, v: Math.abs(mArr(d, metric)[i] || 0) }));
+            top = [...vals].sort((a, b) => b.v - a.v).slice(0, 5);
+            num = top.reduce((s, x) => s + x.v, 0);
+            den = vals.reduce((s, x) => s + x.v, 0);
+        }
+        return { v: den ? num / den : null, names: top.map(x => (x.city || '').replace(/市$/, '')) };
     });
+}
+function t5Cum(metric) {
+    if (isRatio(metric)) {
+        const top = [...DATA].sort((a, b) => b.ka_cum - a.ka_cum).slice(0, 5);
+        const num = top.reduce((s, d) => s + d.ka_cum, 0);
+        const den = top.reduce((s, d) => s + d.cx_cum, 0);
+        return den ? num / den : null;
+    }
+    const vals = DATA.map(d => Math.abs(d[metric + '_cum'] || 0));
+    const den = vals.reduce((a, b) => a + b, 0);
+    const num = [...vals].sort((a, b) => b - a).slice(0, 5).reduce((a, b) => a + b, 0);
+    return den ? num / den : null;
+}
+function t5Spark(series, w, h) {
+    const vs = series.map(x => x.v).filter(v => v != null);
+    if (!vs.length) return '';
+    const mn = Math.min(...vs), mx = Math.max(...vs), rng = (mx - mn) || 1;
+    const px = i => (i / (series.length - 1)) * (w - 4) + 2;
+    const py = v => h - 3 - ((v - mn) / rng) * (h - 6);
+    const pts = series.map((x, i) => x.v == null ? null : px(i).toFixed(1) + ',' + py(x.v).toFixed(1))
+                      .filter(Boolean).join(' ');
+    return '<svg width="' + w + '" height="' + h + '" style="display:block;margin:0 auto">' +
+        '<polyline points="' + pts + '" fill="none" stroke="#e08a3c" stroke-width="1.7" stroke-linejoin="round"/></svg>';
 }
 
 /* 单城累计动销率序列 */
@@ -897,10 +927,6 @@ function renderHealth() {
             .map(x => { const L = hdLevel(x[0] === 'over' ? 1.2 : x[0] === 'ok' ? 0.9 : x[0] === 'low' ? 0.7 : 0.4);
                 return '<div class="lg"><i style="background:' + L.color + '"></i>' + x[1] +
                        '<span class="n">' + cnt[x[0]] + ' 城</span></div>'; }).join('') +
-            '<div style="margin-top:6px;font-size:10.5px;color:#a0aab8;line-height:1.5;">' +
-                '横条满格 = 200%　竖虚线 = 100%（进多少卖多少的平衡点）<br>' +
-                '右侧折线 = 单月动销率走势（y 轴 −150%~+200%，0% 实线分界、100% 虚线平衡点）<br>' +
-                '负值 = 当月渠道退货（配送为负），曲线保持连续；仅配送恰为 0 才跳过</div>' +
         '</div>';
 
     // 20 城横条（按动销率降序；满格 200%，100% 画平衡线）
@@ -992,11 +1018,14 @@ const METRIC_NAME = { cx: '纯销', ka: 'KA50纯销', ps: '配送（区域）', 
 document.getElementById('tableBody').addEventListener('mouseover', function (e) {
     const t5 = e.target.closest('[data-t5]');
     if (t5) {
+        const m = t5.dataset.metric, isK = (m === 'kp');
         tipShow(
             '<div class="hm-tip-h">TOP5 城市集中度 · ' + t5.dataset.mon + '</div>' +
-            '<div class="hm-tip-s">当月纯销前 5 城合计 ÷ 当月全国</div>' +
-            '<div class="hm-tip-r"><span>集中度</span><b style="color:#e08a3c">' + t5.dataset.v + '%</b></div>' +
-            '<div class="hm-tip-f">占比越高说明当月越依赖头部 5 城</div>'
+            '<div class="hm-tip-s">' + T5_LABEL[m] + ' · ' +
+                (isK ? '头部 5 城合计 KA50纯销 ÷ 合计纯销' : '当月 TOP5 合计 ÷ 20 城合计') + '</div>' +
+            '<div class="hm-tip-r"><span>' + (isK ? '集中度' : 'TOP5 占比') +
+                '</span><b style="color:#e08a3c">' + (t5.dataset.v || '—') + '%</b></div>' +
+            '<div class="hm-tip-f">TOP5：' + t5.dataset.names + '</div>'
         );
         tipMove(e);
         return;
