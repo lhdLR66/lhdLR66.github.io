@@ -264,6 +264,12 @@
                                color: #2b3a55; background: transparent; }
         .heat-tbl td.ht-cell { cursor: default; font-weight: 500; }
         .heat-tbl td.ht-cell:hover { outline: 2px solid #4361ee; outline-offset: -1px; }
+        /* 当月为负 = 渠道退货/冲销：不算同比，灰紫两行小字（月份列仅 33px） */
+        .heat-tbl td.ht-return { background: #f1edf9; line-height: 1.02; }
+        .heat-tbl td.ht-return .rt-lb { display: block; font-size: 8px; color: #8b74b8; letter-spacing: -.3px; }
+        .heat-tbl td.ht-return .rt-v  { display: block; font-size: 10px; font-weight: 700; color: #6f52a3; }
+        .heat-tbl td.ht-return:hover { outline: 2px solid #8b74b8; outline-offset: -1px; }
+        .heat-tbl td.ht-cum.cum-return { background: #f1edf9; color: #6f52a3; font-size: 9px; }
         .heat-tbl td.ht-cum { background: #f5f8fd; font-weight: 700; color: #1f2330; }
         .heat-tbl td.ht-yoy { font-weight: 700; background: transparent; }
         .heat-tbl td.ht-spark { background: transparent; padding: 0 2px; }
@@ -412,7 +418,7 @@
     </div>
     <span class="badge">2026年9月更新</span>
     <span style="font-size:11px;color:#a0aab8;margin-left:8px;font-variant-numeric:tabular-nums;"
-          title="页面构建时间（不是数据截止时间）">构建 11-04 14:31</span>
+          title="页面构建时间（不是数据截止时间）">构建 11-04 17:09</span>
 </div>
 
     <div class="kpi-row" id="kpiRow"></div>
@@ -571,6 +577,10 @@ renderMonthChart();
 const RATIO_METRICS = { kp: 1 };
 /* TOP5 行标签：必须在首次 renderTable() 之前初始化（const 有 TDZ） */
 const T5_LABEL = { cx: '纯销', ka: 'KA50纯销', kp: 'KA50集中度', ps: '配送（区域）', psq: '配送（省区）' };
+/* 同比基准门槛：去年 ≤0（退货）或 <0.05 百万（5万元）时不算同比，避免符号反转 / 分母放大。
+   与项目铁律「环比基准过小 → 输出 null 显示 —」同口径。 */
+const YOY_MIN_BASE = 0.05;
+function yoyBaseOK(v) { return typeof v === 'number' && v > YOY_MIN_BASE; }
 function isRatio(m) { return !!RATIO_METRICS[m]; }
 function mArr(d, metric, prev) {
     if (metric === 'kp') {
@@ -615,6 +625,8 @@ function sparkSVG(d, metric, w, h) {
 }
 
 function renderTable(metric) {
+    const tip = document.getElementById('hmTip');
+    if (tip) tip.style.display = 'none';   // 重绘表格时清掉旧卡，避免残留上一维度内容
     const N = MONTHS.length;
     const ratio = isRatio(metric);
     document.getElementById('tableHead').innerHTML =
@@ -666,7 +678,17 @@ function renderTable(metric) {
                          ' data-share="">' + show + '</td>';
                 continue;
             }
-            const y = (lm && lm !== 0) ? v / lm - 1 : null;
+            /* ③ 当月为负 = 渠道退货/冲销 → 显示「退货 + 原始数值」，不计算同比 */
+            if (v < 0) {
+                cells += '<td class="ht-cell ht-return" data-return="1"' +
+                         ' data-city="' + d.city + '" data-mon="' + MONTHS[i] + '"' +
+                         ' data-metric="' + metric + '"' +
+                         ' data-cur="' + v.toFixed(2) + '" data-prev="' + lm.toFixed(2) + '">' +
+                         '<span class="rt-lb">退货</span><span class="rt-v">' + v.toFixed(2) + '</span></td>';
+                continue;
+            }
+            /* ② 去年同月为负 / 过小时不算同比（底色走中性灰，不再出现 -111.6% 这类反转值） */
+            const y = yoyBaseOK(lm) ? v / lm - 1 : null;
             const tot = (d[metric + '_cum'] || 1);
             cells += '<td class="ht-cell" style="background:' + heatBg(y) + ';color:' + heatFg(y) + '"' +
                      ' data-city="' + d.city + '" data-mon="' + MONTHS[i] + '"' +
@@ -681,15 +703,16 @@ function renderTable(metric) {
             yyCls = pp == null ? 'flat' : (pp >= 0 ? 'up' : 'down');
             yyTxt = pp == null ? '—' : (pp >= 0 ? '+' : '') + pp.toFixed(1) + 'pp';
         } else {
-            const yy = d[metric + '_yoy'];
+            const yy = yoyBaseOK(d[metric + '_lcum']) ? d[metric + '_yoy'] : null;
             yyCls = yy == null ? 'flat' : (yy >= 0 ? 'up' : 'down');
             yyTxt = yy == null ? '—' : (yy >= 0 ? '+' : '') + (yy * 100).toFixed(1) + '%';
         }
         const cumTxt = ratio
             ? (cum == null ? '--' : (cum * 100).toFixed(1) + '%')
-            : (cum == null ? '--' : cum.toFixed(1));
+            : (cum == null ? '--' : (cum < 0 ? '退货 ' + cum.toFixed(1) : cum.toFixed(1)));
+        const cumCls = (!ratio && cum != null && cum < 0) ? ' class="ht-cum cum-return"' : ' class="ht-cum"';
         return '<tr><td class="ht-city" title="' + d.city + '">' + d.city.replace(/市$/, '') + '</td>' + cells +
-               '<td class="ht-cum">' + cumTxt + '</td>' +
+               '<td' + cumCls + '>' + cumTxt + '</td>' +
                '<td class="ht-yoy ' + yyCls + '">' + yyTxt + '</td>' +
                '<td class="ht-spark" data-city="' + d.city + '" data-metric="' + metric + '">' +
                sparkSVG(d, metric, 88, 22) + '</td></tr>';
@@ -1012,7 +1035,7 @@ function tipMove(e) {
     hmTip.style.left = Math.max(6, x) + 'px';
     hmTip.style.top = Math.max(6, y) + 'px';
 }
-const METRIC_NAME = { cx: '纯销', ka: 'KA50纯销', ps: '配送（区域）', psq: '配送（省区）' };
+const METRIC_NAME = { cx: '纯销', ka: 'KA50纯销', kp: 'KA50集中度', ps: '配送（区域）', psq: '配送（省区）' };
 
 /* 格子卡 */
 document.getElementById('tableBody').addEventListener('mouseover', function (e) {
@@ -1047,6 +1070,17 @@ document.getElementById('tableBody').addEventListener('mouseover', function (e) 
         tipMove(e);
         return;
     }
+    if (td.dataset.return) {
+        tipShow(
+            '<div class="hm-tip-h">' + td.dataset.city + ' · ' + td.dataset.mon + '</div>' +
+            '<div class="hm-tip-s">' + (T5_LABEL[td.dataset.metric] || '') + ' · 当月渠道退货（冲销）</div>' +
+            '<div class="hm-tip-r"><span>当月值</span><b style="color:#6f52a3">' + td.dataset.cur + ' 百万</b></div>' +
+            '<div class="hm-tip-r"><span>去年同月</span><b>' + td.dataset.prev + ' 百万</b></div>' +
+            '<div class="hm-tip-f">负值 = 退货 / 冲销，不计算同比</div>'
+        );
+        tipMove(e);
+        return;
+    }
     const y = td.dataset.yoy === '' ? null : parseFloat(td.dataset.yoy);
     const yc = y == null ? '' : (y >= 0 ? 'up' : 'down');
     const yt = y == null ? '—' : (y >= 0 ? '+' : '') + (y * 100).toFixed(1) + '%';
@@ -1072,7 +1106,8 @@ document.getElementById('tableBody').addEventListener('mouseout', function (e) {
 
 /* 走势大图卡 */
 function bigChartSVG(d, metric) {
-    const cur = d[metric + '_m'], prev = d[metric + '_lm'];
+    /* kp 为比率型，不能直接取 d[metric+'_m']；统一走 mArr（金额/比率都支持） */
+    const cur = mArr(d, metric), prev = mArr(d, metric, true);
     const W = 326, H = 132, padL = 8, padR = 8, padT = 8, padB = 18;
     const mx = Math.max(...cur, ...prev, 0.0001);
     const px = i => padL + (i / (cur.length - 1)) * (W - padL - padR);
@@ -1108,19 +1143,31 @@ document.getElementById('tableBody').addEventListener('mouseover', function (e) 
     const city = td.dataset.city, metric = td.dataset.metric;
     const d = DATA.find(x => x.city === city);
     if (!d) return;
-    const cum = d[metric + '_cum'], lcum = d[metric + '_lcum'], yoy = d[metric + '_yoy'];
-    const yc = yoy >= 0 ? 'up' : 'down';
-    const yt = (yoy >= 0 ? '+' : '') + (yoy * 100).toFixed(1) + '%';
-    const mxI = d[metric + '_m'].indexOf(Math.max(...d[metric + '_m']));
+    const r = isRatio(metric);
+    const cum = mCum(d, metric), lcum = mCum(d, metric, true);
+    const arr = mArr(d, metric);
+    const mxI = arr.indexOf(Math.max(...arr));
+    const fv = v => (v == null ? '—' : (r ? (v * 100).toFixed(1) + '%' : v.toFixed(2) + ' 百万'));
+    let line3;
+    if (r) {
+        const pp = (cum != null && lcum != null) ? (cum - lcum) * 100 : null;
+        line3 = '<div class="hm-tip-r"><span>较去年</span><b class="' +
+                (pp == null ? 'flat' : (pp >= 0 ? 'up' : 'down')) + '">' +
+                (pp == null ? '—' : (pp >= 0 ? '+' : '') + pp.toFixed(1) + 'pp') + '</b></div>';
+    } else {
+        const yoy = d[metric + '_yoy'];
+        line3 = '<div class="hm-tip-r"><span>同比</span><b class="' + (yoy >= 0 ? 'up' : 'down') + '">' +
+                (yoy >= 0 ? '+' : '') + (yoy * 100).toFixed(1) + '%</b></div>';
+    }
     tipShow(
         '<div class="hm-tip-h">' + city + ' · 1-9月走势</div>' +
         '<div class="hm-tip-s">' + METRIC_NAME[metric] +
             ' ｜ <span style="color:#4361ee">■</span> 今年　<span style="color:#c2c9d9">┅</span> 去年</div>' +
         bigChartSVG(d, metric) +
-        '<div class="hm-tip-r"><span>累计</span><b>' + cum.toFixed(2) + ' 百万</b></div>' +
-        '<div class="hm-tip-r"><span>去年同期</span><b>' + lcum.toFixed(2) + ' 百万</b></div>' +
-        '<div class="hm-tip-r"><span>同比</span><b class="' + yc + '">' + yt + '</b></div>' +
-        '<div class="hm-tip-f">峰值在 ' + MONTHS[mxI] + '（' + d[metric + '_m'][mxI].toFixed(2) + ' 百万）</div>',
+        '<div class="hm-tip-r"><span>累计</span><b>' + fv(cum) + '</b></div>' +
+        '<div class="hm-tip-r"><span>去年同期</span><b>' + fv(lcum) + '</b></div>' +
+        line3 +
+        '<div class="hm-tip-f">峰值在 ' + MONTHS[mxI] + '（' + fv(arr[mxI]) + '）</div>',
         true
     );
     tipMove(e);
