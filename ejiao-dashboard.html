@@ -428,7 +428,7 @@
     </div>
     <span class="badge">2026年9月更新</span>
     <span style="font-size:11px;color:#a0aab8;margin-left:8px;font-variant-numeric:tabular-nums;"
-          title="页面构建时间（不是数据截止时间）">构建 11-05 17:16</span>
+          title="页面构建时间（不是数据截止时间）">构建 11-11 14:30</span>
 </div>
 
     <div class="kpi-row" id="kpiRow"></div>
@@ -670,7 +670,8 @@ function renderTable(metric) {
         t5cells +
         '<td class="ht-cum">' + (t5c == null ? '—' : (t5c * 100).toFixed(1) + '%') + '</td>' +
         '<td style="color:#a0aab8;font-size:9.5px">' + (ratio ? '集中度' : '占比') + '</td>' +
-        '<td class="ht-spark">' + t5Spark(t5, 74, 18) + '</td>' +
+        '<td class="ht-spark" data-t5spark="1" data-metric="' + metric + '"' +
+        ' title="悬停查看 TOP5 逐月走势大图">' + t5Spark(t5, 74, 18) + '</td>' +
         '</tr>';
 
     document.getElementById('tableBody').innerHTML = t5Row + sorted.map(d => {
@@ -1106,6 +1107,55 @@ document.getElementById('tableBody').addEventListener('mouseout', function (e) {
 });
 
 /* 走势大图卡 */
+/* TOP5 行走势大图：逐月 TOP5 占比 / 集中度，纵轴自适应但标注真实刻度
+   固定 0-100% 轴下 40~55% 的波动只占图高 1/6，折线几乎水平；自适应会放大起伏，
+   因此必须在左侧刻度写出真实百分比、并在卡片副标题标注纵轴范围，避免被误读为「从 0 开始」。 */
+function t5Range(metric) {
+    const vs = top5Series(metric).map(x => x.v).filter(v => v != null);
+    if (!vs.length) return [0, 1];
+    const lo = Math.max(0, Math.min(...vs) - 0.03);
+    const hi = Math.min(1, Math.max(...vs) + 0.03);
+    return [lo, hi > lo ? hi : lo + 0.1];
+}
+function t5BigChartSVG(metric) {
+    const s = top5Series(metric);
+    const W = 326, H = 132, padL = 30, padR = 10, padT = 10, padB = 18;
+    const [lo, hi] = t5Range(metric);
+    const px = i => padL + (i / (s.length - 1)) * (W - padL - padR);
+    const py = v => H - padB - (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * (H - padT - padB);
+    let grid = '';
+    [0, 0.25, 0.5, 0.75, 1].forEach(k => {
+        const val = lo + k * (hi - lo), yy = py(val).toFixed(1);
+        grid += '<line x1="' + padL + '" y1="' + yy + '" x2="' + (W - padR) + '" y2="' + yy +
+                '" stroke="' + (k === 0 ? '#e6eaf3' : '#eef1f7') + '" stroke-width="1"/>' +
+                '<text x="' + (padL - 5) + '" y="' + (parseFloat(yy) + 3).toFixed(1) +
+                '" font-size="8" fill="#a0aab8" text-anchor="end">' + (val * 100).toFixed(0) + '</text>';
+    });
+    let mxI = -1, mnI = -1;
+    s.forEach((x, i) => {
+        if (x.v == null) return;
+        if (mxI < 0 || x.v > s[mxI].v) mxI = i;
+        if (mnI < 0 || x.v < s[mnI].v) mnI = i;
+    });
+    const pts = s.map((x, i) => x.v == null ? null : px(i).toFixed(1) + ',' + py(x.v).toFixed(1))
+                 .filter(Boolean).join(' ');
+    let dots = '', labels = '';
+    s.forEach((x, i) => {
+        if (x.v == null) return;
+        const hot = (i === mxI || i === mnI);
+        dots += '<circle cx="' + px(i).toFixed(1) + '" cy="' + py(x.v).toFixed(1) +
+                '" r="' + (hot ? 3.4 : 2.4) + '" fill="' + (i === mxI ? '#e08a3c' : '#fff') +
+                '" stroke="#e08a3c" stroke-width="1.4"/>';
+        labels += '<text x="' + px(i).toFixed(1) + '" y="' + (H - 5) +
+                  '" font-size="9" fill="#a0aab8" text-anchor="middle">' + (i + 1) + '</text>';
+    });
+    /* 峰值数值已在卡片「峰值」行给出，图内不再叠加文字，避免与顶部刻度标签重叠 */
+    return '<svg class="big-chart" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">' +
+        grid +
+        '<polyline points="' + pts + '" fill="none" stroke="#e08a3c" stroke-width="2.2" stroke-linejoin="round"/>' +
+        dots + labels + '</svg>';
+}
+
 function bigChartSVG(d, metric) {
     /* kp 为比率型，不能直接取 d[metric+'_m']；统一走 mArr（金额/比率都支持） */
     const cur = mArr(d, metric), prev = mArr(d, metric, true);
@@ -1146,6 +1196,39 @@ function bigChartSVG(d, metric) {
 document.getElementById('tableBody').addEventListener('mouseover', function (e) {
     const td = e.target.closest('.ht-spark');
     if (!td) return;
+    /* TOP5 行走势缩略图：没有 data-city，单独出「逐月 TOP5 占比」大图 */
+    if (td.dataset.t5spark) {
+        const m = td.dataset.metric, t5 = top5Series(m), isK = isRatio(m);
+        const rng = t5Range(m);
+        let hi = null, lo = null;
+        t5.forEach((x, i) => {
+            if (x.v == null) return;
+            const it = { v: x.v, names: x.names, mon: MONTHS[i] };
+            if (!hi || it.v > hi.v) hi = it;
+            if (!lo || it.v < lo.v) lo = it;
+        });
+        const cum = t5Cum(m);
+        tipShow(
+            '<div class="hm-tip-h">TOP5 城市集中度 · 1-9月走势</div>' +
+            '<div class="hm-tip-s">' + METRIC_NAME[m] + ' ｜ <span style="color:#e08a3c">■</span> 逐月 TOP5 ' +
+                (isK ? '集中度' : '占比') + '（纵轴 ' +
+                (rng[0] * 100).toFixed(0) + '~' + (rng[1] * 100).toFixed(0) + '%）</div>' +
+            t5BigChartSVG(m) +
+            '<div class="hm-tip-r"><span>1-9月累计</span><b style="color:#b8722a">' +
+                (cum == null ? '—' : (cum * 100).toFixed(1) + '%') + '</b></div>' +
+            '<div class="hm-tip-r"><span>峰值</span><b>' +
+                (hi ? hi.mon + ' ' + (hi.v * 100).toFixed(1) + '%' : '—') + '</b></div>' +
+            '<div class="hm-tip-r"><span>最低</span><b>' +
+                (lo ? lo.mon + ' ' + (lo.v * 100).toFixed(1) + '%' : '—') + '</b></div>' +
+            '<div class="hm-tip-f">' + (isK
+                ? '口径：按当月 KA50纯销排序前 5 城的 ΣKA50纯销 ÷ Σ纯销'
+                : '口径：当月 ' + T5_LABEL[m] + ' 前 5 城合计 ÷ 20 城合计（负值月按绝对值规模）') +
+                (hi ? '<br>峰值月 TOP5：' + hi.names.join('、') : '') + '</div>',
+            true
+        );
+        tipMove(e);
+        return;
+    }
     const city = td.dataset.city, metric = td.dataset.metric;
     const d = DATA.find(x => x.city === city);
     if (!d) return;
