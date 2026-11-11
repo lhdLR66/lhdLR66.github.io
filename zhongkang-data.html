@@ -316,7 +316,7 @@ function renderControls(){
 /* ---------- charts ---------- */
 function destroy(k){ if(CHARTS[k]){ CHARTS[k].destroy(); CHARTS[k]=null; } }
 function baseOpts(extra){
-  var o = { responsive:true, maintainAspectRatio:false,
+  var o = { responsive:true, maintainAspectRatio:false, animation:false,
     interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false}, tooltip:{backgroundColor:'rgba(28,32,48,.94)',padding:10,
       titleFont:{size:12},bodyFont:{size:12},callbacks:{}}},
